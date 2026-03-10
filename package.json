@@ -1,0 +1,19 @@
+{
+  "name": "vimeo-interactive-player",
+  "version": "1.0.0",
+  "description": "Interactive Vimeo player with Excel-driven questions",
+  "type": "module",
+  "scripts": {
+    "import": "node scripts/questionsToPlayer.js",
+    "build": "node scripts/questionsToPlayer.js",
+    "serve": "npx serve . --no-clipboard -l 3000",
+    "start": "node scripts/questionsToPlayer.js && npx serve . --no-clipboard -l 3000"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "serve": "^14.2.5"
+  }
+}
