@@ -231,6 +231,7 @@ html, body {
   height: 100%;
 }
 
+
 /* ========== Vimeo iframe ========== */
 iframe {
   position: absolute;
@@ -308,6 +309,13 @@ iframe {
 .video-wrapper:-moz-full-screen .fullscreen-btn,
 .video-wrapper:-ms-fullscreen .fullscreen-btn {
   display: none;
+}
+
+/* Hide fullscreen button on touch/mobile devices */
+@media (hover: none) and (pointer: coarse) {
+  .fullscreen-btn {
+    display: none;
+  }
 }
 
 /* ─── WATCH SECTION AGAIN — Circular icon button, bottom-right corner ─── */
