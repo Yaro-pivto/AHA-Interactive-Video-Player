@@ -102,13 +102,7 @@ function startActivity(dom, player) {
   //   dom.videoFocusTarget.setAttribute('aria-label', 'frame');
   //   dom.videoFocusTarget.focus();
   // });
-  requestAnimationFrame(() => {
-    dom.frameSentinel.focus();
-    // TEST: simulate Tab after focusing sentinel — browser may move focus into Vimeo iframe
-    dom.frameSentinel.dispatchEvent(new KeyboardEvent('keydown', {
-      key: 'Tab', keyCode: 9, which: 9, bubbles: true, cancelable: true
-    }));
-  });
+  requestAnimationFrame(() => dom.frameSentinel.focus());
 }
 
 // ─── Event binding ────────────────────────────────────────────────────────────

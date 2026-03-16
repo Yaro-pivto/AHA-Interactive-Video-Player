@@ -94,18 +94,11 @@ function readQuestionText(ws) {
 
 /**
  * Timecode is stored in B2 (the value next to the gray label in A2).
- * Accepts formats: "5 sec", "5", "00:05", 5, or an Excel time fraction (HH:MM:SS stored as fraction of a day).
+ * Accepts formats: "5 sec", "5", "00:05", 5
  */
 function readTimecode(ws) {
-  const cell = ws['B2'];
-
-  // Excel stores time values (MM:SS) as a fraction of a day (0–1).
-  // The display format is MM:SS, so multiply by 1440 (minutes in a day) to get seconds.
-  if (cell && cell.t !== 's' && typeof cell.v === 'number') {
-    return Math.round(cell.v * 1440 * 10) / 10;
-  }
-
-  const raw = cell ? String(cell.v ?? '').trim() : '';
+  const cell  = ws['B2'];
+  const raw   = cell ? String(cell.v ?? '').trim() : '';
   return parseTimecode(raw);
 }
 
