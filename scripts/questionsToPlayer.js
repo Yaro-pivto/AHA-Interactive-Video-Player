@@ -94,11 +94,21 @@ function readQuestionText(ws) {
 
 /**
  * Timecode is stored in B2 (the value next to the gray label in A2).
- * Accepts formats: "5 sec", "5", "00:05", 5
+ * Excel stores time-of-day as a decimal fraction of 24 hours (0..1).
+ * The spreadsheet uses HH:MM:SS display format where "HH" means minutes
+ * (e.g. "01:08:06" = 1 min 8 sec), so: fraction × 1440 = seconds.
  */
 function readTimecode(ws) {
-  const cell  = ws['B2'];
-  const raw   = cell ? String(cell.v ?? '').trim() : '';
+  const cell = ws['B2'];
+  if (!cell) return 0;
+
+  // Excel time fraction — multiply by 1440 (min/day) to get seconds
+  if (typeof cell.v === 'number' && cell.v > 0 && cell.v < 1) {
+    return Math.round(cell.v * 1440 * 10) / 10;
+  }
+
+  // Fallback: use formatted string (cell.w) or raw value
+  const raw = cell.w ? String(cell.w).trim() : String(cell.v ?? '').trim();
   return parseTimecode(raw);
 }
 
@@ -190,17 +200,21 @@ function parseBoolean(val) {
   return s === 'true' || s === '1' || s === 'yes';
 }
 
-/** Parse timecode from string like "5 sec", "5", "00:05", or number 5 */
+/** Parse timecode from string like "5 sec", "5", "01:08", "01:08:06", or number 5 */
 function parseTimecode(raw) {
   if (typeof raw === 'number') return raw;
 
-  // "5 sec" or "5"
-  const numMatch = raw.match(/^(\d+(?:\.\d+)?)/);
-  if (numMatch) return parseFloat(numMatch[1]);
+  // "HH:MM:SS" — treat HH as minutes (spreadsheet convention)
+  const tripleMatch = raw.match(/^(\d+):(\d+):(\d+)/);
+  if (tripleMatch) return parseInt(tripleMatch[1]) * 60 + parseInt(tripleMatch[2]);
 
   // "MM:SS"
   const timeMatch = raw.match(/^(\d+):(\d+)/);
   if (timeMatch) return parseInt(timeMatch[1]) * 60 + parseInt(timeMatch[2]);
+
+  // "5 sec" or "5"
+  const numMatch = raw.match(/^(\d+(?:\.\d+)?)/);
+  if (numMatch) return parseFloat(numMatch[1]);
 
   return 0;
 }
