@@ -1090,48 +1090,6 @@ iframe {
   transform: translateX(3px);
 }
 
-/* ── Footer: Replay Video button, always visible ── */
-/* Footer removed from flex flow — replay button is absolutely positioned */
-.debrief-footer {
-  display: contents;
-}
-
-/* ─── REPLAY VIDEO BUTTON — absolute bottom-right, aligned with fullscreen btn ─── */
-.debrief-replay-btn {
-  position: absolute;
-  bottom: 24px;
-  right: 24px;
-  min-width: 0;
-  padding: 14px 32px;
-  background: #4D4D4F;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 999px;
-  font-family: "aktiv-grotesk", sans-serif;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-}
-
-.debrief-replay-btn:hover,
-.debrief-replay-btn:focus {
-  background: #4298B5;
-  color: #000000;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(66, 152, 181, 0.45);
-}
-
-.debrief-replay-btn:focus-visible {
-  outline: 3px solid #4298B5;
-  outline-offset: 3px;
-}
-
-.debrief-replay-btn:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
 
 /* ═══════════════════════════════════════════════════════════
    REVIEW FEEDBACK PANEL — shown in review mode (from Debrief)
