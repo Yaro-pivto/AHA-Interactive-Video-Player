@@ -885,23 +885,32 @@ iframe {
   animation: fadeIn 0.3s ease;
 }
 
-/* ── White modal container — mirrors .question-container zoom logic ── */
+/* ── Full-screen white backdrop — same approach as .question-container ── */
 .debrief-container {
+  position: absolute;
+  inset: 0;
   background: #FFFFFF;
-  border-radius: 90px;
-  width: 900px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  animation: fadeIn 0.3s ease;
+  pointer-events: auto;
+}
+
+/* ── 1200×720 content area — same zoom logic as .question-inner ── */
+.debrief-inner {
+  position: relative;
+  width: 1200px;
+  height: 720px;
+  overflow: hidden;
+  padding: 36px 60px 28px;
   box-sizing: border-box;
-  padding: 44px 56px 40px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  /* Width guard: always 70 vw.
-     Height guard (700 px) is above real content so width guard wins at
-     all common viewport sizes — no overflow, no scroll on the page. */
-  zoom: min(calc(70vw / 900px), calc(92vh / 700px));
-  animation: slideUp 0.4s ease;
+  gap: 14px;
   pointer-events: auto;
+  zoom: min(calc(100vw / 1200px), calc(100vh / 720px));
 }
 
 /* ── Header: title, result line, subtitle ── */
@@ -947,20 +956,10 @@ iframe {
   max-width: 560px;
 }
 
-/* ── Scrollable questions list area ──
-   Only this element scrolls — header + footer remain visible. */
+/* ── Questions list area — no scroll, fills available height ── */
 .debrief-list-wrap {
-  overflow-y: auto;
-  max-height: 320px;   /* design-unit height; scales with container zoom */
-  scrollbar-width: thin;
-  scrollbar-color: #cccccc transparent;
-}
-
-.debrief-list-wrap::-webkit-scrollbar { width: 6px; }
-.debrief-list-wrap::-webkit-scrollbar-track { background: transparent; }
-.debrief-list-wrap::-webkit-scrollbar-thumb {
-  background: #cccccc;
-  border-radius: 3px;
+  flex: 1;
+  overflow: hidden;
 }
 
 /* Two-column grid */
@@ -981,16 +980,18 @@ iframe {
 .debrief-question-btn {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  padding: 16px 18px;
-  border-radius: 16px;
+  padding: 11px 16px;
+  border-radius: 14px;
   cursor: pointer;
   font-family: "aktiv-grotesk", sans-serif;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   text-align: left;
   transition: filter 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 /* Correct state — spec: bg #F9FAF6, border #92B251 */
@@ -1024,8 +1025,8 @@ iframe {
 
 /* ── Icon images (check.svg / cross.svg from img folder) ── */
 .debrief-icon-img {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
   display: block;
 }
@@ -1042,13 +1043,16 @@ iframe {
           saturate(717%) hue-rotate(326deg) brightness(113%) contrast(92%);
 }
 
-/* ── "Question N" label ── */
+/* ── "Question N: sheet" label ── */
 .debrief-question-btn__text {
   flex: 1;
   color: #000000;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   font-family: "aktiv-grotesk", sans-serif;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Status pill — spec: bg matches border color, text #000 ── */
@@ -1073,7 +1077,7 @@ iframe {
 
 /* ── Chevron ── */
 .debrief-arrow {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   font-family: sans-serif;
   color: #4D4D4F;

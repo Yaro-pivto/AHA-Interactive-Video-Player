@@ -56,6 +56,7 @@ function resolveDom() {
     startBtn:         document.getElementById('startBtn'),
     questionOverlay:  document.getElementById('questionOverlay'),
     debriefOverlay:   document.getElementById('debriefOverlay'),
+    debriefReplayBtn: document.getElementById('debriefReplayBtn'),
     questionNumber:   document.getElementById('questionNumber'),   // H1 "Question X"
     questionText:     document.getElementById('questionText'),
     answersContainer: document.getElementById('answersContainer'),
@@ -159,10 +160,11 @@ function bindEvents(dom, player) {
     }
   });
 
-  dom.startBtn.addEventListener('click',      () => startActivity(dom, player));
-  dom.submitBtn.addEventListener('click',     () => handleSubmit(dom, player));
-  dom.continueBtn.addEventListener('click',   () => continueVideo(dom, player));
-  dom.watchAgainBtn.addEventListener('click', () => watchSectionAgain(dom, player));
+  dom.startBtn.addEventListener('click',         () => startActivity(dom, player));
+  dom.submitBtn.addEventListener('click',        () => handleSubmit(dom, player));
+  dom.continueBtn.addEventListener('click',      () => continueVideo(dom, player));
+  dom.watchAgainBtn.addEventListener('click',    () => watchSectionAgain(dom, player));
+  dom.debriefReplayBtn?.addEventListener('click',() => replayVideo(dom, player));
 
   // [COMMENTED OUT] Shift+Tab on videoFocusTarget in fullscreen
   // dom.videoFocusTarget.addEventListener('keydown', e => {

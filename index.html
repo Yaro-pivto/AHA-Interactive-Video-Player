@@ -175,21 +175,30 @@
       tabindex="-1">
 
       <div class="debrief-container">
+        <div class="debrief-inner">
 
-        <!-- Header: title + score result + subtitle (never scrolls) -->
-        <div class="debrief-header">
-          <h1 id="debriefTitle" class="debrief-title">Debrief</h1>
-          <p id="debriefResult" class="debrief-result"></p>
-          <p class="debrief-subtitle">
-            Select a question below to review your answer.
-          </p>
+          <!-- Header: title + score result + subtitle -->
+          <div class="debrief-header">
+            <h1 id="debriefTitle" class="debrief-title">Debrief</h1>
+            <p id="debriefResult" class="debrief-result"></p>
+            <p class="debrief-subtitle">
+              Select a question below to review your answer.
+            </p>
+          </div>
+
+          <!-- Questions list -->
+          <div class="debrief-list-wrap" role="group" aria-label="Question results">
+            <ul id="debriefList" class="debrief-list" role="list"></ul>
+          </div>
+
+          <!-- Footer: replay button -->
+          <div class="debrief-footer">
+            <button type="button" class="debrief-replay-btn" id="debriefReplayBtn">
+              Replay Video
+            </button>
+          </div>
+
         </div>
-
-        <!-- Scrollable questions list (only this area scrolls when list overflows) -->
-        <div class="debrief-list-wrap" role="group" aria-label="Question results">
-          <ul id="debriefList" class="debrief-list" role="list"></ul>
-        </div>
-
       </div>
     </div>
 
