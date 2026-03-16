@@ -1,0 +1,1294 @@
+/* ========== CSS Variables for Colors ========== */
+:root {
+  --color-main:      #E8E8E8;
+  --color-bg:        #4D4D4F;
+  --color-hover:     #4298B5;
+  --color-correct:   #92B251;
+  --color-incorrect: #D14242;
+  --color-white:     #FFFFFF;
+  --color-black:     #000000;
+  --color-text-dark: #1a1a1a;
+
+  /* Answer card state colors */
+  --ans-normal-bg:      #FFFFFF;
+  --ans-normal-border:  #FFFFFF;
+  --ans-normal-circle:  #4D4D4F;
+  --ans-normal-text:    #FFFFFF;
+
+  --ans-hover-bg:       #F5F9FB;
+  --ans-hover-border:   #4298B5;
+  --ans-hover-circle:   #4298B5;
+  --ans-hover-text:     #000000;
+
+  --ans-correct-bg:     #F9FAF6;
+  --ans-correct-border: #92B251;
+  --ans-correct-circle: #92B251;
+  --ans-correct-text:   #000000;
+
+  --ans-incorrect-bg:     #FCF5F5;
+  --ans-incorrect-border: #D14242;
+  --ans-incorrect-circle: #D14242;
+  --ans-incorrect-text:   #000000;
+}
+
+/* ========== General Styles ========== */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-black);
+  font-family: "aktiv-grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ========== Accessibility Utilities ========== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* [COMMENTED OUT] .video-focus-target — restore if needed
+.video-focus-target {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  outline: none;
+  z-index: 1;
+}
+
+.video-focus-target:focus-visible {
+  opacity: 1;
+  outline: 3px solid #4298B5;
+  outline-offset: -3px;
+}
+*/
+
+/* ── Frame sentinel — invisible tab stop before Vimeo iframe ── */
+.frame-sentinel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.frame-sentinel:focus-visible {
+  opacity: 1;
+  outline: 3px solid #4298B5;
+  outline-offset: -3px;
+  width: 100%;
+  height: 100%;
+}
+
+/* ========== Start Overlay ========== */
+.start-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.90);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+.start-overlay.hidden {
+  display: none;
+}
+
+/* ── Modal container ──────────────────────────────────────────────────────────
+   Designed at 800px wide / ~580px tall (px-based so zoom scales everything
+   uniformly). zoom = min(width-fit, height-fit) ensures the modal is always
+   exactly 70 vw wide AND never taller than 90 vh — no overflow, no scroll,
+   no clipping at any viewport size or browser zoom level.
+   ─────────────────────────────────────────────────────────────────────────── */
+.start-container {
+  background: #FFFFFF;
+  border-radius: 90px;
+  width: 800px;                    /* design-time base width                  */
+  padding: 56px 72px 60px;
+  box-sizing: border-box;
+  overflow: hidden;                /* no internal scroll, no clipping bleed   */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  animation: slideUp 0.4s ease;
+  /* Scale to 70 vw; also scale down if viewport is short (height guard) */
+  zoom: min(calc(70vw / 800px), calc(90vh / 580px));
+}
+
+/* ── Logo ── */
+.start-logo-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.start-logo {
+  height: 90px;
+  width: auto;
+  display: block;
+}
+
+/* ── Heading ── */
+.start-heading {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  text-align: center;
+  line-height: 1.25;
+}
+
+/* ── Paragraph ── */
+.start-instructions {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 400;
+  font-family: "aktiv-grotesk", sans-serif;
+  line-height: 1.75;
+  color: #000000;
+  text-align: center;
+  max-width: 560px;                /* constrained readable width              */
+}
+
+/* ─── START BUTTON — Normal: #4D4D4F / #FFFFFF  Hover: #4298B5 / #000000 ─── */
+.start-btn {
+  min-width: 220px;
+  padding: 18px 60px;
+  background: #4D4D4F;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 999px;            /* pill shape */
+  font-size: 18px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.start-btn:hover,
+.start-btn:focus {
+  background: #4298B5;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(66, 152, 181, 0.45);
+}
+
+.start-btn:focus-visible {
+  outline: 3px solid #4298B5;
+  outline-offset: 3px;
+}
+
+.start-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ========== Video Wrapper (for fullscreen support) ========== */
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--color-black);
+}
+
+/* ========== Fullscreen Styles ========== */
+.video-wrapper:fullscreen,
+.video-wrapper:-webkit-full-screen,
+.video-wrapper:-moz-full-screen,
+.video-wrapper:-ms-fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+.video-wrapper:fullscreen iframe,
+.video-wrapper:-webkit-full-screen iframe,
+.video-wrapper:-moz-full-screen iframe,
+.video-wrapper:-ms-fullscreen iframe {
+  width: 100%;
+  height: 100%;
+}
+
+/* Hide fullscreen button on touch/mobile devices */
+@media (pointer: coarse) {
+  .fullscreen-btn {
+    display: none !important;
+  }
+}
+
+/* ========== Vimeo iframe ========== */
+iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* ─── FULLSCREEN BUTTON — Normal: #4D4D4F / #FFFFFF  Hover: #4298B5 / #000000 ─── */
+.fullscreen-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 12px 24px;
+  background: #4D4D4F;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1001;
+  /* Scale with viewport (same ratio as question-inner), min zoom = 0.75 → ~30 px tall */
+  zoom: max(0.75, min(calc(100vw / 1200px), calc(100vh / 720px)));
+}
+
+.fullscreen-btn:hover,
+.fullscreen-btn:focus {
+  background: #4298B5;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 152, 181, 0.3);
+}
+
+.fullscreen-btn:focus-visible {
+  outline: 3px solid #4298B5;
+  outline-offset: 2px;
+}
+
+.fullscreen-btn:active {
+  transform: translateY(0);
+}
+
+/* Fullscreen button tooltip */
+.fullscreen-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  padding: 8px 14px;
+  background: rgba(23, 23, 23, 0.95);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 400;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.fullscreen-btn:hover::after {
+  opacity: 1;
+}
+
+/* Hide fullscreen button when in fullscreen mode */
+.video-wrapper:fullscreen .fullscreen-btn,
+.video-wrapper:-webkit-full-screen .fullscreen-btn,
+.video-wrapper:-moz-full-screen .fullscreen-btn,
+.video-wrapper:-ms-fullscreen .fullscreen-btn {
+  display: none;
+}
+
+/* Hide fullscreen button on touch/mobile devices */
+@media (hover: none) and (pointer: coarse) {
+  .fullscreen-btn {
+    display: none;
+  }
+}
+
+/* ─── WATCH SECTION AGAIN — Circular icon button, bottom-right corner ─── */
+.watch-again-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+
+  /* colours — Normal: #4D4D4F / #FFFFFF */
+  background: #4D4D4F;
+  color: #FFFFFF;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.30);
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+
+  /* absolute inside .question-container — bottom-right corner */
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+
+  /* center the SVG icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.watch-again-btn:hover,
+.watch-again-btn:focus {
+  background: #4298B5;
+  color: #000000;
+  box-shadow: 0 6px 20px rgba(66, 152, 181, 0.45);
+}
+
+.watch-again-btn:focus-visible {
+  outline: 3px solid #4298B5;
+  outline-offset: 3px;
+}
+
+.watch-again-btn:active {
+  box-shadow: none;
+}
+
+/* Watch-again tooltip — appears to the left of the button */
+.watch-again-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-right: 8px;
+  padding: 8px 14px;
+  background: rgba(23, 23, 23, 0.95);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 800;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.watch-again-btn:hover::after {
+  opacity: 1;
+}
+
+/* replay icon inside the circle */
+.watch-again-icon {
+  width: 36px;
+  height: 36px;
+  display: block;
+  flex-shrink: 0;
+  /* invert black SVG → white in normal state */
+  filter: brightness(0) invert(1);
+  transition: filter 0.2s ease;
+}
+
+.watch-again-btn:hover .watch-again-icon,
+.watch-again-btn:focus .watch-again-icon {
+  /* restore black SVG on hover (button background is light) */
+  filter: none;
+}
+
+/* text lines inside the circle */
+.watch-again-text {
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+}
+
+/* ========== Question Overlay — VIDEO BACKGROUND OVERLAY: #4298B5 + blur ========== */
+.question-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.90);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  box-sizing: border-box;
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Suppress focus ring on the overlay backdrop */
+.question-overlay:focus {
+  outline: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ========== Question Container — full-screen white backdrop ========================
+   Fills the entire overlay. Pure white background. Centers .question-inner.
+   =================================================================================== */
+.question-container {
+  position: absolute;
+  inset: 0;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  animation: fadeIn 0.3s ease;
+  pointer-events: auto;
+}
+
+/* ========== Question Inner — PHOTO-SCALE LAYOUT ====================================
+   Designed at 1200 × 720 px. zoom scales the whole panel (text, cards, buttons)
+   proportionally — exactly like an image scaling inside a frame.
+   zoom = min(viewport-width-fit, viewport-height-fit) ensures no overflow or scroll.
+   =================================================================================== */
+.question-inner {
+  position: relative;
+  width: 1200px;
+  height: 720px;
+  overflow: hidden;
+  padding: 40px 60px 30px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  pointer-events: auto;
+  zoom: min(calc(100vw / 1200px), calc(100vh / 720px));
+}
+
+.question-inner * {
+  pointer-events: auto;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── H1: "Question X" — primary / most prominent ── */
+.question-number {
+  margin: 0;
+  padding: 8px 0 0;
+  font-size: 52px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  line-height: 1.15;
+  text-align: center;
+  order: 0;
+}
+
+/* ── H2: question body text — secondary, still bold ── */
+.question-title {
+  margin: 0;
+  padding: 0;
+  font-size: 30px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  line-height: 1.3;
+  text-align: center;
+  order: 1;
+  white-space: pre-line;
+}
+
+/* ── Helper subtitle — lighter, smaller ── */
+.instruction-text {
+  margin: 0;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 400;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  text-align: center;
+  opacity: 0.65;
+  line-height: 1.4;
+  order: 2;
+}
+
+/* ========== Answers Container ========== */
+.answers-container {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  order: 3;
+  /* no flex:1 — cards use natural height; bottom row pushed down via margin-top:auto */
+}
+
+#answersContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); /* adapts to any number of options */
+  grid-template-rows: auto;                /* row sizes to tallest card content   */
+  gap: 15px;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* ── Bottom row: submit area + replay button stacked vertically, centred ── */
+.question-bottom-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  order: 4;
+  box-sizing: border-box;
+  margin-top: auto;   /* pushes submit button to the very bottom of the inner box */
+}
+
+/* ── Submit area: submit btn / feedback / continue, stacked & centred ── */
+.question-submit-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANSWER OPTION CARD — unified clickable element (circle + description)
+   All state changes (hover / selected / correct / incorrect) apply to the
+   entire card as one component. No individual circle-only transforms.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Wrapper (no visual styling — just layout context for the hidden radio) ── */
+.answer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  position: relative;
+}
+
+/* ── Hidden radio — accessible but invisible ── */
+.answer-radio {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+/* ── THE CARD — circle + description as a single unified element ──
+   STATE 1  NORMAL: bg #FFFFFF  border #FFFFFF  (card visible via shadow)  */
+.answer-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 16px 14px 14px;
+
+  /* Normal state */
+  background: var(--ans-normal-bg);
+  border: 2px solid var(--ans-normal-border);
+  border-radius: 20px;
+  /* Subtle shadow makes white card visible on white popup background */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+
+  /* Smooth transitions for all state changes */
+  transition:
+    background   0.2s ease,
+    border-color 0.2s ease,
+    box-shadow   0.2s ease;
+}
+
+/* ── Circle — Normal state ── */
+.answer-number {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--ans-normal-circle);   /* #4D4D4F */
+  color:      var(--ans-normal-text);     /* #FFFFFF */
+  border: 3px solid var(--ans-normal-circle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  flex-shrink: 0;
+  transition:
+    background    0.2s ease,
+    border-color  0.2s ease,
+    color         0.2s ease;
+}
+
+/* ── Description text ── */
+.answer-description {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  text-align: center;
+  width: 100%;
+  line-height: 1.4;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── STATE 2  HOVER: bg #F5F9FB  border #4298B5  circle #4298B5  text #000 ── */
+.answer-label:hover {
+  background:   var(--ans-hover-bg);
+  border-color: var(--ans-hover-border);
+  box-shadow: 0 4px 18px rgba(66, 152, 181, 0.25);
+}
+
+.answer-label:hover .answer-number {
+  background:   var(--ans-hover-circle);
+  border-color: var(--ans-hover-circle);
+  color:        var(--ans-hover-text);
+}
+
+/* ── STATE 3  SELECTED: same colors as HOVER ── */
+.answer-radio:checked + .answer-label {
+  background:   var(--ans-hover-bg);
+  border-color: var(--ans-hover-border);
+  box-shadow: 0 4px 18px rgba(66, 152, 181, 0.25);
+}
+
+.answer-radio:checked + .answer-label .answer-number {
+  background:   var(--ans-hover-circle);
+  border-color: var(--ans-hover-circle);
+  color:        var(--ans-hover-text);
+}
+
+/* Keep selected appearance even when hovered */
+.answer-radio:checked + .answer-label:hover {
+  background:   var(--ans-hover-bg);
+  border-color: var(--ans-hover-border);
+}
+
+.answer-radio:checked + .answer-label:hover .answer-number {
+  background:   var(--ans-hover-circle);
+  border-color: var(--ans-hover-circle);
+  color:        var(--ans-hover-text);
+}
+
+/* ── Keyboard focus ring on the whole card ── */
+.answer-radio:focus-visible + .answer-label {
+  outline: 3px solid #4298B5;
+  outline-offset: 2px;
+}
+
+/* ── Suppress focus ring on programmatic auto-focus at dialog open ──
+   .focus-init is added by JS when the first radio is focused on render.
+   Removed on the first keydown/mousedown so the ring appears normally
+   as soon as the user starts navigating. ── */
+.answer-radio.focus-init:focus,
+.answer-radio.focus-init:focus-visible {
+  outline: none;
+}
+.answer-radio.focus-init:focus + .answer-label,
+.answer-radio.focus-init:focus-visible + .answer-label {
+  outline: none;
+}
+
+/* ── Disabled (review mode): remove pointer cursor ── */
+.answer-radio:disabled + .answer-label {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── Disabled radio label in review mode ── */
+.answer-item input[type="radio"]:disabled + .answer-label {
+  cursor: default;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REVIEW MODE — STATE 4 CORRECT / STATE 5 INCORRECT
+   Applied via classes on .answer-item by questionRenderer.js
+   ═══════════════════════════════════════════════════════════ */
+
+/* STATE 4  CORRECT: bg #F9FAF6  border #92B251  circle #92B251  text #000 */
+.option--selected.option--correct .answer-label,
+.option--correctAnswer .answer-label {
+  background:   var(--ans-correct-bg);
+  border-color: var(--ans-correct-border);
+  box-shadow: 0 2px 10px rgba(146, 178, 81, 0.20);
+}
+
+/* STATE 5  INCORRECT (user's wrong answer): bg #FCF5F5  border #D14242  circle #D14242  text #000 */
+.option--selected.option--incorrect .answer-label {
+  background:   var(--ans-incorrect-bg);
+  border-color: var(--ans-incorrect-border);
+  box-shadow: 0 2px 10px rgba(209, 66, 66, 0.20);
+}
+
+/* ── Circle icon colors in review mode ──
+   Rendered by questionRenderer.js as .answer-number--correct / --incorrect / --correctAnswer */
+
+/* Correct circle (user selected correct, or showing correct when user was wrong) */
+.answer-number--correct,
+.answer-number--correctAnswer {
+  background:   var(--ans-correct-circle)  !important;  /* #92B251 */
+  border-color: var(--ans-correct-circle)  !important;
+  color:        var(--ans-correct-text)    !important;  /* #000000 */
+}
+
+/* Incorrect circle (user selected wrong answer) */
+.answer-number--incorrect {
+  background:   var(--ans-incorrect-circle) !important; /* #D14242 */
+  border-color: var(--ans-incorrect-circle) !important;
+  color:        var(--ans-incorrect-text)   !important; /* #000000 */
+}
+
+/* ========== Feedback Message ========== */
+.feedback-message {
+  padding: 20px;
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  margin: 0;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── SUBMIT BUTTON — Normal: #4D4D4F / #FFFFFF  Hover: #4298B5 / #000000 ─── */
+.submit-btn {
+  width: auto;
+  min-width: 260px;
+  padding: 20px 56px;
+  background: #4D4D4F;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 999px;
+  font-size: 22px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  display: block;
+  margin: 0 auto;
+}
+
+.submit-btn:hover,
+.submit-btn:focus {
+  background: #4298B5;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 152, 181, 0.4);
+}
+
+.submit-btn:focus-visible {
+  outline: 3px solid #4298B5;
+  outline-offset: 2px;
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ========== Continue Button ========== */
+.continue-btn {
+  width: auto;
+  min-width: 260px;
+  padding: 20px 56px;
+  background: #4D4D4F;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 999px;
+  font-size: 22px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  display: block;
+  margin: 0 auto;
+}
+
+.continue-btn:hover,
+.continue-btn:focus {
+  background: #4298B5;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 152, 181, 0.4);
+}
+
+.continue-btn:focus-visible {
+  outline: 3px solid #4298B5;
+  outline-offset: 2px;
+}
+
+.continue-btn:active {
+  transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DEBRIEF OVERLAY — full-screen summary after video ends
+   Same zoom strategy as the Question screen:
+   • Design at 900 px wide — zoom scales to 70 vw
+   • Only the question list area scrolls; header + footer stay fixed
+   ═══════════════════════════════════════════════════════════ */
+
+.debrief-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ── White modal container — mirrors .question-container zoom logic ── */
+.debrief-container {
+  background: #FFFFFF;
+  border-radius: 90px;
+  width: 900px;
+  box-sizing: border-box;
+  padding: 44px 56px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  /* Width guard: always 70 vw.
+     Height guard (700 px) is above real content so width guard wins at
+     all common viewport sizes — no overflow, no scroll on the page. */
+  zoom: min(calc(70vw / 900px), calc(92vh / 700px));
+  animation: slideUp 0.4s ease;
+  pointer-events: auto;
+}
+
+/* ── Header: title, result line, subtitle ── */
+.debrief-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* H1 title — pure black, large */
+.debrief-title {
+  margin: 0;
+  font-size: 52px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  line-height: 1.15;
+  text-align: center;
+}
+
+/* Score / pass-fail result line */
+.debrief-result {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  line-height: 1.3;
+  text-align: center;
+}
+
+/* Subtitle hint */
+.debrief-subtitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  opacity: 0.6;
+  line-height: 1.5;
+  text-align: center;
+  max-width: 560px;
+}
+
+/* ── Scrollable questions list area ──
+   Only this element scrolls — header + footer remain visible. */
+.debrief-list-wrap {
+  overflow-y: auto;
+  max-height: 320px;   /* design-unit height; scales with container zoom */
+  scrollbar-width: thin;
+  scrollbar-color: #cccccc transparent;
+}
+
+.debrief-list-wrap::-webkit-scrollbar { width: 6px; }
+.debrief-list-wrap::-webkit-scrollbar-track { background: transparent; }
+.debrief-list-wrap::-webkit-scrollbar-thumb {
+  background: #cccccc;
+  border-radius: 3px;
+}
+
+/* Two-column grid */
+.debrief-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.debrief-list__item {
+  display: flex;
+}
+
+/* ── Question row button ── */
+.debrief-question-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 18px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-family: "aktiv-grotesk", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: left;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+/* Correct state — spec: bg #F9FAF6, border #92B251 */
+.debrief-question-btn--correct {
+  background: #F9FAF6;
+  border: 2px solid #92B251;
+  color: #000000;
+}
+
+.debrief-question-btn--correct:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+/* Incorrect state — spec: bg #FCF5F5, border #D14242 */
+.debrief-question-btn--incorrect {
+  background: #FCF5F5;
+  border: 2px solid #D14242;
+  color: #000000;
+}
+
+.debrief-question-btn--incorrect:hover {
+  filter: brightness(0.96);
+  transform: translateY(-1px);
+}
+
+.debrief-question-btn:focus-visible {
+  outline: 3px solid #4298B5;
+  outline-offset: 2px;
+}
+
+/* ── Icon images (check.svg / cross.svg from img folder) ── */
+.debrief-icon-img {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* Colorise black SVG → green #92B251 */
+.debrief-icon-img--correct {
+  filter: brightness(0) saturate(100%) invert(63%) sepia(21%)
+          saturate(716%) hue-rotate(46deg) brightness(89%) contrast(90%);
+}
+
+/* Colorise black SVG → red #D14242 */
+.debrief-icon-img--incorrect {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(90%)
+          saturate(717%) hue-rotate(326deg) brightness(113%) contrast(92%);
+}
+
+/* ── "Question N" label ── */
+.debrief-question-btn__text {
+  flex: 1;
+  color: #000000;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+}
+
+/* ── Status pill — spec: bg matches border color, text #000 ── */
+.debrief-badge {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  padding: 5px 16px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.debrief-badge--correct {
+  background: #92B251;
+  color: #000000;
+}
+
+.debrief-badge--incorrect {
+  background: #D14242;
+  color: #000000;
+}
+
+/* ── Chevron ── */
+.debrief-arrow {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: sans-serif;
+  color: #4D4D4F;
+  flex-shrink: 0;
+  margin-left: 2px;
+  transition: transform 0.15s ease;
+}
+
+.debrief-question-btn:hover .debrief-arrow {
+  transform: translateX(3px);
+}
+
+/* ── Footer: Replay Video button, always visible ── */
+.debrief-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+/* ─── REPLAY VIDEO BUTTON — Normal: #4D4D4F / #FFFFFF  Hover: #4298B5 / #000000 ─── */
+.debrief-replay-btn {
+  min-width: 220px;
+  padding: 18px 60px;
+  background: #4D4D4F;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 999px;
+  font-family: "aktiv-grotesk", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.debrief-replay-btn:hover,
+.debrief-replay-btn:focus {
+  background: #4298B5;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(66, 152, 181, 0.45);
+}
+
+.debrief-replay-btn:focus-visible {
+  outline: 3px solid #4298B5;
+  outline-offset: 3px;
+}
+
+.debrief-replay-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REVIEW FEEDBACK PANEL — shown in review mode (from Debrief)
+   Replaces the answer card grid entirely.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Reset answers container from 4-col grid → single block in review mode */
+#answersContainer.answers--review {
+  display: block;
+  width: 100%;
+}
+
+/* Panel wrapper */
+.review-feedback-panel {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 20px;
+  padding: 28px 32px 24px;
+  outline: none;          /* focus target for a11y; no visible ring needed */
+}
+
+/* Correct state — bg #F9FAF6, border #92B251 */
+.review-feedback-panel--correct {
+  background: #F9FAF6;
+  border: 2px solid #92B251;
+}
+
+/* Incorrect state — bg #FCF5F5, border #D14242 */
+.review-feedback-panel--incorrect {
+  background: #FCF5F5;
+  border: 2px solid #D14242;
+}
+
+/* ── Top: result message (centered) ── */
+.review-feedback-panel__top {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* "Great Job!" headline (correct only) */
+.review-feedback-panel__headline {
+  margin: 0 0 10px;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  line-height: 1.3;
+}
+
+/* Answer confirmation lines (correct + incorrect) */
+.review-feedback-panel__subline {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  line-height: 1.35;
+}
+
+.review-feedback-panel__subline:last-child { margin-bottom: 0; }
+
+/* ── Rationale section (left-aligned) ── */
+.review-feedback-panel__rationale {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  padding-top: 18px;
+}
+
+.review-feedback-panel__rationale-heading {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  line-height: 1.3;
+}
+
+.review-feedback-panel__rationale-body {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  line-height: 1.65;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RETURN TO DEBRIEF BUTTON
+   Same pill style as Submit — sits in .question-submit-area
+   ═══════════════════════════════════════════════════════════ */
+
+.return-to-debrief-btn {
+  width: auto;
+  min-width: 260px;
+  padding: 20px 56px;
+  background: #4D4D4F;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 999px;
+  font-size: 22px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  display: block;
+  margin: 0 auto;
+}
+
+.return-to-debrief-btn:hover,
+.return-to-debrief-btn:focus {
+  background: #4298B5;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 152, 181, 0.4);
+}
+
+.return-to-debrief-btn:focus-visible {
+  outline: 3px solid #4298B5;
+  outline-offset: 2px;
+}
+
+.return-to-debrief-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ========== Utilities ========== */
+.hidden {
+  display: none !important;
+}
+
+/* ========== Skip to Main Content Link (for screen readers) ========== */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #4298B5;
+  color: #FFFFFF;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 10000;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ========== High Contrast Mode Support ========== */
+@media (prefers-contrast: high) {
+  .answer-label {
+    border-width: 3px;
+  }
+
+  .answer-radio:focus-visible + .answer-label {
+    outline-width: 4px;
+  }
+}
+
+/* ========== Reduced Motion Support ========== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
