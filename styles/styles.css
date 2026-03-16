@@ -904,11 +904,11 @@ iframe {
   width: 1200px;
   height: 720px;
   overflow: hidden;
-  padding: 36px 60px 28px;
+  padding: 32px 60px 24px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   pointer-events: auto;
   zoom: min(calc(100vw / 1200px), calc(100vh / 720px));
 }
@@ -969,7 +969,7 @@ iframe {
   padding: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 9px;
 }
 
 .debrief-list__item {
@@ -1091,25 +1091,28 @@ iframe {
 }
 
 /* ── Footer: Replay Video button, always visible ── */
+/* Footer removed from flex flow — replay button is absolutely positioned */
 .debrief-footer {
-  display: flex;
-  justify-content: center;
-  padding-top: 4px;
+  display: contents;
 }
 
-/* ─── REPLAY VIDEO BUTTON — Normal: #4D4D4F / #FFFFFF  Hover: #4298B5 / #000000 ─── */
+/* ─── REPLAY VIDEO BUTTON — absolute bottom-right, aligned with fullscreen btn ─── */
 .debrief-replay-btn {
-  min-width: 220px;
-  padding: 18px 60px;
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  min-width: 0;
+  padding: 14px 32px;
   background: #4D4D4F;
   color: #FFFFFF;
   border: none;
   border-radius: 999px;
   font-family: "aktiv-grotesk", sans-serif;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
 .debrief-replay-btn:hover,
