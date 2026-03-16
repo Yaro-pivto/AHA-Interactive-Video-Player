@@ -57,6 +57,9 @@ function _renderNormalMode(question, dom, previousAnswer, onSelect) {
 
   renderOptions(question.options, dom.answersContainer, previousAnswer, onSelect, 'normal');
 
+  // Shrink description text if cards overflow the fixed-height question-inner.
+  requestAnimationFrame(() => autoFitDescriptionFont(dom.answersContainer));
+
   // Focus the first answer radio so SR reads it in context of the radiogroup,
   // but suppress the visible focus ring until the user navigates with keyboard/mouse.
   requestAnimationFrame(() => {
@@ -257,6 +260,25 @@ function buildReviewFeedbackPanel({ isCorrect, userAnswerText, correctAnswerText
   panel.appendChild(rationaleWrap);
 
   return panel;
+}
+
+// ─── autoFitDescriptionFont ───────────────────────────────────────────────────
+// Iteratively reduces .answer-description font-size until all content fits
+// inside the fixed-height .question-inner container (min 13 px).
+
+function autoFitDescriptionFont(container) {
+  const inner = document.querySelector('.question-inner');
+  if (!inner) return;
+  const descs = container.querySelectorAll('.answer-description');
+  if (!descs.length) return;
+
+  const MIN = 13;
+  let size = parseFloat(getComputedStyle(descs[0]).fontSize);
+
+  while (size > MIN && inner.scrollHeight > inner.clientHeight) {
+    size -= 1;
+    descs.forEach(d => { d.style.fontSize = size + 'px'; });
+  }
 }
 
 // ─── buildReturnToDebriefBtn ──────────────────────────────────────────────────

@@ -1250,6 +1250,46 @@ iframe {
   box-shadow: none;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   MANY OPTIONS — 2-row grid when 5 or 6 answer cards
+   Uses CSS :has() to detect option count automatically.
+
+   6 options → 3 + 3  (repeat(3, 1fr))
+   5 options → 3 + 2 centered  (6-col grid, each item spans 2)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 6 options: 3 + 3 ── */
+#answersContainer:has(.answer-item:nth-child(6)) {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+#answersContainer:has(.answer-item:nth-child(6)) .answer-description {
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+/* ── 5 options: 3 + 2 centered ──
+   Use a 6-column grid; each card spans 2 columns → 3 per row.
+   Items 4 & 5 are explicitly placed to centre them in the 2nd row. */
+#answersContainer:has(.answer-item:nth-child(5)):not(:has(.answer-item:nth-child(6))) {
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+#answersContainer:has(.answer-item:nth-child(5)):not(:has(.answer-item:nth-child(6))) .answer-item {
+  grid-column: span 2;
+}
+
+/* Centre the bottom row: item 4 → cols 2–3, item 5 → cols 4–5 */
+#answersContainer:has(.answer-item:nth-child(5)):not(:has(.answer-item:nth-child(6))) .answer-item:nth-child(4) {
+  grid-column: 2 / span 2;
+}
+
+#answersContainer:has(.answer-item:nth-child(5)):not(:has(.answer-item:nth-child(6))) .answer-item:nth-child(5) {
+  grid-column: 4 / span 2;
+}
+
 /* ========== Utilities ========== */
 .hidden {
   display: none !important;
