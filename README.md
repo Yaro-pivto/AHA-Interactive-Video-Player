@@ -9,15 +9,16 @@ An accessible, interactive video player built with Vimeo and vanilla JavaScript.
 1. [Project Overview](#project-overview)
 2. [File Structure](#file-structure)
 3. [Getting Started](#getting-started)
-4. [Architecture & Data Flow](#architecture--data-flow)
-5. [Adding & Editing Questions](#adding--editing-questions)
-6. [Configuration Reference](#configuration-reference)
-7. [Modules](#modules)
-8. [State Machine](#state-machine)
-9. [CSS & Theming](#css--theming)
-10. [Accessibility](#accessibility)
-11. [Articulate Storyline Integration](#articulate-storyline-integration)
-12. [Browser Support](#browser-support)
+4. [Practice Videos](#practice-videos)
+5. [Architecture & Data Flow](#architecture--data-flow)
+6. [Adding & Editing Questions](#adding--editing-questions)
+7. [Configuration Reference](#configuration-reference)
+8. [Modules](#modules)
+9. [State Machine](#state-machine)
+10. [CSS & Theming](#css--theming)
+11. [Accessibility](#accessibility)
+12. [Articulate Storyline Integration](#articulate-storyline-integration)
+13. [Browser Support](#browser-support)
 
 ---
 
@@ -34,36 +35,43 @@ An accessible, interactive video player built with Vimeo and vanilla JavaScript.
 
 ```
 AHA-Interactive-Video-Player/
-├── index.html                    # Main HTML entry point
+├── index.html                    # Dev entry point
 ├── Questions.js                  # Auto-generated from Excel — DO NOT EDIT MANUALLY
 ├── package.json
-│
-├── scripts/
-│   ├── script.js                 # Main orchestrator (init, event binding, game loop)
-│   ├── stateManager.js           # Pure state logic (no DOM)
-│   ├── questionRenderer.js       # Builds question overlay DOM
-│   ├── debriefRenderer.js        # Builds debrief screen DOM
-│   ├── questionsToPlayer.js      # Node.js build script: Excel → Questions.js
-│   └── utils.js                  # Shared helpers
-│
-├── styles/
-│   └── styles.css                # Full theme with CSS variables
 │
 ├── excel/
 │   └── Questions.xlsx            # Source of truth for all questions
 │
-├── img/
-│   ├── Aha logo black.svg
-│   ├── check.svg
-│   ├── cross.svg
-│   └── replay.svg
+├── Web Object/                   # Main player — ready-to-use Storyline Web Object
+│   ├── index.html
+│   ├── Questions.js
+│   ├── scripts/
+│   ├── styles/
+│   └── img/
 │
-└── Web Object/                   # Ready-to-use distribution copy (no dev files)
-    ├── index.html
-    ├── Questions.js
-    ├── scripts/
-    ├── styles/
-    └── img/
+└── Practice Videos/              # 13 standalone single-question Web Objects
+    ├── Question 1/               # Item 1a — Level of Consciousness
+    ├── Question 2/               # Item 1b — LOC Questions
+    ├── Question 3/               # Item 1c — LOC Commands
+    ├── Question 4/               # Item 2 — Best Gaze
+    ├── Question 5/               # Item 3 — Visual
+    ├── Question 6/               # Item 4 — Facial Palsy
+    ├── Question 7/               # Item 5 — Motor Arm
+    ├── Question 8/               # Item 6 — Motor Leg
+    ├── Question 9/               # Item 7 — Limb Ataxia
+    ├── Question 10/              # Item 8 — Sensory
+    ├── Question 11/              # Item 9 — Best Language
+    ├── Question 12/              # Item 10 — Dysarthria
+    └── Question 13/              # Item 11 — Extinction and Inattention
+```
+
+Each `Question N/` folder is self-contained:
+```
+Question N/
+├── index.html    # Start screen + video + question overlay
+├── script.js     # All logic + question data inline (no dependencies)
+├── styles.css    # Full theme
+└── img/          # Logo + icons
 ```
 
 ---
@@ -105,6 +113,36 @@ npm start
 
 ---
 
+## Practice Videos
+
+The `Practice Videos/` folder contains 13 standalone Web Object projects — one per NIHSS item. Each project:
+
+- Plays the same Vimeo video (ID `1179338166`)
+- Shows the relevant question when the video ends
+- On Submit → displays **immediate Feedback** (correct/incorrect + rationale) instead of a Debrief screen
+- Includes a **Watch Again** button (↺) to replay the video from the beginning
+
+### Flow
+
+```
+Start screen
+  → [Start] → video plays
+      → [Video ends] → question overlay appears
+          → [Select answer + Submit] → Feedback panel (correct/incorrect + rationale)
+          → [↺ Watch Again] → video restarts
+```
+
+### Regenerating Practice Videos
+
+If question data changes, re-run the generator after updating `Questions.js`:
+
+```bash
+cd "Practice Videos"
+node generate.cjs
+```
+
+---
+
 ## Architecture & Data Flow
 
 ### Initialization
@@ -133,7 +171,7 @@ player.getCurrentTime()
             openQuestionReview()   [already answered, e.g. Watch Again]
 ```
 
-### User flow
+### User flow (main player)
 
 ```
 Start overlay
@@ -194,27 +232,27 @@ All of these are equivalent for a question at 5 seconds:
 
 All configurable constants are at the top of their respective files.
 
-### `scripts/script.js`
+### `Web Object/scripts/script.js`
 
 | Constant | Default | Description |
 |----------|---------|-------------|
 | `UPDATE_MS` | `200` | Polling interval in milliseconds |
 | `VAR_NAME` | `'VimeoTime'` | Storyline variable name for time sync |
 
-### `scripts/stateManager.js`
+### `Web Object/scripts/stateManager.js`
 
 | Value | Location | Description |
 |-------|----------|-------------|
 | Trigger window start | `findTriggeredQuestion()` | `question.time - 0.3` seconds before cue |
 | Trigger window end | `findTriggeredQuestion()` | `question.time + 0.5` seconds after cue |
 
-### `scripts/debriefRenderer.js`
+### `Web Object/scripts/debriefRenderer.js`
 
 | Constant | Default | Description |
 |----------|---------|-------------|
 | `PASSING_SCORE` | `0.93` | Minimum fraction correct to pass (93%) |
 
-### `index.html` — Vimeo iframe `src` parameters
+### Vimeo iframe `src` parameters
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
@@ -230,7 +268,7 @@ To change the video, replace the video ID in the iframe `src`:
 src="https://player.vimeo.com/video/YOUR_VIDEO_ID?badge=0&autopause=0&..."
 ```
 
-### `styles/styles.css` — Color theme
+### Color theme
 
 All colors are CSS custom properties in `:root`:
 
@@ -249,8 +287,6 @@ All colors are CSS custom properties in `:root`:
 ## Modules
 
 ### `scripts/script.js` — Orchestrator
-
-Initializes the player, binds events, and drives the main game loop.
 
 | Function | Description |
 |----------|-------------|
@@ -271,8 +307,6 @@ Initializes the player, binds events, and drives the main game loop.
 
 ### `scripts/stateManager.js` — State
 
-Pure logic, no DOM access. All state lives here.
-
 | Function | Description |
 |----------|-------------|
 | `initState(questions)` | Reset all state with question array |
@@ -288,8 +322,6 @@ Pure logic, no DOM access. All state lives here.
 ---
 
 ### `scripts/questionRenderer.js` — Question DOM
-
-Renders two modes of the question overlay.
 
 | Function | Description |
 |----------|-------------|
@@ -343,6 +375,8 @@ run()
 
 ## State Machine
 
+### Main player
+
 ```
 'start'
   │  [Start button]
@@ -358,6 +392,21 @@ run()
                                   │  [Click question row]
                                   ▼
                                'review'  ──[Return / Escape]──► 'debrief'
+```
+
+### Practice Videos
+
+```
+'start'
+  │  [Start button]
+  ▼
+'playing'
+  │  [Video ends]
+  ▼
+'question'
+  │  [Submit]
+  ▼
+'feedback'   (inline — no separate screen)
 ```
 
 ---
@@ -376,8 +425,6 @@ The design uses CSS `zoom` to scale proportionally to the viewport instead of me
 | Fullscreen button | — | `max(0.75, min(100vw / 1200px, 100vh / 720px))` |
 
 ### Answer card states
-
-Answer cards (in normal question mode) have four visual states driven by CSS variables:
 
 | State | Background | Border | Number circle |
 |-------|-----------|--------|---------------|
@@ -414,7 +461,7 @@ Answer cards (in normal question mode) have four visual states driven by CSS var
 
 ## Articulate Storyline Integration
 
-The player exposes the current video time to Storyline via the JavaScript API.
+The main player exposes the current video time to Storyline via the JavaScript API.
 
 **Variable:** `VimeoTime` (configurable via `VAR_NAME` in `script.js`)
 **Type:** Number
@@ -422,7 +469,6 @@ The player exposes the current video time to Storyline via the JavaScript API.
 **Value:** Current playhead position rounded to 0.1s (e.g. `5.6`, `12.3`)
 
 ```javascript
-// Runs in every polling cycle
 const sl = window.parent?.GetPlayer?.() ?? window.top?.GetPlayer?.();
 if (sl) sl.SetVar('VimeoTime', Math.round(currentTime * 10) / 10);
 ```
@@ -446,8 +492,6 @@ If not embedding in Storyline, the `passTimeToStoryline()` call is safely ignore
 | Edge 80+ | Native Fullscreen API | Full support |
 | iOS Safari (iPhone) | Not supported | Fullscreen button hidden via `@media (pointer: coarse)` |
 
-The fullscreen button is automatically hidden on touch/pointer devices where the Fullscreen API is unavailable.
-
 ---
 
 ## Development Notes
@@ -456,3 +500,4 @@ The fullscreen button is automatically hidden on touch/pointer devices where the
 - The Vimeo polling loop runs at 200ms (`UPDATE_MS`). Lowering this may improve trigger accuracy at the cost of more API calls.
 - The trigger window (`−0.3s / +0.5s`) is intentionally asymmetric to account for Vimeo's `getCurrentTime()` polling jitter.
 - `dismissQuestion(index)` prevents a question from retriggering when the user is still inside the trigger window (e.g. after Submit + Continue).
+- Practice Video projects are fully standalone — each folder contains all necessary assets and has no dependency on the parent project.

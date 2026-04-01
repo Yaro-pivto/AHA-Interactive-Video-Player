@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Question 2 — Practice</title>
+  <link rel="stylesheet" href="https://use.typekit.net/nid8klk.css">
+  <script src="https://player.vimeo.com/api/player.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div id="videoWrapper" class="video-wrapper" tabindex="-1">
+
+    <div id="screenReaderStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- ─── Start overlay ─── -->
+    <div id="startOverlay" class="start-overlay">
+      <div class="start-container">
+        <div class="start-logo-wrap">
+          <img src="img/Aha logo black.svg" alt="American Heart Association logo" class="start-logo">
+        </div>
+        <h2 class="start-heading">Item 1b — LOC Questions</h2>
+        <p class="start-instructions">
+          Watch the video. A question will appear at the end.
+          Select your answer and press Submit to see your feedback.
+          Press the Start button below to begin.
+        </p>
+        <button id="startBtn" type="button" class="start-btn">Start</button>
+      </div>
+    </div>
+
+    <div id="frameSentinel" tabindex="-1" aria-label="frame" class="frame-sentinel"></div>
+
+    <iframe
+      id="vimeo"
+      tabindex="-1"
+      src="https://player.vimeo.com/video/1179338166?badge=0&autopause=0&quality_selector=1&progress_bar=1&fullscreen=0"
+      allow="autoplay; picture-in-picture"
+      title="Practice Video — Question 2"
+      aria-label="Interactive video player">
+    </iframe>
+
+    <!-- ─── Question overlay ─── -->
+    <div
+      id="questionOverlay"
+      class="question-overlay hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="questionNumber"
+      aria-describedby="instructionText questionKeyboardHint"
+      tabindex="-1">
+
+      <div class="question-container">
+        <div class="question-inner">
+
+          <h1 id="questionNumber" class="question-number">Question</h1>
+          <h2 id="questionText" class="question-title" role="heading" aria-level="2"></h2>
+
+          <p id="instructionText" class="instruction-text">
+            Select an answer and press Submit to continue.
+          </p>
+
+          <p id="questionKeyboardHint" class="sr-only">
+            Use the arrow keys to move between answer options.
+            Press Tab to reach the Submit button, then press Space or Enter to submit.
+          </p>
+
+          <div class="answers-container">
+            <div id="answersContainer"></div>
+          </div>
+
+          <div class="question-bottom-row">
+            <div class="question-submit-area">
+              <button
+                id="submitBtn"
+                class="submit-btn"
+                aria-label="Submit the answer and see feedback"
+                disabled>
+                Submit
+              </button>
+            </div>
+          </div>
+
+          <button
+            id="watchAgainBtn"
+            class="watch-again-btn"
+            aria-label="Watch the video again from the beginning"
+            data-tooltip="Watch the video again">
+            <img src="img/replay.svg" alt="" class="watch-again-icon" aria-hidden="true">
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+    <button
+      id="fullscreenBtn"
+      type="button"
+      class="fullscreen-btn"
+      aria-label="Enter fullscreen"
+      aria-pressed="false"
+      data-tooltip="Fullscreen mode">
+      ⛶
+    </button>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
