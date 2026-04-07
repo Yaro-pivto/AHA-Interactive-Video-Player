@@ -1,4 +1,4 @@
-// Question 8 data
+﻿// Question 8 data
 var QUESTION = {
   text: "Based on what you see in the video, please score the patient accordingly.",
   options:   [
@@ -6,7 +6,7 @@ var QUESTION = {
       "text": "0",
       "description": "No drift; leg holds 30-degree position for full 5 seconds.",
       "correct": false,
-      "rationale": "<PASTE RATIONALE HERE>"
+      "rationale": "Rationale will be provided here."
     },
     {
       "text": "1",
@@ -41,7 +41,7 @@ var QUESTION = {
   ]
 };
 
-// ─── State ────────────────────────────────────────────────
+// â”€â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 var selectedAnswer = null;
 var mode = 'start';
@@ -140,7 +140,7 @@ function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
 
-  questionNumber.textContent = 'Question';
+  questionNumber.textContent = 'Item 6: Motor Leg';
   questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
   questionText.classList.remove('hidden');
   instructionText.classList.remove('hidden');
@@ -211,7 +211,7 @@ function showFeedback() {
     ? (correctOption.text + ' \u2013 ' + correctOption.description) : '';
 
   var rawRationale = correctOption ? (correctOption.rationale || '').trim() : '';
-  var rationaleText = (rawRationale && rawRationale !== '<PASTE RATIONALE HERE>') ? rawRationale : '';
+  var rationaleText = rawRationale;
 
   answersContainer.innerHTML = '';
   answersContainer.classList.add('answers--review');

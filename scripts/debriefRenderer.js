@@ -24,9 +24,16 @@ export function renderDebrief(debriefOverlay, results, { onQuestionClick }) {
   const pct     = total > 0 ? Math.round((correct / total) * 100) : 0;
   const passed  = pct >= PASSING_SCORE;
 
-  // NIHSS total: sum of each user's selected answer value (UN = 0)
+  // NIHSS learner score: sum of each user's selected answer value (UN = 0)
   const nihssTotal = results.reduce((sum, r) => {
     const text = r.userAnswer?.text ?? '0';
+    const val  = text === 'UN' ? 0 : (parseInt(text, 10) || 0);
+    return sum + val;
+  }, 0);
+
+  // NIHSS correct score: sum of correct answer values
+  const nihssCorrect = results.reduce((sum, r) => {
+    const text = r.correctOption?.text ?? '0';
     const val  = text === 'UN' ? 0 : (parseInt(text, 10) || 0);
     return sum + val;
   }, 0);
@@ -39,9 +46,12 @@ export function renderDebrief(debriefOverlay, results, { onQuestionClick }) {
       : `You have scored ${pct}%. You haven't achieved the passing score.`;
   }
 
-  // ── NIHSS score line ───────────────────────────────────────────────────────
+  // ── NIHSS score badges ─────────────────────────────────────────────────────
   const nihssEl = debriefOverlay.querySelector('#nihssScore');
-  if (nihssEl) nihssEl.textContent = `NIHSS Total Score: ${nihssTotal}`;
+  if (nihssEl) nihssEl.textContent = `Learner's Score: ${nihssTotal}`;
+
+  const nihssCorrectEl = debriefOverlay.querySelector('#nihssCorrect');
+  if (nihssCorrectEl) nihssCorrectEl.textContent = `Total Score: ${nihssCorrect}`;
 
   // ── Questions list ─────────────────────────────────────────────────────────
   const list = debriefOverlay.querySelector('#debriefList');

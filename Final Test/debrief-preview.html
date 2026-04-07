@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Final Test — Debrief Preview</title>
+  <link rel="stylesheet" href="https://use.typekit.net/nid8klk.css">
+  <link rel="stylesheet" href="styles/styles.css">
+  <style>
+    body { margin: 0; background: #1a1a1a; }
+    .video-wrapper { width: 100vw; height: 100vh; }
+    .debrief-overlay { display: flex !important; }
+  </style>
+</head>
+<body>
+  <div class="video-wrapper">
+
+    <div
+      id="debriefOverlay"
+      class="debrief-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="debriefTitle"
+      tabindex="-1">
+
+      <div class="debrief-container">
+        <div class="debrief-inner">
+
+          <div class="debrief-header debrief-header--no-list" id="debriefHeader">
+            <h1 id="debriefTitle" class="debrief-title">Result</h1>
+            <p id="debriefResult" class="debrief-result"></p>
+            <div class="debrief-nihss-row">
+              <p id="nihssScore"   class="debrief-nihss-score"></p>
+              <p id="nihssCorrect" class="debrief-nihss-score"></p>
+            </div>
+            <p id="attemptInfo" class="debrief-attempt-info"></p>
+            <button id="restartBtn" type="button" class="debrief-restart-btn">Try Again</button>
+            <p id="debriefSubtitle" class="debrief-subtitle hidden">
+              Select a question below to review your answer.
+            </p>
+          </div>
+
+          <div class="debrief-list-wrap hidden" role="group" aria-label="Question results">
+            <ul id="debriefList" class="debrief-list" role="list"></ul>
+          </div>
+
+        </div><!-- /.debrief-inner -->
+      </div>
+    </div>
+
+    <button
+      id="fullscreenBtn"
+      type="button"
+      class="fullscreen-btn"
+      aria-label="Enter fullscreen"
+      aria-pressed="false"
+      data-tooltip="Fullscreen mode">
+      ⛶
+    </button>
+  </div>
+
+  <script type="module">
+    import { QUESTIONS_DATA } from './Questions.js';
+
+    const PASSING_SCORE = 90;
+    const MAX_ATTEMPTS  = 3;
+
+    // ── Controls — toggle between states ──────────────────────────────────────
+    // Change these to preview different states:
+    const MOCK_ATTEMPT    = 2;        // 1, 2, or 3
+    const MOCK_PCT_CORRECT = 0.2;     // fraction of questions answered correctly (0–1)
+
+    // ── Mock results ──────────────────────────────────────────────────────────
+    const results = QUESTIONS_DATA.map((q, i) => {
+      const correctOption = q.options.find(o => o.correct);
+      const isCorrect     = i < Math.round(QUESTIONS_DATA.length * MOCK_PCT_CORRECT);
+      const userAnswer    = isCorrect
+        ? correctOption
+        : q.options.find(o => !o.correct) ?? correctOption;
+      return { question: q, userAnswer, isCorrect, correctOption };
+    });
+
+    const correct      = results.filter(r => r.isCorrect).length;
+    const total        = results.length;
+    const pct          = total > 0 ? Math.round((correct / total) * 100) : 0;
+    const passed       = pct >= PASSING_SCORE;
+    const showFull     = passed || MOCK_ATTEMPT >= MAX_ATTEMPTS;
+
+    const nihssTotal = results.reduce((sum, r) => {
+      const text = r.userAnswer?.text ?? '0';
+      return sum + (text === 'UN' ? 0 : (parseInt(text, 10) || 0));
+    }, 0);
+
+    const nihssCorrect = results.reduce((sum, r) => {
+      const text = r.correctOption?.text ?? '0';
+      return sum + (text === 'UN' ? 0 : (parseInt(text, 10) || 0));
+    }, 0);
+
+    // ── Populate header ───────────────────────────────────────────────────────
+    document.getElementById('debriefResult').textContent = passed
+      ? `You have scored ${pct}%. You passed!`
+      : `You have scored ${pct}%. You haven't achieved the passing score.`;
+
+    document.getElementById('nihssScore').textContent   = `Learner's Score: ${nihssTotal}`;
+    document.getElementById('nihssCorrect').textContent = `Total Score: ${nihssCorrect}`;
+
+    // Attempt info — only on non-final failed attempts
+    const attemptEl = document.getElementById('attemptInfo');
+    if (!showFull) {
+      attemptEl.textContent = `Attempt ${MOCK_ATTEMPT} of ${MAX_ATTEMPTS}`;
+    } else {
+      attemptEl.classList.add('hidden');
+    }
+
+    // Try Again button — only on non-final failed attempts
+    const restartBtn = document.getElementById('restartBtn');
+    if (showFull) restartBtn.classList.add('hidden');
+
+    // Header gap modifier
+    document.getElementById('debriefHeader').classList.toggle('debrief-header--no-list', !showFull);
+
+    // Subtitle + list — only on full debrief
+    document.getElementById('debriefSubtitle').classList.toggle('hidden', !showFull);
+    document.querySelector('.debrief-list-wrap').classList.toggle('hidden', !showFull);
+
+    // ── Build question list (full debrief only) ───────────────────────────────
+    if (showFull) {
+      const list = document.getElementById('debriefList');
+      results.forEach((r, i) => {
+        const { isCorrect } = r;
+        const state  = isCorrect ? 'correct' : 'incorrect';
+        const sheet  = r.question?.sheet ?? '';
+        const label  = sheet ? `Question ${i + 1}: ${sheet}` : `Question ${i + 1}`;
+
+        const li  = document.createElement('li');
+        li.className = 'debrief-list__item';
+
+        const btn = document.createElement('button');
+        btn.type      = 'button';
+        btn.className = `debrief-question-btn debrief-question-btn--${state}`;
+
+        const icon = document.createElement('img');
+        icon.src       = `img/${isCorrect ? 'check' : 'cross'}.svg`;
+        icon.alt       = '';
+        icon.className = `debrief-icon-img debrief-icon-img--${state}`;
+        icon.setAttribute('aria-hidden', 'true');
+
+        const text  = document.createElement('span');
+        text.className   = 'debrief-question-btn__text';
+        text.textContent = label;
+
+        const badge = document.createElement('span');
+        badge.className   = `debrief-badge debrief-badge--${state}`;
+        badge.textContent = isCorrect ? 'Correct' : 'Incorrect';
+
+        const arrow = document.createElement('span');
+        arrow.className   = 'debrief-arrow';
+        arrow.textContent = '›';
+
+        btn.appendChild(icon);
+        btn.appendChild(text);
+        btn.appendChild(badge);
+        btn.appendChild(arrow);
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>

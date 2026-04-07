@@ -265,9 +265,7 @@ function openQuestionNormal(index, dom, player) {
   // Set "Question X" primary heading
   if (dom.questionNumber) {
     const sheet = getQuestions()[index]?.sheet ?? '';
-    dom.questionNumber.textContent = sheet
-      ? `Question ${index + 1}: ${sheet}`
-      : `Question ${index + 1}`;
+    dom.questionNumber.textContent = sheet || `Question ${index + 1}`;
   }
 
   setCurrentIndex(index);
@@ -296,9 +294,7 @@ function openQuestionReview(index, dom, player) {
   // Set "Question X" primary heading
   if (dom.questionNumber) {
     const sheet = getQuestions()[index]?.sheet ?? '';
-    dom.questionNumber.textContent = sheet
-      ? `Question ${index + 1}: ${sheet}`
-      : `Question ${index + 1}`;
+    dom.questionNumber.textContent = sheet || `Question ${index + 1}`;
   }
 
   setCurrentIndex(index);

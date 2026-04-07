@@ -18,9 +18,16 @@ export function renderDebrief(debriefOverlay, results, { onQuestionClick, attemp
   const passed   = pct >= PASSING_SCORE;
   const showFull = passed || attemptCount >= MAX_ATTEMPTS;
 
-  // NIHSS total: sum of selected answer values (UN = 0)
+  // NIHSS learner score: sum of selected answer values (UN = 0)
   const nihssTotal = results.reduce((sum, r) => {
     const text = r.userAnswer?.text ?? '0';
+    const val  = text === 'UN' ? 0 : (parseInt(text, 10) || 0);
+    return sum + val;
+  }, 0);
+
+  // NIHSS correct score: sum of correct answer values
+  const nihssCorrect = results.reduce((sum, r) => {
+    const text = r.correctOption?.text ?? '0';
     const val  = text === 'UN' ? 0 : (parseInt(text, 10) || 0);
     return sum + val;
   }, 0);
@@ -33,9 +40,12 @@ export function renderDebrief(debriefOverlay, results, { onQuestionClick, attemp
       : `You have scored ${pct}%. You haven't achieved the passing score.`;
   }
 
-  // ── NIHSS score ────────────────────────────────────────────────────────────
+  // ── NIHSS score badges ─────────────────────────────────────────────────────
   const nihssEl = debriefOverlay.querySelector('#nihssScore');
-  if (nihssEl) nihssEl.textContent = `NIHSS Total Score: ${nihssTotal}`;
+  if (nihssEl) nihssEl.textContent = `Learner's Score: ${nihssTotal}`;
+
+  const nihssCorrectEl = debriefOverlay.querySelector('#nihssCorrect');
+  if (nihssCorrectEl) nihssCorrectEl.textContent = `Total Score: ${nihssCorrect}`;
 
   // ── Attempt info (only on non-final failed attempts) ──────────────────────
   const attemptEl = debriefOverlay.querySelector('#attemptInfo');

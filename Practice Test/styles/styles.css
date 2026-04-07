@@ -943,6 +943,14 @@ iframe {
   text-align: center;
 }
 
+/* Row that holds both score badges side by side */
+.debrief-nihss-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+}
+
 /* NIHSS total score line */
 .debrief-nihss-score {
   margin: 0;
