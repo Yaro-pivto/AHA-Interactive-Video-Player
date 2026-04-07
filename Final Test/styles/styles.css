@@ -949,9 +949,53 @@ iframe {
   font-size: 28px;
   font-weight: 700;
   font-family: "aktiv-grotesk", sans-serif;
-  color: #4298B5;
+  color: #000000;
   line-height: 1.3;
   text-align: center;
+}
+
+/* Attempt counter — "Attempt X of 3" */
+.debrief-attempt-info {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 400;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  opacity: 0.65;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Try Again button — same style as Start button */
+.debrief-restart-btn {
+  align-self: center;
+  min-width: 220px;
+  padding: 18px 60px;
+  background: #4D4D4F;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+.debrief-restart-btn:hover,
+.debrief-restart-btn:focus {
+  background: #4298B5;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(66, 152, 181, 0.45);
+}
+.debrief-restart-btn:focus-visible {
+  outline: 3px solid #4298B5;
+  outline-offset: 3px;
+}
+.debrief-restart-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 /* Subtitle hint */

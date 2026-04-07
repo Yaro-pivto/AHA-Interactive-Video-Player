@@ -1,30 +1,24 @@
 /**
- * debriefRenderer.js
- * Builds and manages the Debrief screen shown after all questions are answered.
- * Pure DOM — no state imports.
+ * debriefRenderer.js  — Final Test version
+ * Supports 3-attempt logic:
+ *   - Failed attempt 1 or 2 → show score + NIHSS + attempt count + "Try Again" button
+ *   - Failed attempt 3 OR passed → show full debrief with question list
  */
 
-const PASSING_SCORE = 93; // percentage threshold for "You passed!"
+const PASSING_SCORE = 90;  // Final Test uses 90% threshold
+const MAX_ATTEMPTS  = 3;
 
 // ─── renderDebrief ────────────────────────────────────────────────────────────
 
-/**
- * Populate the debrief overlay with the results summary.
- *
- * @param {Element}  debriefOverlay   #debriefOverlay element
- * @param {Array}    results          Array of result objects from getAllResults()
- *                                   Each: { question, userAnswer, isCorrect, correctOption }
- * @param {object}   callbacks
- * @param {Function} callbacks.onQuestionClick(index)  — user clicks a question row
- */
-export function renderDebrief(debriefOverlay, results, { onQuestionClick }) {
+export function renderDebrief(debriefOverlay, results, { onQuestionClick, attemptCount = 1, onRestart = null }) {
   // ── Score calculation ──────────────────────────────────────────────────────
-  const correct = results.filter(r => r.isCorrect).length;
-  const total   = results.length;
-  const pct     = total > 0 ? Math.round((correct / total) * 100) : 0;
-  const passed  = pct >= PASSING_SCORE;
+  const correct  = results.filter(r => r.isCorrect).length;
+  const total    = results.length;
+  const pct      = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const passed   = pct >= PASSING_SCORE;
+  const showFull = passed || attemptCount >= MAX_ATTEMPTS;
 
-  // NIHSS total: sum of each user's selected answer value (UN = 0)
+  // NIHSS total: sum of selected answer values (UN = 0)
   const nihssTotal = results.reduce((sum, r) => {
     const text = r.userAnswer?.text ?? '0';
     const val  = text === 'UN' ? 0 : (parseInt(text, 10) || 0);
@@ -39,25 +33,52 @@ export function renderDebrief(debriefOverlay, results, { onQuestionClick }) {
       : `You have scored ${pct}%. You haven't achieved the passing score.`;
   }
 
-  // ── NIHSS score line ───────────────────────────────────────────────────────
+  // ── NIHSS score ────────────────────────────────────────────────────────────
   const nihssEl = debriefOverlay.querySelector('#nihssScore');
   if (nihssEl) nihssEl.textContent = `NIHSS Total Score: ${nihssTotal}`;
 
-  // ── Questions list ─────────────────────────────────────────────────────────
-  const list = debriefOverlay.querySelector('#debriefList');
-  if (list) {
-    list.innerHTML = '';
-    results.forEach((result, index) => {
-      list.appendChild(buildQuestionListItem(result, index, () => onQuestionClick(index)));
-    });
+  // ── Attempt info (only on non-final failed attempts) ──────────────────────
+  const attemptEl = debriefOverlay.querySelector('#attemptInfo');
+  if (attemptEl) {
+    if (!showFull) {
+      attemptEl.textContent = `Attempt ${attemptCount} of ${MAX_ATTEMPTS}`;
+      attemptEl.classList.remove('hidden');
+    } else {
+      attemptEl.classList.add('hidden');
+    }
+  }
+
+  // ── Try Again button ───────────────────────────────────────────────────────
+  const restartBtn = debriefOverlay.querySelector('#restartBtn');
+  if (restartBtn) {
+    if (!showFull && onRestart) {
+      restartBtn.classList.remove('hidden');
+      restartBtn.onclick = onRestart;
+    } else {
+      restartBtn.classList.add('hidden');
+    }
+  }
+
+  // ── Subtitle + question list — only on full debrief ────────────────────────
+  const subtitleEl = debriefOverlay.querySelector('.debrief-subtitle');
+  if (subtitleEl) subtitleEl.classList.toggle('hidden', !showFull);
+
+  const listWrap = debriefOverlay.querySelector('.debrief-list-wrap');
+  if (listWrap) listWrap.classList.toggle('hidden', !showFull);
+
+  if (showFull) {
+    const list = debriefOverlay.querySelector('#debriefList');
+    if (list) {
+      list.innerHTML = '';
+      results.forEach((result, index) => {
+        list.appendChild(buildQuestionListItem(result, index, () => onQuestionClick(index)));
+      });
+    }
   }
 
   // ── Show overlay ───────────────────────────────────────────────────────────
   debriefOverlay.classList.remove('hidden');
   debriefOverlay.removeAttribute('aria-hidden');
-
-  // Focus the dialog itself so SR announces: "dialog → Debrief"
-  // before the user navigates to the question list.
   requestAnimationFrame(() => debriefOverlay.focus());
 }
 
@@ -87,25 +108,21 @@ function buildQuestionListItem(result, index, onClick) {
   );
   btn.addEventListener('click', onClick);
 
-  // Icon — check.svg for correct, cross.svg for incorrect
   const icon = document.createElement('img');
   icon.src       = `img/${isCorrect ? 'check' : 'cross'}.svg`;
   icon.alt       = '';
   icon.className = `debrief-icon-img debrief-icon-img--${state}`;
   icon.setAttribute('aria-hidden', 'true');
 
-  // "Question N" label
   const text = document.createElement('span');
   text.className   = 'debrief-question-btn__text';
   text.textContent = label;
 
-  // Status pill
   const badge = document.createElement('span');
   badge.className   = `debrief-badge debrief-badge--${state}`;
   badge.textContent = isCorrect ? 'Correct' : 'Incorrect';
   badge.setAttribute('aria-hidden', 'true');
 
-  // Chevron
   const arrow = document.createElement('span');
   arrow.className   = 'debrief-arrow';
   arrow.textContent = '›';

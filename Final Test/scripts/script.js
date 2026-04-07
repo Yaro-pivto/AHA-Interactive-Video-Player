@@ -45,6 +45,10 @@ import {
 const VAR_NAME  = 'VimeoTime';
 const UPDATE_MS = 200;
 
+// ─── Attempt tracking ─────────────────────────────────────────────────────────
+
+let attemptCount = 0;
+
 // ─── DOM references ───────────────────────────────────────────────────────────
 
 function resolveDom() {
@@ -334,9 +338,25 @@ function openDebrief(dom, player) {
   setBackgroundHidden(dom, true);
   dom.questionOverlay.classList.add('hidden');
 
+  attemptCount += 1;
+
   renderDebrief(dom.debriefOverlay, getAllResults(), {
     onQuestionClick: (index) => openQuestionReview(index, dom, player),
+    attemptCount,
+    onRestart: () => restartActivity(dom, player),
   });
+}
+
+// ─── Restart (Try Again) ──────────────────────────────────────────────────────
+
+function restartActivity(dom, player) {
+  hideDebrief(dom.debriefOverlay);
+  setBackgroundHidden(dom, false);
+  resetForReplay();
+  setMode('playing');
+
+  player.setCurrentTime(0).then(() => player.play());
+  requestAnimationFrame(() => dom.frameSentinel.focus());
 }
 
 // ─── Replay video ─────────────────────────────────────────────────────────────

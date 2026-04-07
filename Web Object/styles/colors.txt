@@ -1,0 +1,47 @@
+Background Blur Overlay on the Video - #4298B5 with opacity
+
+Background Color of Pop-up boxes - #FFFFFF
+Text Color of Pop-up boxes - #000000
+
+
+Fullscreen, Start, Submit, and Watch Section Again Buttons Background Color Normal - #4D4D4F
+Fullscreen, Start, Submit, and Watch Section Again Buttons Text/Graphics Color Normal - #FFFFFF
+
+Fullscreen, Start, Submit, and Watch Section Again Buttons Background Color Hover - #4298B5
+Fullscreen, Start, Submit, and Watch Section Again Buttons Text/Graphics Color Hover - #000000
+
+
+Remake the options buttons so circle and description now is now one element.
+
+Background of the option NORMAL: #FFFFFF
+Border of the option NORMAL: #FFFFFF
+Background of the option HOVER: #F5F9FB
+Border of the option HOVER: #4298B5
+Background of the option SELECTED: #F5F9FB
+Border of the option SELECTED: #4298B5
+Background of the option CORRECT: #F9FAF6
+Border of the option CORRECT: #92B251
+Background of the option INCORRECT: #FCF5F5
+Border of the option INCORRECT: #D14242
+
+Circle color NORMAL: #4D4D4F / Text: #FFFFFF
+Circle color HOVER: #4298B5 / Text: #000000
+Circle color SELECTED: #4298B5 / Text: #000000 
+Circle color CORRECT: #92B251 / Text: #000000
+Circle color INCORRECT: #D14242 / Text: #000000
+
+
+
+All of them have a little shadow.
+
+Button Background Color Hover - #4298B5
+Button Text/Graphic Color Hover - #000000
+
+Button Background Color Selected - #4298B5
+Button Text/Graphic Color Selected - #000000
+
+Button Background Color Correct - #92B251
+Button Text/Graphic Color Correct - #000000
+
+Button Background Color Correct - #D14242
+Button Text/Graphic Color Correct - #000000
