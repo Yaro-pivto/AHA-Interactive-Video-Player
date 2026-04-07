@@ -383,7 +383,7 @@ All colors are CSS custom properties in `:root`:
   --color-main:      #E8E8E8;   /* page background */
   --color-bg:        #4D4D4F;   /* button default */
   --color-hover:     #4298B5;   /* teal — hover/focus/selected */
-  --color-correct:   #92B251;   /* green — correct answer */
+  --color-correct:   #B0D361;   /* green — correct answer */
   --color-incorrect: #D14242;   /* red — incorrect answer */
 }
 ```
@@ -450,8 +450,21 @@ All colors are CSS custom properties in `:root`:
 | `hideDebrief(overlay)` | Hide debrief overlay |
 | `buildQuestionListItem(result, index, onClick)` | Single question row: icon + label + badge + chevron |
 
-**NIHSS score badge** — displayed in the debrief header:
+**NIHSS score badges** — two badges displayed side by side in the debrief header:
+
+| Badge | Content | Element ID |
+|-------|---------|------------|
+| Left | **Learner's Score** — sum of the user's selected answer values | `#nihssScore` |
+| Right | **Total Score** — sum of all correct answer values | `#nihssCorrect` |
+
+Both badges share the same `.debrief-nihss-score` class and are wrapped in `.debrief-nihss-row`:
 ```css
+.debrief-nihss-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+}
 .debrief-nihss-score {
   padding: 10px;
   border-radius: 10px;
@@ -583,7 +596,7 @@ The debrief overlay uses a `.debrief-inner` wrapper (1200 × 720 px, `flex-direc
 |-------|-----------|--------|---------------|
 | Default | `#FFFFFF` | `#FFFFFF` | `#4D4D4F` |
 | Hover/selected | `#F5F9FB` | `#4298B5` | `#4298B5` |
-| Correct | `#F9FAF6` | `#92B251` | `#92B251` |
+| Correct | `#F9FAF6` | `#B0D361` | `#B0D361` |
 | Incorrect | `#FCF5F5` | `#D14242` | `#D14242` |
 
 ### Media queries

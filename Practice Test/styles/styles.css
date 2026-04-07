@@ -1,9 +1,9 @@
-/* ========== CSS Variables for Colors ========== */
+﻿/* ========== CSS Variables for Colors ========== */
 :root {
   --color-main:      #E8E8E8;
   --color-bg:        #4D4D4F;
   --color-hover:     #4298B5;
-  --color-correct:   #92B251;
+  --color-correct:   #B0D361;
   --color-incorrect: #D14242;
   --color-white:     #FFFFFF;
   --color-black:     #000000;
@@ -21,8 +21,8 @@
   --ans-hover-text:     #000000;
 
   --ans-correct-bg:     #F9FAF6;
-  --ans-correct-border: #92B251;
-  --ans-correct-circle: #92B251;
+  --ans-correct-border: #B0D361;
+  --ans-correct-circle: #B0D361;
   --ans-correct-text:   #000000;
 
   --ans-incorrect-bg:     #FCF5F5;
@@ -55,7 +55,7 @@ html, body {
   border: 0;
 }
 
-/* [COMMENTED OUT] .video-focus-target — restore if needed
+/* [COMMENTED OUT] .video-focus-target â€” restore if needed
 .video-focus-target {
   position: absolute;
   top: 0;
@@ -75,7 +75,7 @@ html, body {
 }
 */
 
-/* ── Frame sentinel — invisible tab stop before Vimeo iframe ── */
+/* â”€â”€ Frame sentinel â€” invisible tab stop before Vimeo iframe â”€â”€ */
 .frame-sentinel {
   position: absolute;
   width: 1px;
@@ -113,12 +113,12 @@ html, body {
   display: none;
 }
 
-/* ── Modal container ──────────────────────────────────────────────────────────
+/* â”€â”€ Modal container â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Designed at 800px wide / ~580px tall (px-based so zoom scales everything
    uniformly). zoom = min(width-fit, height-fit) ensures the modal is always
-   exactly 70 vw wide AND never taller than 90 vh — no overflow, no scroll,
+   exactly 70 vw wide AND never taller than 90 vh â€” no overflow, no scroll,
    no clipping at any viewport size or browser zoom level.
-   ─────────────────────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .start-container {
   background: #FFFFFF;
   border-radius: 90px;
@@ -136,7 +136,7 @@ html, body {
   zoom: min(calc(70vw / 800px), calc(90vh / 580px));
 }
 
-/* ── Logo ── */
+/* â”€â”€ Logo â”€â”€ */
 .start-logo-wrap {
   display: flex;
   justify-content: center;
@@ -149,7 +149,7 @@ html, body {
   display: block;
 }
 
-/* ── Heading ── */
+/* â”€â”€ Heading â”€â”€ */
 .start-heading {
   margin: 0;
   font-size: 36px;
@@ -160,7 +160,7 @@ html, body {
   line-height: 1.25;
 }
 
-/* ── Paragraph ── */
+/* â”€â”€ Paragraph â”€â”€ */
 .start-instructions {
   margin: 0 0 5px;
   font-size: 18px;
@@ -172,7 +172,7 @@ html, body {
   max-width: 560px;                /* constrained readable width              */
 }
 
-/* ─── START BUTTON — Normal: #4D4D4F / #FFFFFF  Hover: #4298B5 / #000000 ─── */
+/* â”€â”€â”€ START BUTTON â€” Normal: #4D4D4F / #FFFFFF  Hover: #4298B5 / #000000 â”€â”€â”€ */
 .start-btn {
   min-width: 220px;
   padding: 18px 60px;
@@ -248,7 +248,7 @@ iframe {
   border: 0;
 }
 
-/* ─── FULLSCREEN BUTTON — Normal: #4D4D4F / #FFFFFF  Hover: #4298B5 / #000000 ─── */
+/* â”€â”€â”€ FULLSCREEN BUTTON â€” Normal: #4D4D4F / #FFFFFF  Hover: #4298B5 / #000000 â”€â”€â”€ */
 .fullscreen-btn {
   position: absolute;
   top: 20px;
@@ -265,7 +265,7 @@ iframe {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   z-index: 1001;
-  /* Scale with viewport (same ratio as question-inner), min zoom = 0.75 → ~30 px tall */
+  /* Scale with viewport (same ratio as question-inner), min zoom = 0.75 â†’ ~30 px tall */
   zoom: max(0.75, min(calc(100vw / 1200px), calc(100vh / 720px)));
 }
 
@@ -324,13 +324,13 @@ iframe {
   }
 }
 
-/* ─── WATCH SECTION AGAIN — Circular icon button, bottom-right corner ─── */
+/* â”€â”€â”€ WATCH SECTION AGAIN â€” Circular icon button, bottom-right corner â”€â”€â”€ */
 .watch-again-btn {
   width: 70px;
   height: 70px;
   border-radius: 50%;
 
-  /* colours — Normal: #4D4D4F / #FFFFFF */
+  /* colours â€” Normal: #4D4D4F / #FFFFFF */
   background: #4D4D4F;
   color: #FFFFFF;
   border: none;
@@ -338,7 +338,7 @@ iframe {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.30);
   transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 
-  /* absolute inside .question-container — bottom-right corner */
+  /* absolute inside .question-container â€” bottom-right corner */
   position: absolute;
   bottom: 24px;
   right: 24px;
@@ -367,7 +367,7 @@ iframe {
   box-shadow: none;
 }
 
-/* Watch-again tooltip — appears to the left of the button */
+/* Watch-again tooltip â€” appears to the left of the button */
 .watch-again-btn::after {
   content: attr(data-tooltip);
   position: absolute;
@@ -397,7 +397,7 @@ iframe {
   height: 36px;
   display: block;
   flex-shrink: 0;
-  /* invert black SVG → white in normal state */
+  /* invert black SVG â†’ white in normal state */
   filter: brightness(0) invert(1);
   transition: filter 0.2s ease;
 }
@@ -417,7 +417,7 @@ iframe {
   pointer-events: none;
 }
 
-/* ========== Question Overlay — VIDEO BACKGROUND OVERLAY: #4298B5 + blur ========== */
+/* ========== Question Overlay â€” VIDEO BACKGROUND OVERLAY: #4298B5 + blur ========== */
 .question-overlay {
   position: absolute;
   top: 0;
@@ -445,7 +445,7 @@ iframe {
   to   { opacity: 1; }
 }
 
-/* ========== Question Container — full-screen white backdrop ========================
+/* ========== Question Container â€” full-screen white backdrop ========================
    Fills the entire overlay. Pure white background. Centers .question-inner.
    =================================================================================== */
 .question-container {
@@ -460,9 +460,9 @@ iframe {
   pointer-events: auto;
 }
 
-/* ========== Question Inner — PHOTO-SCALE LAYOUT ====================================
-   Designed at 1200 × 720 px. zoom scales the whole panel (text, cards, buttons)
-   proportionally — exactly like an image scaling inside a frame.
+/* ========== Question Inner â€” PHOTO-SCALE LAYOUT ====================================
+   Designed at 1200 Ã— 720 px. zoom scales the whole panel (text, cards, buttons)
+   proportionally â€” exactly like an image scaling inside a frame.
    zoom = min(viewport-width-fit, viewport-height-fit) ensures no overflow or scroll.
    =================================================================================== */
 .question-inner {
@@ -494,7 +494,7 @@ iframe {
   }
 }
 
-/* ── H1: "Question X" — primary / most prominent ── */
+/* â”€â”€ H1: "Question X" â€” primary / most prominent â”€â”€ */
 .question-number {
   margin: 0;
   padding: 8px 0 0;
@@ -507,7 +507,7 @@ iframe {
   order: 0;
 }
 
-/* ── H2: question body text — secondary, still bold ── */
+/* â”€â”€ H2: question body text â€” secondary, still bold â”€â”€ */
 .question-title {
   margin: 0;
   padding: 0;
@@ -521,7 +521,7 @@ iframe {
   white-space: pre-line;
 }
 
-/* ── Helper subtitle — lighter, smaller ── */
+/* â”€â”€ Helper subtitle â€” lighter, smaller â”€â”€ */
 .instruction-text {
   margin: 0;
   padding: 0;
@@ -543,7 +543,7 @@ iframe {
   display: flex;
   flex-direction: column;
   order: 3;
-  /* no flex:1 — cards use natural height; bottom row pushed down via margin-top:auto */
+  /* no flex:1 â€” cards use natural height; bottom row pushed down via margin-top:auto */
 }
 
 #answersContainer {
@@ -555,7 +555,7 @@ iframe {
   width: 100%;
 }
 
-/* ── Bottom row: submit area + replay button stacked vertically, centred ── */
+/* â”€â”€ Bottom row: submit area + replay button stacked vertically, centred â”€â”€ */
 .question-bottom-row {
   width: 100%;
   display: flex;
@@ -566,7 +566,7 @@ iframe {
   margin-top: auto;   /* pushes submit button to the very bottom of the inner box */
 }
 
-/* ── Submit area: submit btn / feedback / continue, stacked & centred ── */
+/* â”€â”€ Submit area: submit btn / feedback / continue, stacked & centred â”€â”€ */
 .question-submit-area {
   display: flex;
   flex-direction: column;
@@ -575,13 +575,13 @@ iframe {
   width: 100%;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   ANSWER OPTION CARD — unified clickable element (circle + description)
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ANSWER OPTION CARD â€” unified clickable element (circle + description)
    All state changes (hover / selected / correct / incorrect) apply to the
    entire card as one component. No individual circle-only transforms.
-   ═══════════════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ── Wrapper (no visual styling — just layout context for the hidden radio) ── */
+/* â”€â”€ Wrapper (no visual styling â€” just layout context for the hidden radio) â”€â”€ */
 .answer-item {
   display: flex;
   flex-direction: column;
@@ -590,7 +590,7 @@ iframe {
   position: relative;
 }
 
-/* ── Hidden radio — accessible but invisible ── */
+/* â”€â”€ Hidden radio â€” accessible but invisible â”€â”€ */
 .answer-radio {
   position: absolute;
   opacity: 0;
@@ -601,7 +601,7 @@ iframe {
   pointer-events: none;
 }
 
-/* ── THE CARD — circle + description as a single unified element ──
+/* â”€â”€ THE CARD â€” circle + description as a single unified element â”€â”€
    STATE 1  NORMAL: bg #FFFFFF  border #FFFFFF  (card visible via shadow)  */
 .answer-label {
   display: flex;
@@ -628,7 +628,7 @@ iframe {
     box-shadow   0.2s ease;
 }
 
-/* ── Circle — Normal state ── */
+/* â”€â”€ Circle â€” Normal state â”€â”€ */
 .answer-number {
   width: 70px;
   height: 70px;
@@ -649,7 +649,7 @@ iframe {
     color         0.2s ease;
 }
 
-/* ── Description text ── */
+/* â”€â”€ Description text â”€â”€ */
 .answer-description {
   font-size: 20px;
   font-weight: 400;
@@ -662,7 +662,7 @@ iframe {
   user-select: none;
 }
 
-/* ── STATE 2  HOVER: bg #F5F9FB  border #4298B5  circle #4298B5  text #000 ── */
+/* â”€â”€ STATE 2  HOVER: bg #F5F9FB  border #4298B5  circle #4298B5  text #000 â”€â”€ */
 .answer-label:hover {
   background:   var(--ans-hover-bg);
   border-color: var(--ans-hover-border);
@@ -675,7 +675,7 @@ iframe {
   color:        var(--ans-hover-text);
 }
 
-/* ── STATE 3  SELECTED: same colors as HOVER ── */
+/* â”€â”€ STATE 3  SELECTED: same colors as HOVER â”€â”€ */
 .answer-radio:checked + .answer-label {
   background:   var(--ans-hover-bg);
   border-color: var(--ans-hover-border);
@@ -700,16 +700,16 @@ iframe {
   color:        var(--ans-hover-text);
 }
 
-/* ── Keyboard focus ring on the whole card ── */
+/* â”€â”€ Keyboard focus ring on the whole card â”€â”€ */
 .answer-radio:focus-visible + .answer-label {
   outline: 3px solid #4298B5;
   outline-offset: 2px;
 }
 
-/* ── Suppress focus ring on programmatic auto-focus at dialog open ──
+/* â”€â”€ Suppress focus ring on programmatic auto-focus at dialog open â”€â”€
    .focus-init is added by JS when the first radio is focused on render.
    Removed on the first keydown/mousedown so the ring appears normally
-   as soon as the user starts navigating. ── */
+   as soon as the user starts navigating. â”€â”€ */
 .answer-radio.focus-init:focus,
 .answer-radio.focus-init:focus-visible {
   outline: none;
@@ -719,23 +719,23 @@ iframe {
   outline: none;
 }
 
-/* ── Disabled (review mode): remove pointer cursor ── */
+/* â”€â”€ Disabled (review mode): remove pointer cursor â”€â”€ */
 .answer-radio:disabled + .answer-label {
   cursor: default;
   pointer-events: none;
 }
 
-/* ── Disabled radio label in review mode ── */
+/* â”€â”€ Disabled radio label in review mode â”€â”€ */
 .answer-item input[type="radio"]:disabled + .answer-label {
   cursor: default;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   REVIEW MODE — STATE 4 CORRECT / STATE 5 INCORRECT
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   REVIEW MODE â€” STATE 4 CORRECT / STATE 5 INCORRECT
    Applied via classes on .answer-item by questionRenderer.js
-   ═══════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* STATE 4  CORRECT: bg #F9FAF6  border #92B251  circle #92B251  text #000 */
+/* STATE 4  CORRECT: bg #F9FAF6  border #B0D361  circle #B0D361  text #000 */
 .option--selected.option--correct .answer-label,
 .option--correctAnswer .answer-label {
   background:   var(--ans-correct-bg);
@@ -750,13 +750,13 @@ iframe {
   box-shadow: 0 2px 10px rgba(209, 66, 66, 0.20);
 }
 
-/* ── Circle icon colors in review mode ──
+/* â”€â”€ Circle icon colors in review mode â”€â”€
    Rendered by questionRenderer.js as .answer-number--correct / --incorrect / --correctAnswer */
 
 /* Correct circle (user selected correct, or showing correct when user was wrong) */
 .answer-number--correct,
 .answer-number--correctAnswer {
-  background:   var(--ans-correct-circle)  !important;  /* #92B251 */
+  background:   var(--ans-correct-circle)  !important;  /* #B0D361 */
   border-color: var(--ans-correct-circle)  !important;
   color:        var(--ans-correct-text)    !important;  /* #000000 */
 }
@@ -790,7 +790,7 @@ iframe {
   }
 }
 
-/* ─── SUBMIT BUTTON — Normal: #4D4D4F / #FFFFFF  Hover: #4298B5 / #000000 ─── */
+/* â”€â”€â”€ SUBMIT BUTTON â€” Normal: #4D4D4F / #FFFFFF  Hover: #4298B5 / #000000 â”€â”€â”€ */
 .submit-btn {
   width: auto;
   min-width: 260px;
@@ -866,12 +866,12 @@ iframe {
   transform: translateY(0);
 }
 
-/* ═══════════════════════════════════════════════════════════
-   DEBRIEF OVERLAY — full-screen summary after video ends
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   DEBRIEF OVERLAY â€” full-screen summary after video ends
    Same zoom strategy as the Question screen:
-   • Design at 900 px wide — zoom scales to 70 vw
-   • Only the question list area scrolls; header + footer stay fixed
-   ═══════════════════════════════════════════════════════════ */
+   â€¢ Design at 900 px wide â€” zoom scales to 70 vw
+   â€¢ Only the question list area scrolls; header + footer stay fixed
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .debrief-overlay {
   position: absolute;
@@ -885,7 +885,7 @@ iframe {
   animation: fadeIn 0.3s ease;
 }
 
-/* ── Full-screen white backdrop — same approach as .question-container ── */
+/* â”€â”€ Full-screen white backdrop â€” same approach as .question-container â”€â”€ */
 .debrief-container {
   position: absolute;
   inset: 0;
@@ -898,7 +898,7 @@ iframe {
   pointer-events: auto;
 }
 
-/* ── 1200×720 content area — same zoom logic as .question-inner ── */
+/* â”€â”€ 1200Ã—720 content area â€” same zoom logic as .question-inner â”€â”€ */
 .debrief-inner {
   position: relative;
   width: 1200px;
@@ -913,7 +913,7 @@ iframe {
   zoom: min(calc(100vw / 1200px), calc(100vh / 720px));
 }
 
-/* ── Header: title, result line, subtitle ── */
+/* â”€â”€ Header: title, result line, subtitle â”€â”€ */
 .debrief-header {
   display: flex;
   flex-direction: column;
@@ -921,7 +921,7 @@ iframe {
   gap: 10px;
 }
 
-/* H1 title — pure black, large */
+/* H1 title â€” pure black, large */
 .debrief-title {
   margin: 0;
   font-size: 52px;
@@ -970,7 +970,7 @@ iframe {
   max-width: 560px;
 }
 
-/* ── Questions list area — no scroll, fills available height ── */
+/* â”€â”€ Questions list area â€” no scroll, fills available height â”€â”€ */
 .debrief-list-wrap {
   flex: 1;
   overflow: hidden;
@@ -991,7 +991,7 @@ iframe {
   display: flex;
 }
 
-/* ── Question row button ── */
+/* â”€â”€ Question row button â”€â”€ */
 .debrief-question-btn {
   display: flex;
   align-items: center;
@@ -1009,10 +1009,10 @@ iframe {
   overflow: hidden;
 }
 
-/* Correct state — spec: bg #F9FAF6, border #92B251 */
+/* Correct state â€” spec: bg #F9FAF6, border #B0D361 */
 .debrief-question-btn--correct {
   background: #F9FAF6;
-  border: 2px solid #92B251;
+  border: 2px solid #B0D361;
   color: #000000;
 }
 
@@ -1021,7 +1021,7 @@ iframe {
   transform: translateY(-1px);
 }
 
-/* Incorrect state — spec: bg #FCF5F5, border #D14242 */
+/* Incorrect state â€” spec: bg #FCF5F5, border #D14242 */
 .debrief-question-btn--incorrect {
   background: #FCF5F5;
   border: 2px solid #D14242;
@@ -1038,7 +1038,7 @@ iframe {
   outline-offset: 2px;
 }
 
-/* ── Icon images (check.svg / cross.svg from img folder) ── */
+/* â”€â”€ Icon images (check.svg / cross.svg from img folder) â”€â”€ */
 .debrief-icon-img {
   width: 22px;
   height: 22px;
@@ -1046,19 +1046,19 @@ iframe {
   display: block;
 }
 
-/* Colorise black SVG → green #92B251 */
+/* Colorise black SVG â†’ green #B0D361 */
 .debrief-icon-img--correct {
   filter: brightness(0) saturate(100%) invert(63%) sepia(21%)
           saturate(716%) hue-rotate(46deg) brightness(89%) contrast(90%);
 }
 
-/* Colorise black SVG → red #D14242 */
+/* Colorise black SVG â†’ red #D14242 */
 .debrief-icon-img--incorrect {
   filter: brightness(0) saturate(100%) invert(30%) sepia(90%)
           saturate(717%) hue-rotate(326deg) brightness(113%) contrast(92%);
 }
 
-/* ── "Question N: sheet" label ── */
+/* â”€â”€ "Question N: sheet" label â”€â”€ */
 .debrief-question-btn__text {
   flex: 1;
   color: #000000;
@@ -1070,7 +1070,7 @@ iframe {
   white-space: nowrap;
 }
 
-/* ── Status pill — spec: bg matches border color, text #000 ── */
+/* â”€â”€ Status pill â€” spec: bg matches border color, text #000 â”€â”€ */
 .debrief-badge {
   font-size: 13px;
   font-weight: 700;
@@ -1081,7 +1081,7 @@ iframe {
 }
 
 .debrief-badge--correct {
-  background: #92B251;
+  background: #B0D361;
   color: #000000;
 }
 
@@ -1090,7 +1090,7 @@ iframe {
   color: #000000;
 }
 
-/* ── Chevron ── */
+/* â”€â”€ Chevron â”€â”€ */
 .debrief-arrow {
   font-size: 18px;
   font-weight: 700;
@@ -1106,12 +1106,12 @@ iframe {
 }
 
 
-/* ═══════════════════════════════════════════════════════════
-   REVIEW FEEDBACK PANEL — shown in review mode (from Debrief)
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   REVIEW FEEDBACK PANEL â€” shown in review mode (from Debrief)
    Replaces the answer card grid entirely.
-   ═══════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* Reset answers container from 4-col grid → single block in review mode */
+/* Reset answers container from 4-col grid â†’ single block in review mode */
 #answersContainer.answers--review {
   display: block;
   width: 100%;
@@ -1126,19 +1126,19 @@ iframe {
   outline: none;          /* focus target for a11y; no visible ring needed */
 }
 
-/* Correct state — bg #F9FAF6, border #92B251 */
+/* Correct state â€” bg #F9FAF6, border #B0D361 */
 .review-feedback-panel--correct {
   background: #F9FAF6;
-  border: 2px solid #92B251;
+  border: 2px solid #B0D361;
 }
 
-/* Incorrect state — bg #FCF5F5, border #D14242 */
+/* Incorrect state â€” bg #FCF5F5, border #D14242 */
 .review-feedback-panel--incorrect {
   background: #FCF5F5;
   border: 2px solid #D14242;
 }
 
-/* ── Top: result message (centered) ── */
+/* â”€â”€ Top: result message (centered) â”€â”€ */
 .review-feedback-panel__top {
   text-align: center;
   margin-bottom: 20px;
@@ -1166,7 +1166,7 @@ iframe {
 
 .review-feedback-panel__subline:last-child { margin-bottom: 0; }
 
-/* ── Rationale section (left-aligned) ── */
+/* â”€â”€ Rationale section (left-aligned) â”€â”€ */
 .review-feedback-panel__rationale {
   border-top: 1px solid rgba(0, 0, 0, 0.12);
   padding-top: 18px;
@@ -1190,10 +1190,10 @@ iframe {
   line-height: 1.65;
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    RETURN TO DEBRIEF BUTTON
-   Same pill style as Submit — sits in .question-submit-area
-   ═══════════════════════════════════════════════════════════ */
+   Same pill style as Submit â€” sits in .question-submit-area
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .return-to-debrief-btn {
   width: auto;
@@ -1230,15 +1230,15 @@ iframe {
   box-shadow: none;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   MANY OPTIONS — 2-row grid when 5 or 6 answer cards
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   MANY OPTIONS â€” 2-row grid when 5 or 6 answer cards
    Uses CSS :has() to detect option count automatically.
 
-   6 options → 3 + 3  (repeat(3, 1fr))
-   5 options → 3 + 2 centered  (6-col grid, each item spans 2)
-   ═══════════════════════════════════════════════════════════ */
+   6 options â†’ 3 + 3  (repeat(3, 1fr))
+   5 options â†’ 3 + 2 centered  (6-col grid, each item spans 2)
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ── 6 options: 3 + 3 ── */
+/* â”€â”€ 6 options: 3 + 3 â”€â”€ */
 #answersContainer:has(.answer-item:nth-child(6)) {
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
@@ -1249,8 +1249,8 @@ iframe {
   line-height: 1.35;
 }
 
-/* ── 5 options: 3 + 2 centered ──
-   Use a 6-column grid; each card spans 2 columns → 3 per row.
+/* â”€â”€ 5 options: 3 + 2 centered â”€â”€
+   Use a 6-column grid; each card spans 2 columns â†’ 3 per row.
    Items 4 & 5 are explicitly placed to centre them in the 2nd row. */
 #answersContainer:has(.answer-item:nth-child(5)):not(:has(.answer-item:nth-child(6))) {
   grid-template-columns: repeat(6, 1fr);
@@ -1261,7 +1261,7 @@ iframe {
   grid-column: span 2;
 }
 
-/* Centre the bottom row: item 4 → cols 2–3, item 5 → cols 4–5 */
+/* Centre the bottom row: item 4 â†’ cols 2â€“3, item 5 â†’ cols 4â€“5 */
 #answersContainer:has(.answer-item:nth-child(5)):not(:has(.answer-item:nth-child(6))) .answer-item:nth-child(4) {
   grid-column: 2 / span 2;
 }

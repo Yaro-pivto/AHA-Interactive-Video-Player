@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Debrief Preview</title>
+  <link rel="stylesheet" href="https://use.typekit.net/nid8klk.css">
+  <link rel="stylesheet" href="styles/styles.css">
+  <style>
+    body { margin: 0; background: #1a1a1a; }
+    .video-wrapper { width: 100vw; height: 100vh; }
+    .debrief-overlay { display: flex !important; }
+  </style>
+</head>
+<body>
+  <div class="video-wrapper">
+
+    <div
+      id="debriefOverlay"
+      class="debrief-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="debriefTitle"
+      tabindex="-1">
+
+      <div class="debrief-container">
+        <div class="debrief-inner">
+        <div class="debrief-header">
+          <h1 id="debriefTitle" class="debrief-title">Debrief</h1>
+          <p id="debriefResult" class="debrief-result"></p>
+          <div class="debrief-nihss-row">
+            <p id="nihssScore"        class="debrief-nihss-score"></p>
+            <p id="nihssCorrect"      class="debrief-nihss-score"></p>
+          </div>
+          <p class="debrief-subtitle">Select a question below to review your answer.</p>
+        </div>
+        <div class="debrief-list-wrap" role="group" aria-label="Question results">
+          <ul id="debriefList" class="debrief-list" role="list"></ul>
+        </div>
+        </div><!-- /.debrief-inner -->
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { QUESTIONS_DATA } from './Questions.js';
+
+    const PASSING_SCORE = 93;
+
+    // Mock: alternate correct/incorrect for preview
+    const results = QUESTIONS_DATA.map((q, i) => {
+      const correctOption = q.options.find(o => o.correct);
+      const isCorrect     = i % 2 === 0; // every other question correct
+      const userAnswer    = isCorrect
+        ? correctOption
+        : q.options.find(o => !o.correct) ?? correctOption;
+      return { question: q, userAnswer, isCorrect, correctOption };
+    });
+
+    const correct    = results.filter(r => r.isCorrect).length;
+    const total      = results.length;
+    const pct        = Math.round((correct / total) * 100);
+    const passed     = pct >= PASSING_SCORE;
+    const nihssTotal = results.reduce((sum, r) => {
+      const text = r.userAnswer?.text ?? '0';
+      return sum + (text === 'UN' ? 0 : (parseInt(text, 10) || 0));
+    }, 0);
+
+    const nihssCorrect = results.reduce((sum, r) => {
+      const text = r.correctOption?.text ?? '0';
+      return sum + (text === 'UN' ? 0 : (parseInt(text, 10) || 0));
+    }, 0);
+
+    document.getElementById('debriefResult').textContent = passed
+      ? `You have scored ${pct}%. You passed!`
+      : `You have scored ${pct}%. You haven't achieved the passing score.`;
+    document.getElementById('nihssScore').textContent    = `Learner's Score: ${nihssTotal}`;
+    document.getElementById('nihssCorrect').textContent  = `Total Score: ${nihssCorrect}`;
+
+    const list = document.getElementById('debriefList');
+    results.forEach((r, i) => {
+      const { isCorrect } = r;
+      const state  = isCorrect ? 'correct' : 'incorrect';
+      const sheet  = r.question?.sheet ?? '';
+      const label  = sheet ? `Question ${i + 1}: ${sheet}` : `Question ${i + 1}`;
+
+      const li  = document.createElement('li');
+      li.className = 'debrief-list__item';
+
+      const btn = document.createElement('button');
+      btn.type      = 'button';
+      btn.className = `debrief-question-btn debrief-question-btn--${state}`;
+
+      const icon = document.createElement('img');
+      icon.src       = `img/${isCorrect ? 'check' : 'cross'}.svg`;
+      icon.alt       = '';
+      icon.className = `debrief-icon-img debrief-icon-img--${state}`;
+      icon.setAttribute('aria-hidden', 'true');
+
+      const text  = document.createElement('span');
+      text.className   = 'debrief-question-btn__text';
+      text.textContent = label;
+
+      const badge = document.createElement('span');
+      badge.className   = `debrief-badge debrief-badge--${state}`;
+      badge.textContent = isCorrect ? 'Correct' : 'Incorrect';
+
+      const arrow = document.createElement('span');
+      arrow.className   = 'debrief-arrow';
+      arrow.textContent = '›';
+
+      btn.appendChild(icon);
+      btn.appendChild(text);
+      btn.appendChild(badge);
+      btn.appendChild(arrow);
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+  </script>
+</body>
+</html>
