@@ -12,6 +12,7 @@ import {
   setCurrentIndex,
   setSelectedAnswer,
   submitAnswer,
+  isAnswered,
   getPreviousAnswer,
   getAnsweredAnswer,
   areAllAnswered,
@@ -262,7 +263,12 @@ function openQuestionNormal(index, dom, player) {
   if (!question) return;
 
   // Set "Question X" primary heading
-  if (dom.questionNumber) dom.questionNumber.textContent = 'Question ' + (index + 1);
+  if (dom.questionNumber) {
+    const sheet = getQuestions()[index]?.sheet ?? '';
+    dom.questionNumber.textContent = sheet
+      ? `Question ${index + 1}: ${sheet}`
+      : `Question ${index + 1}`;
+  }
 
   setCurrentIndex(index);
   setIsAnswering(true);
@@ -288,7 +294,12 @@ function openQuestionReview(index, dom, player) {
   if (!question) return;
 
   // Set "Question X" primary heading
-  if (dom.questionNumber) dom.questionNumber.textContent = 'Question ' + (index + 1);
+  if (dom.questionNumber) {
+    const sheet = getQuestions()[index]?.sheet ?? '';
+    dom.questionNumber.textContent = sheet
+      ? `Question ${index + 1}: ${sheet}`
+      : `Question ${index + 1}`;
+  }
 
   setCurrentIndex(index);
   setMode('review');
@@ -360,6 +371,16 @@ function handleSubmit(dom, player) {
   if (!answer) return;
 
   submitAnswer(index, answer);
+
+  // If this question chains to another, open it immediately
+  const chainToId = getQuestions()[index]?.chainTo;
+  if (chainToId) {
+    const chainIndex = getQuestions().findIndex(q => q.id === chainToId);
+    if (chainIndex >= 0 && !isAnswered(chainIndex)) {
+      openQuestionNormal(chainIndex, dom, player);
+      return;
+    }
+  }
 
   // If this was the last question → open Debrief immediately
   if (areAllAnswered()) {

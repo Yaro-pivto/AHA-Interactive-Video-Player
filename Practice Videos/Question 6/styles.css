@@ -507,6 +507,22 @@ iframe {
   order: 0;
 }
 
+/* ── Feedback badge titles ── */
+.Correct_Title {
+  padding: 10px 20px;
+  border-radius: 20px;
+  background-color: #B0D361;
+  display: inline-block;
+}
+
+.Incorrect_Title {
+  padding: 10px 20px;
+  border-radius: 20px;
+  background-color: #D14242;
+  color: #ffffff;
+  display: inline-block;
+}
+
 /* ── H2: question body text — secondary, still bold ── */
 .question-title {
   margin: 0;

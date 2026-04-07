@@ -184,6 +184,8 @@ export function findTriggeredQuestion(currentTime) {
     const high = q.time + 0.5;
 
     if (currentTime >= low && currentTime < high) {
+      // Chained questions only open via chainTo — never triggered by timecode
+      if (q.chained) continue;
       // Already answered + all done → normally skip (debrief handles it).
       // Exception: user explicitly clicked "Watch Section Again" for this question.
       if (_answeredMap[i] && allDone && i !== _watchAgainIndex) return null;
@@ -226,7 +228,13 @@ export function isLockedAnswer(index) {
  */
 export function getWatchAgainStartTime(currentIndex) {
   if (currentIndex <= 0) return 0;
-  const prevTime = _questions[currentIndex - 1]?.time ?? 0;
+  // For chained questions, go back an extra step so the parent question
+  // is also rewatchable (both share the same video section).
+  const q         = _questions[currentIndex];
+  const lookback  = q?.chained ? 2 : 1;
+  const prevIdx   = currentIndex - lookback;
+  if (prevIdx < 0) return 0;
+  const prevTime  = _questions[prevIdx]?.time ?? 0;
   return prevTime + 0.6;
 }
 

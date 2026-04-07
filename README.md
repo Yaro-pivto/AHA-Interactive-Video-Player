@@ -11,14 +11,15 @@ An accessible, interactive video player built with Vimeo and vanilla JavaScript.
 3. [Getting Started](#getting-started)
 4. [Practice Videos](#practice-videos)
 5. [Architecture & Data Flow](#architecture--data-flow)
-6. [Adding & Editing Questions](#adding--editing-questions)
-7. [Configuration Reference](#configuration-reference)
-8. [Modules](#modules)
-9. [State Machine](#state-machine)
-10. [CSS & Theming](#css--theming)
-11. [Accessibility](#accessibility)
-12. [Articulate Storyline Integration](#articulate-storyline-integration)
-13. [Browser Support](#browser-support)
+6. [Questions & Chaining](#questions--chaining)
+7. [Adding & Editing Questions](#adding--editing-questions)
+8. [Configuration Reference](#configuration-reference)
+9. [Modules](#modules)
+10. [State Machine](#state-machine)
+11. [CSS & Theming](#css--theming)
+12. [Accessibility](#accessibility)
+13. [Articulate Storyline Integration](#articulate-storyline-integration)
+14. [Browser Support](#browser-support)
 
 ---
 
@@ -42,28 +43,61 @@ AHA-Interactive-Video-Player/
 ├── excel/
 │   └── Questions.xlsx            # Source of truth for all questions
 │
-├── Web Object/                   # Main player — ready-to-use Storyline Web Object
+├── scripts/
+│   ├── script.js                 # Orchestrator (root — source of truth)
+│   ├── stateManager.js           # State management
+│   ├── questionRenderer.js       # Question DOM rendering
+│   ├── debriefRenderer.js        # Debrief DOM rendering
+│   ├── questionsToPlayer.js      # Node build script (Excel → Questions.js)
+│   └── utils.js                  # Helpers
+│
+├── styles/
+│   └── styles.css                # Full theme (root — source of truth)
+│
+├── Web Object/                   # Main player — synced from root
 │   ├── index.html
 │   ├── Questions.js
 │   ├── scripts/
 │   ├── styles/
 │   └── img/
 │
+├── Practice Test/                # Practice mode player — synced from root
+│   ├── index.html
+│   ├── Questions.js
+│   ├── scripts/
+│   ├── styles/
+│   └── img/
+│
+├── Final Test/                   # Final Test — own scripts (3-attempt system)
+│   ├── index.html
+│   ├── Questions.js
+│   ├── scripts/
+│   │   ├── script.js             # Extended: attempt counter + Storyline Fail variable
+│   │   ├── stateManager.js
+│   │   ├── questionRenderer.js
+│   │   ├── debriefRenderer.js    # Extended: debrief-header--no-list modifier
+│   │   └── utils.js
+│   ├── styles/
+│   │   └── styles.css            # Extended: .debrief-header--no-list rule
+│   └── img/
+│
 └── Practice Videos/              # 13 standalone single-question Web Objects
-    ├── Question 1/               # Item 1a — Level of Consciousness
-    ├── Question 2/               # Item 1b — LOC Questions
-    ├── Question 3/               # Item 1c — LOC Commands
-    ├── Question 4/               # Item 2 — Best Gaze
-    ├── Question 5/               # Item 3 — Visual
-    ├── Question 6/               # Item 4 — Facial Palsy
-    ├── Question 7/               # Item 5 — Motor Arm
-    ├── Question 8/               # Item 6 — Motor Leg
-    ├── Question 9/               # Item 7 — Limb Ataxia
-    ├── Question 10/              # Item 8 — Sensory
-    ├── Question 11/              # Item 9 — Best Language
-    ├── Question 12/              # Item 10 — Dysarthria
-    └── Question 13/              # Item 11 — Extinction and Inattention
+    ├── Question 1/               # 1a LOC — Level of Consciousness
+    ├── Question 2/               # 1b LOC Q — LOC Questions
+    ├── Question 3/               # 1c LOC Commands
+    ├── Question 4/               # 2 Best Gaze
+    ├── Question 5/               # 3 Visual
+    ├── Question 6/               # 4 Facial Palsy
+    ├── Question 7/               # 5 Motor Arm
+    ├── Question 8/               # 6 Motor Leg
+    ├── Question 9/               # 7 Limb Ataxia
+    ├── Question 10/              # 8 Sensory
+    ├── Question 11/              # 9 Best Language
+    ├── Question 12/              # 10 Dysarthria
+    └── Question 13/              # 11 Extinction and Inattention
 ```
+
+> **Source of truth rule:** `root/` is the canonical copy. After editing root scripts or styles, sync manually to `Web Object/` and `Practice Test/` (these are identical). `Final Test/` has extended logic and is maintained separately.
 
 Each `Question N/` folder is self-contained:
 ```
@@ -121,6 +155,14 @@ The `Practice Videos/` folder contains 13 standalone Web Object projects — one
 - Shows the relevant question when the video ends
 - On Submit → displays **immediate Feedback** (correct/incorrect + rationale) instead of a Debrief screen
 - Includes a **Watch Again** button (↺) to replay the video from the beginning
+- The feedback heading changes to **"Correct!"** or **"Incorrect!"** with a color-coded badge
+
+### Feedback badge classes
+
+```css
+.Correct_Title   { background-color: #B0D361; }   /* green */
+.Incorrect_Title { background-color: #D14242; color: #ffffff; }   /* red */
+```
 
 ### Flow
 
@@ -166,6 +208,7 @@ player.getCurrentTime()
   → checkForQuestions(currentTime)
       → findTriggeredQuestion(currentTime)
             Trigger window: [question.time − 0.3, question.time + 0.5) seconds
+            Skips questions with chained: true (those open via chainTo only)
       → if hit (and not already dismissed):
             openQuestionNormal()   [first time]  or
             openQuestionReview()   [already answered, e.g. Watch Again]
@@ -177,11 +220,50 @@ player.getCurrentTime()
 Start overlay
   → [Start] → video plays
       → [Question trigger] → question overlay (interactive)
-          → [Submit]  → continue video
+          → [Submit]  → (if chainTo) open next question instantly
+                      → (otherwise) continue video
           → [Watch Again] → seek back to section start
       → [All questions answered + video ended] → debrief overlay
           → [Click question] → question overlay (readonly review)
               → [Return to Debrief] → debrief overlay
+```
+
+---
+
+## Questions & Chaining
+
+The player supports **15 NIHSS questions**. Two pairs of questions share the same video timecode and are linked via chaining:
+
+| ID | Sheet | Timecode | Notes |
+|----|-------|----------|-------|
+| Q1 | 1a LOC | 68.1s | |
+| Q2 | 1b LOC Q | 77.1s | |
+| Q3 | 1c LOC Commands | 87.2s | |
+| Q4 | 2 Best Gaze | 99.2s | |
+| Q5 | 3 Visual | 160.1s | |
+| Q6 | 4 Facial Palsy | 172.1s | |
+| Q7 | 5 Motor Arm (Left) | 202.3s | `chainTo: "Q8"` |
+| Q8 | 5 Motor Arm (Right) | 202.3s | `chained: true` |
+| Q9 | 6 Motor Leg (Left) | 230s | `chainTo: "Q10"` |
+| Q10 | 6 Motor Leg (Right) | 230s | `chained: true` |
+| Q11 | 7 Limb Ataxia | 282.1s | |
+| Q12 | 8 Sensory | 327.3s | |
+| Q13 | 9 Best Language | 411.1s | |
+| Q14 | 10 Dysarthria | 428.1s | |
+| Q15 | 11 Extinction and Inattention | 478.1s | |
+
+### How chaining works
+
+- `chainTo: "QX"` on the first question of a pair: after Submit, the next question opens **instantly** (no video seek, no timecode trigger).
+- `chained: true` on the second question: `findTriggeredQuestion()` skips it — it can only be opened via `chainTo`.
+- `getWatchAgainStartTime()` for a chained question looks back **2 steps** to find the correct seek point.
+
+### Question heading format
+
+All question screens display the sheet name alongside the question number:
+
+```
+Question 7: 5 Motor Arm (Left)
 ```
 
 ---
@@ -193,7 +275,7 @@ All question content lives in `excel/Questions.xlsx`. After editing, run `npm ru
 ### Sheet structure
 
 - Sheets named `start` and `readme` are skipped.
-- Every other sheet is treated as one question (e.g. `Q1 - 5s`, `Q2 - 10s`).
+- Every other sheet is treated as one question (e.g. `1a LOC`, `2 Best Gaze`).
 
 ```
 Cell A1        Question text (can be a merged cell)
@@ -209,7 +291,7 @@ Rows 6+        One answer option per row (stop when "Option" column is empty)
 
 | Column | Description |
 |--------|-------------|
-| `Option` | Short answer label (e.g. "0", "1", "A") |
+| `Option` | Short answer label (e.g. "0", "1", "UN") |
 | `Option Description` | Full description shown on the answer card |
 | `Feedback Rationale` | Text shown immediately after submit (optional) |
 | `Correct` | `TRUE` / `FALSE` (or `1` / `0`) — marks the correct answer |
@@ -226,31 +308,55 @@ All of these are equivalent for a question at 5 seconds:
 5.0
 ```
 
+### Chained questions (same timecode)
+
+To add a chained pair, manually add to `Questions.js` after importing:
+
+```js
+{ "id": "QX", ..., "chainTo": "QY" },   // first of pair
+{ "id": "QY", ..., "chained": true }     // second of pair — same timecode
+```
+
+After editing `Questions.js`, sync it to all Web Objects:
+
+```bash
+cp Questions.js "Web Object/Questions.js"
+cp Questions.js "Practice Test/Questions.js"
+cp Questions.js "Final Test/Questions.js"
+```
+
 ---
 
 ## Configuration Reference
 
 All configurable constants are at the top of their respective files.
 
-### `Web Object/scripts/script.js`
+### `scripts/script.js`
 
 | Constant | Default | Description |
 |----------|---------|-------------|
 | `UPDATE_MS` | `200` | Polling interval in milliseconds |
 | `VAR_NAME` | `'VimeoTime'` | Storyline variable name for time sync |
 
-### `Web Object/scripts/stateManager.js`
+### `scripts/stateManager.js`
 
 | Value | Location | Description |
 |-------|----------|-------------|
 | Trigger window start | `findTriggeredQuestion()` | `question.time - 0.3` seconds before cue |
 | Trigger window end | `findTriggeredQuestion()` | `question.time + 0.5` seconds after cue |
 
-### `Web Object/scripts/debriefRenderer.js`
+### `Final Test/scripts/script.js`
 
 | Constant | Default | Description |
 |----------|---------|-------------|
-| `PASSING_SCORE` | `0.93` | Minimum fraction correct to pass (93%) |
+| `MAX_ATTEMPTS` | `3` | Number of allowed attempts before Fail |
+| `PASSING_SCORE` | `90` | Minimum % correct to pass (0–100) |
+
+### `scripts/debriefRenderer.js`
+
+| Constant | Default | Description |
+|----------|---------|-------------|
+| `PASSING_SCORE` | `0.93` | Minimum fraction correct to pass (93%) — main player |
 
 ### Vimeo iframe `src` parameters
 
@@ -295,9 +401,9 @@ All colors are CSS custom properties in `:root`:
 | `checkForQuestions(currentTime, dom, player)` | Poll-based question detection |
 | `openQuestionNormal(index, dom, player)` | Show interactive question overlay |
 | `openQuestionReview(index, dom, player)` | Show read-only review overlay |
-| `handleSubmit(dom, player)` | Process answer submission |
+| `handleSubmit(dom, player)` | Process answer submission; handles `chainTo` chaining |
 | `continueVideo(dom, player)` | Close overlay, resume playback |
-| `watchSectionAgain(dom, player)` | Seek back to section, re-arm trigger |
+| `watchSectionAgain(dom, player)` | Seek back to section start, re-arm trigger |
 | `openDebrief(dom, player)` | Show scored debrief screen |
 | `passTimeToStoryline(currentTime)` | Write time to Storyline variable |
 | `setBackgroundHidden(dom, hidden)` | Toggle `aria-hidden` + `tabindex` on background elements |
@@ -311,12 +417,15 @@ All colors are CSS custom properties in `:root`:
 |----------|-------------|
 | `initState(questions)` | Reset all state with question array |
 | `getMode()` / `setMode(mode)` | Current mode: `start` \| `playing` \| `question` \| `review` \| `debrief` |
-| `findTriggeredQuestion(currentTime)` | Return question index if playhead is in its trigger window |
+| `getQuestions()` | Returns the full question array |
+| `findTriggeredQuestion(currentTime)` | Return question index if playhead is in its trigger window (skips `chained: true`) |
+| `isAnswered(index)` | Returns `true` if the question at index has been submitted |
 | `submitAnswer(index, answer)` | Commit an answer permanently |
 | `getQuestionResult(index)` | Full result object: `{ question, userAnswer, isCorrect, correctOption }` |
+| `getAllResults()` | Array of all result objects |
 | `areAllAnswered()` | Returns `true` when all questions have been submitted |
 | `dismissQuestion(index)` | Suppress re-trigger while in the same trigger window |
-| `getWatchAgainStartTime(index)` | Calculate seek target (0.6s after previous question's window) |
+| `getWatchAgainStartTime(index)` | Calculate seek target (0.6s after previous question's window; chained questions look back 2 steps) |
 | `resetForReplay()` | Full state reset (all answers, all flags) |
 
 ---
@@ -337,11 +446,26 @@ All colors are CSS custom properties in `:root`:
 
 | Function | Description |
 |----------|-------------|
-| `renderDebrief(overlay, results, callbacks)` | Render scored debrief: title, score, question list |
+| `renderDebrief(overlay, results, callbacks)` | Render scored debrief: title, NIHSS score badge, question list |
 | `hideDebrief(overlay)` | Hide debrief overlay |
 | `buildQuestionListItem(result, index, onClick)` | Single question row: icon + label + badge + chevron |
 
-Score calculation: `correct / total`. Pass threshold: **93%** (`PASSING_SCORE`).
+**NIHSS score badge** — displayed in the debrief header:
+```css
+.debrief-nihss-score {
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #4298B5;
+  color: #000000;
+}
+```
+
+Score calculation: `correct / total`. Pass threshold: **93%** (`PASSING_SCORE`) in the main player; **90%** in Final Test.
+
+**Final Test only** — `debriefRenderer.js` also applies a CSS modifier when no full question list is shown:
+```javascript
+headerEl.classList.toggle('debrief-header--no-list', !showFull);
+```
 
 ---
 
@@ -375,7 +499,7 @@ run()
 
 ## State Machine
 
-### Main player
+### Main player / Practice Test
 
 ```
 'start'
@@ -384,14 +508,31 @@ run()
 'playing'
   │  [Question trigger window reached]
   ▼
-'question'  ──[Submit]──►  'playing'
-  │  [Watch Again]                │  [Last question answered
-  └──────────────────────────────►│   + video ends]
-                                  ▼
-                               'debrief'
-                                  │  [Click question row]
-                                  ▼
-                               'review'  ──[Return / Escape]──► 'debrief'
+'question'  ──[Submit + chainTo]──► 'question' (next chained)
+  │  [Submit (no chain)]                │
+  └──────────────────────────────────► 'playing'
+  │  [Watch Again]                          │  [Last question answered
+  └─────────────────────────────────────────►│   + video ends]
+                                            ▼
+                                         'debrief'
+                                            │  [Click question row]
+                                            ▼
+                                         'review'  ──[Return / Escape]──► 'debrief'
+```
+
+### Final Test (3-attempt system)
+
+```
+'start'
+  │  [Start button]         attemptCount persists across restarts
+  ▼
+'playing'
+  │  [All questions + video ends]
+  ▼
+'debrief'
+  │  score < 90% AND attemptCount < 3  →  [Restart] → 'start' (attemptCount++)
+  │  score >= 90%                       →  pass (no Storyline signal needed)
+  │  score < 90% AND attemptCount >= 3  →  notifyStorylineFail() → SetVar('Fail', true)
 ```
 
 ### Practice Videos
@@ -406,7 +547,7 @@ run()
 'question'
   │  [Submit]
   ▼
-'feedback'   (inline — no separate screen)
+'feedback'   (inline — no separate screen; heading becomes "Correct!" / "Incorrect!")
 ```
 
 ---
@@ -421,8 +562,20 @@ The design uses CSS `zoom` to scale proportionally to the viewport instead of me
 |-----------|-------------|--------------|
 | Start modal | 800 × 580 px | `min(70vw / 800px, 90vh / 580px)` |
 | Question overlay | 1200 × 720 px | `min(100vw / 1200px, 100vh / 720px)` |
-| Debrief container | 900 × 700 px | `min(70vw / 900px, 92vh / 700px)` |
+| Debrief inner | 1200 × 720 px | `min(100vw / 1200px, 100vh / 720px)` |
 | Fullscreen button | — | `max(0.75, min(100vw / 1200px, 100vh / 720px))` |
+
+### Debrief layout
+
+The debrief overlay uses a `.debrief-inner` wrapper (1200 × 720 px, `flex-direction: column`) that all inner elements are scoped to. This is required for the `flex: 1` question list to fill the remaining height correctly.
+
+```html
+<div class="debrief-overlay" id="debrief-overlay">
+  <div class="debrief-inner">
+    <!-- header, list-wrap, etc. -->
+  </div>
+</div>
+```
 
 ### Answer card states
 
@@ -461,6 +614,8 @@ The design uses CSS `zoom` to scale proportionally to the viewport instead of me
 
 ## Articulate Storyline Integration
 
+### Time sync (all players)
+
 The main player exposes the current video time to Storyline via the JavaScript API.
 
 **Variable:** `VimeoTime` (configurable via `VAR_NAME` in `script.js`)
@@ -478,7 +633,28 @@ To use in Storyline:
 2. Insert the player HTML file as a **Web Object**.
 3. Use JavaScript triggers in Storyline that read `GetPlayer().GetVar("VimeoTime")` to react to the video position.
 
-If not embedding in Storyline, the `passTimeToStoryline()` call is safely ignored (wrapped in `try/catch`, only runs when `GetPlayer()` is available).
+### Fail signal (Final Test only)
+
+When the user exhausts all 3 attempts without passing, the Final Test sets a Storyline variable:
+
+**Variable:** `Fail`
+**Type:** Boolean
+**Value:** `true`
+
+```javascript
+function notifyStorylineFail() {
+  try {
+    const sl = window.parent?.GetPlayer?.() ?? window.top?.GetPlayer?.();
+    if (sl) sl.SetVar('Fail', true);
+  } catch (_) {}
+}
+```
+
+To use in Storyline:
+1. Create a **Boolean** variable named `Fail` (default `false`) in the Storyline project.
+2. Add a trigger that reacts when `Fail == true` (e.g. jump to a failure slide).
+
+If not embedding in Storyline, all `GetPlayer()` calls are safely ignored (wrapped in `try/catch`).
 
 ---
 
@@ -496,8 +672,9 @@ If not embedding in Storyline, the `passTimeToStoryline()` call is safely ignore
 
 ## Development Notes
 
-- `Questions.js` is auto-generated — never edit it manually. Always edit the Excel file and re-run `npm run import`.
+- `Questions.js` is auto-generated — never edit it manually. Always edit the Excel file and re-run `npm run import`. Exception: `chainTo` / `chained` fields for paired questions must be added manually after import.
 - The Vimeo polling loop runs at 200ms (`UPDATE_MS`). Lowering this may improve trigger accuracy at the cost of more API calls.
 - The trigger window (`−0.3s / +0.5s`) is intentionally asymmetric to account for Vimeo's `getCurrentTime()` polling jitter.
-- `dismissQuestion(index)` prevents a question from retriggering when the user is still inside the trigger window (e.g. after Submit + Continue).
+- `dismissQuestion(index)` prevents a question from retriggering when the user is still inside the trigger window (e.g. after Submit + Continue). Chained question pairs share the same trigger window, so submitting Q8 also suppresses Q7.
 - Practice Video projects are fully standalone — each folder contains all necessary assets and has no dependency on the parent project.
+- **Source of truth:** root `scripts/` and `styles/` are the canonical copies. Sync to `Web Object/` and `Practice Test/` after every change. `Final Test/` has its own extended copies — sync only `Questions.js` and shared modules (stateManager, questionRenderer, utils).

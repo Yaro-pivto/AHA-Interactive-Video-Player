@@ -59,6 +59,10 @@ export function renderDebrief(debriefOverlay, results, { onQuestionClick, attemp
     }
   }
 
+  // ── Header gap modifier ────────────────────────────────────────────────────
+  const headerEl = debriefOverlay.querySelector('.debrief-header');
+  if (headerEl) headerEl.classList.toggle('debrief-header--no-list', !showFull);
+
   // ── Subtitle + question list — only on full debrief ────────────────────────
   const subtitleEl = debriefOverlay.querySelector('.debrief-subtitle');
   if (subtitleEl) subtitleEl.classList.toggle('hidden', !showFull);

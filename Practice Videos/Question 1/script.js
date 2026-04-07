@@ -36,7 +36,7 @@ var mode = 'start';
 var player;
 
 var iframe, videoWrapper, startOverlay, startBtn, questionOverlay,
-    questionText, answersContainer, instructionText, submitBtn,
+    questionNumber, questionText, answersContainer, instructionText, submitBtn,
     watchAgainBtn, frameSentinel, fullscreenBtn;
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
   startOverlay     = document.getElementById('startOverlay');
   startBtn         = document.getElementById('startBtn');
   questionOverlay  = document.getElementById('questionOverlay');
+  questionNumber   = document.getElementById('questionNumber');
   questionText     = document.getElementById('questionText');
   answersContainer = document.getElementById('answersContainer');
   instructionText  = document.getElementById('instructionText');
@@ -126,6 +127,11 @@ function watchAgain() {
 function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
+
+  questionNumber.textContent = 'Question';
+  questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
+  questionText.classList.remove('hidden');
+  instructionText.classList.remove('hidden');
 
   questionText.textContent = QUESTION.text;
   instructionText.textContent = 'Select an answer and press Submit to continue.';
@@ -243,7 +249,16 @@ function showFeedback() {
   }
 
   answersContainer.appendChild(panel);
-  instructionText.textContent = isCorrect ? 'Correct!' : 'Review the correct answer below.';
+
+  // Update h1 badge
+  questionNumber.textContent = isCorrect ? 'Correct!' : 'Incorrect!';
+  questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
+  questionNumber.classList.add(isCorrect ? 'Correct_Title' : 'Incorrect_Title');
+
+  // Hide question text and instruction text
+  questionText.classList.add('hidden');
+  instructionText.classList.add('hidden');
+
   submitBtn.classList.add('hidden');
   requestAnimationFrame(function () { panel.focus(); });
 }

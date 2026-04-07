@@ -12,6 +12,7 @@ import {
   setCurrentIndex,
   setSelectedAnswer,
   submitAnswer,
+  isAnswered,
   getPreviousAnswer,
   getAnsweredAnswer,
   areAllAnswered,
@@ -42,8 +43,10 @@ import {
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 
-const VAR_NAME  = 'VimeoTime';
-const UPDATE_MS = 200;
+const VAR_NAME     = 'VimeoTime';
+const UPDATE_MS    = 200;
+const MAX_ATTEMPTS = 3;
+const PASSING_SCORE = 90;
 
 // ─── Attempt tracking ─────────────────────────────────────────────────────────
 
@@ -233,6 +236,13 @@ function passTimeToStoryline(currentTime) {
   } catch (_) {}
 }
 
+function notifyStorylineFail() {
+  try {
+    const sl = window.parent?.GetPlayer?.() ?? window.top?.GetPlayer?.();
+    if (sl) sl.SetVar('Fail', true);
+  } catch (_) {}
+}
+
 // ─── Question trigger ─────────────────────────────────────────────────────────
 
 function checkForQuestions(currentTime, dom, player) {
@@ -266,7 +276,12 @@ function openQuestionNormal(index, dom, player) {
   if (!question) return;
 
   // Set "Question X" primary heading
-  if (dom.questionNumber) dom.questionNumber.textContent = 'Question ' + (index + 1);
+  if (dom.questionNumber) {
+    const sheet = getQuestions()[index]?.sheet ?? '';
+    dom.questionNumber.textContent = sheet
+      ? `Question ${index + 1}: ${sheet}`
+      : `Question ${index + 1}`;
+  }
 
   setCurrentIndex(index);
   setIsAnswering(true);
@@ -292,7 +307,12 @@ function openQuestionReview(index, dom, player) {
   if (!question) return;
 
   // Set "Question X" primary heading
-  if (dom.questionNumber) dom.questionNumber.textContent = 'Question ' + (index + 1);
+  if (dom.questionNumber) {
+    const sheet = getQuestions()[index]?.sheet ?? '';
+    dom.questionNumber.textContent = sheet
+      ? `Question ${index + 1}: ${sheet}`
+      : `Question ${index + 1}`;
+  }
 
   setCurrentIndex(index);
   setMode('review');
@@ -340,6 +360,14 @@ function openDebrief(dom, player) {
 
   attemptCount += 1;
 
+  // Notify Storyline on final failed attempt
+  const results = getAllResults();
+  const correct = results.filter(r => r.isCorrect).length;
+  const pct     = results.length > 0 ? Math.round((correct / results.length) * 100) : 0;
+  if (!( pct >= PASSING_SCORE ) && attemptCount >= MAX_ATTEMPTS) {
+    notifyStorylineFail();
+  }
+
   renderDebrief(dom.debriefOverlay, getAllResults(), {
     onQuestionClick: (index) => openQuestionReview(index, dom, player),
     attemptCount,
@@ -380,6 +408,16 @@ function handleSubmit(dom, player) {
   if (!answer) return;
 
   submitAnswer(index, answer);
+
+  // If this question chains to another, open it immediately
+  const chainToId = getQuestions()[index]?.chainTo;
+  if (chainToId) {
+    const chainIndex = getQuestions().findIndex(q => q.id === chainToId);
+    if (chainIndex >= 0 && !isAnswered(chainIndex)) {
+      openQuestionNormal(chainIndex, dom, player);
+      return;
+    }
+  }
 
   // If this was the last question → open Debrief immediately
   if (areAllAnswered()) {
