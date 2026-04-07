@@ -32,11 +32,14 @@ export function renderDebrief(debriefOverlay, results, { onQuestionClick, attemp
     return sum + val;
   }, 0);
 
-  // ── Result line ────────────────────────────────────────────────────────────
+  // ── Title + result line ────────────────────────────────────────────────────
+  const titleEl = debriefOverlay.querySelector('#debriefTitle');
+  if (titleEl) titleEl.textContent = passed ? 'Congratulations!' : 'Result';
+
   const resultEl = debriefOverlay.querySelector('#debriefResult');
   if (resultEl) {
     resultEl.textContent = passed
-      ? `You have scored ${pct}%. You passed!`
+      ? `You have passed the case study with a score of ${pct}%.`
       : `You have scored ${pct}%. You haven't achieved the passing score.`;
   }
 

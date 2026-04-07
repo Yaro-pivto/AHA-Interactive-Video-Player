@@ -475,9 +475,22 @@ Both badges share the same `.debrief-nihss-score` class and are wrapped in `.deb
 
 Score calculation: `correct / total`. Pass threshold: **93%** (`PASSING_SCORE`) in the main player; **90%** in Final Test.
 
+**Pass/fail messaging** — `renderDebrief` updates the title and result text dynamically:
+
+| State | `#debriefTitle` | `#debriefResult` |
+|-------|-----------------|------------------|
+| Passed | `Congratulations!` | `You have passed the case study with a score of X%.` |
+| Failed | `Debrief` / `Result` | `You have scored X%. You haven't achieved the passing score.` |
+
 **Final Test only** — `debriefRenderer.js` also applies a CSS modifier when no full question list is shown:
 ```javascript
 headerEl.classList.toggle('debrief-header--no-list', !showFull);
+```
+
+**`Final Test/debrief-preview.html`** — standalone preview of the Final Test debrief screen. Change these constants to simulate different states:
+```javascript
+const MOCK_ATTEMPT     = 2;    // 1 or 2 → shows Try Again; 3 → shows full question list
+const MOCK_PCT_CORRECT = 0.85; // fraction correct (>= 0.9 = passed)
 ```
 
 ---

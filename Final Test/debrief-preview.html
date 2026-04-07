@@ -35,7 +35,7 @@
             <p id="attemptInfo" class="debrief-attempt-info"></p>
             <button id="restartBtn" type="button" class="debrief-restart-btn">Try Again</button>
             <p id="debriefSubtitle" class="debrief-subtitle hidden">
-              Select a question below to review your answer.
+              Select a question below to review your answer or continue to the next case study.
             </p>
           </div>
 
@@ -66,8 +66,8 @@
 
     // ── Controls — toggle between states ──────────────────────────────────────
     // Change these to preview different states:
-    const MOCK_ATTEMPT    = 2;        // 1, 2, or 3
-    const MOCK_PCT_CORRECT = 0.2;     // fraction of questions answered correctly (0–1)
+    const MOCK_ATTEMPT    = 3;        // 1, 2, or 3
+    const MOCK_PCT_CORRECT = 0.85;    // fraction of questions answered correctly (0–1)
 
     // ── Mock results ──────────────────────────────────────────────────────────
     const results = QUESTIONS_DATA.map((q, i) => {
@@ -96,8 +96,10 @@
     }, 0);
 
     // ── Populate header ───────────────────────────────────────────────────────
+    document.getElementById('debriefTitle').textContent = passed ? 'Congratulations!' : 'Result';
+
     document.getElementById('debriefResult').textContent = passed
-      ? `You have scored ${pct}%. You passed!`
+      ? `You have passed the case study with a score of ${pct}%.`
       : `You have scored ${pct}%. You haven't achieved the passing score.`;
 
     document.getElementById('nihssScore').textContent   = `Learner's Score: ${nihssTotal}`;
