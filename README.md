@@ -47,6 +47,7 @@ AHA-Interactive-Video-Player/
 │   ├── script.js                 # Orchestrator (root — source of truth)
 │   ├── stateManager.js           # State management
 │   ├── questionRenderer.js       # Question DOM rendering
+│   ├── summaryRenderer.js        # Summary screen DOM rendering (pre-debrief)
 │   ├── debriefRenderer.js        # Debrief DOM rendering
 │   ├── questionsToPlayer.js      # Node build script (Excel → Questions.js)
 │   └── utils.js                  # Helpers
@@ -75,10 +76,11 @@ AHA-Interactive-Video-Player/
 │   │   ├── script.js             # Extended: attempt counter + Storyline Fail variable
 │   │   ├── stateManager.js
 │   │   ├── questionRenderer.js
+│   │   ├── summaryRenderer.js
 │   │   ├── debriefRenderer.js    # Extended: debrief-header--no-list modifier
 │   │   └── utils.js
 │   ├── styles/
-│   │   └── styles.css            # Extended: .debrief-header--no-list rule
+│   │   └── styles.css            # Extended: .debrief-header--no-list + summary overlay rules
 │   └── img/
 │
 └── Practice Videos/              # 13 standalone single-question Web Objects
@@ -223,9 +225,12 @@ Start overlay
           → [Submit]  → (if chainTo) open next question instantly
                       → (otherwise) continue video
           → [Watch Again] → seek back to section start
-      → [All questions answered + video ended] → debrief overlay
-          → [Click question] → question overlay (readonly review)
-              → [Return to Debrief] → debrief overlay
+      → [All questions answered + video ended] → summary overlay (pre-debrief)
+          → [Click question] → question overlay (re-answerable)
+              → [Submit] → return to summary
+          → [Submit Answers] → debrief overlay
+              → [Click question] → question overlay (readonly review)
+                  → [Return to Debrief] → debrief overlay
 ```
 
 ---
@@ -400,12 +405,15 @@ All colors are CSS custom properties in `:root`:
 | `startActivity(dom, player)` | Hide start screen, begin playback |
 | `checkForQuestions(currentTime, dom, player)` | Poll-based question detection |
 | `openQuestionNormal(index, dom, player)` | Show interactive question overlay |
-| `openQuestionReview(index, dom, player)` | Show read-only review overlay |
+| `openQuestionReview(index, dom, player)` | Show read-only review overlay (from Debrief) |
+| `openQuestionFromSummary(index, dom, player)` | Show re-answerable overlay from Summary screen |
 | `handleSubmit(dom, player)` | Process answer submission; handles `chainTo` chaining |
 | `continueVideo(dom, player)` | Close overlay, resume playback |
 | `watchSectionAgain(dom, player)` | Seek back to section start, re-arm trigger |
-| `openDebrief(dom, player)` | Show scored debrief screen |
-| `passTimeToStoryline(currentTime)` | Write time to Storyline variable |
+| `openSummary(dom, player)` | Show pre-debrief Summary screen |
+| `openDebrief(dom, player)` | Show scored Debrief screen |
+| `passTimeToStoryline(currentTime)` | Write playhead time to Storyline variable |
+| `passAnswerCountToStoryline()` | Write answered question count to Storyline variable |
 | `setBackgroundHidden(dom, hidden)` | Toggle `aria-hidden` + `tabindex` on background elements |
 | `toggleFullscreen(wrapper)` | Enter/exit native fullscreen |
 
@@ -416,7 +424,7 @@ All colors are CSS custom properties in `:root`:
 | Function | Description |
 |----------|-------------|
 | `initState(questions)` | Reset all state with question array |
-| `getMode()` / `setMode(mode)` | Current mode: `start` \| `playing` \| `question` \| `review` \| `debrief` |
+| `getMode()` / `setMode(mode)` | Current mode: `start` \| `playing` \| `question` \| `review` \| `summary` \| `debrief` |
 | `getQuestions()` | Returns the full question array |
 | `findTriggeredQuestion(currentTime)` | Return question index if playhead is in its trigger window (skips `chained: true`) |
 | `isAnswered(index)` | Returns `true` if the question at index has been submitted |
@@ -426,6 +434,9 @@ All colors are CSS custom properties in `:root`:
 | `areAllAnswered()` | Returns `true` when all questions have been submitted |
 | `dismissQuestion(index)` | Suppress re-trigger while in the same trigger window |
 | `getWatchAgainStartTime(index)` | Calculate seek target (0.6s after previous question's window; chained questions look back 2 steps) |
+| `setSummaryEditActive(val)` | When `true`, lifts the allDone lock so questions re-open as re-answerable (used during Summary editing) |
+| `setWatchAgainIndex(index)` | Allow a specific answered question to re-trigger; also sets broadcast flag |
+| `clearWatchAgainBroadcast()` | Clear the broadcast flag when returning to Summary or Debrief |
 | `resetForReplay()` | Full state reset (all answers, all flags) |
 
 ---
@@ -442,6 +453,17 @@ All colors are CSS custom properties in `:root`:
 
 ---
 
+### `scripts/summaryRenderer.js` — Summary DOM
+
+| Function | Description |
+|----------|-------------|
+| `renderSummary(overlay, results, callbacks)` | Render pre-debrief summary: points scored badge, question list, Submit Answers button |
+| `hideSummary(overlay)` | Hide summary overlay |
+
+The Summary screen shows each question with the user's selected point value (neutral — no correct/incorrect indication). Users can click any question to change their answer before submitting.
+
+---
+
 ### `scripts/debriefRenderer.js` — Debrief DOM
 
 | Function | Description |
@@ -454,8 +476,8 @@ All colors are CSS custom properties in `:root`:
 
 | Badge | Content | Element ID |
 |-------|---------|------------|
-| Left | **Learner's Score** — sum of the user's selected answer values | `#nihssScore` |
-| Right | **Total Score** — sum of all correct answer values | `#nihssCorrect` |
+| Left | **Points Scored** — sum of the user's selected answer values | `#nihssScore` |
+| Right | **Correct Score** — sum of all correct answer values | `#nihssCorrect` |
 
 Both badges share the same `.debrief-nihss-score` class and are wrapped in `.debrief-nihss-row`:
 ```css
@@ -540,6 +562,9 @@ run()
   │  [Watch Again]                          │  [Last question answered
   └─────────────────────────────────────────►│   + video ends]
                                             ▼
+                                         'summary'  ──[Click question]──► 'question' (re-answerable)
+                                            │  [Submit Answers]               └──[Submit]──► 'summary'
+                                            ▼
                                          'debrief'
                                             │  [Click question row]
                                             ▼
@@ -555,8 +580,11 @@ run()
 'playing'
   │  [All questions + video ends]
   ▼
+'summary'
+  │  [Submit Answers]
+  ▼
 'debrief'
-  │  score < 90% AND attemptCount < 3  →  [Restart] → 'start' (attemptCount++)
+  │  score < 90% AND attemptCount < 3  →  [Try Again] → 'start' (attemptCount++)
   │  score >= 90%                       →  pass (no Storyline signal needed)
   │  score < 90% AND attemptCount >= 3  →  notifyStorylineFail() → SetVar('Fail', true)
 ```
@@ -588,6 +616,7 @@ The design uses CSS `zoom` to scale proportionally to the viewport instead of me
 |-----------|-------------|--------------|
 | Start modal | 800 × 580 px | `min(70vw / 800px, 90vh / 580px)` |
 | Question overlay | 1200 × 720 px | `min(100vw / 1200px, 100vh / 720px)` |
+| Summary inner | 1200 × 720 px | `min(100vw / 1200px, 100vh / 720px)` |
 | Debrief inner | 1200 × 720 px | `min(100vw / 1200px, 100vh / 720px)` |
 | Fullscreen button | — | `max(0.75, min(100vw / 1200px, 100vh / 720px))` |
 
@@ -658,6 +687,28 @@ To use in Storyline:
 1. Create a **Number** variable named `VimeoTime` in the Storyline project.
 2. Insert the player HTML file as a **Web Object**.
 3. Use JavaScript triggers in Storyline that read `GetPlayer().GetVar("VimeoTime")` to react to the video position.
+
+### Answer count (all players)
+
+Updated silently after each question is submitted.
+
+**Variable:** `AnsweredCount`
+**Type:** Number
+**Value:** Number of questions submitted so far (e.g. `3` after the third submit)
+
+```javascript
+function passAnswerCountToStoryline() {
+  try {
+    const sl    = window.parent?.GetPlayer?.() ?? window.top?.GetPlayer?.();
+    const count = getQuestions().filter((_, i) => isAnswered(i)).length;
+    if (sl) sl.SetVar('AnsweredCount', count);
+  } catch (_) {}
+}
+```
+
+To use in Storyline, create a **Number** variable named `AnsweredCount` (default `0`) and add triggers that react to its value.
+
+---
 
 ### Fail signal (Final Test only)
 
