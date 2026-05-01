@@ -17,6 +17,11 @@ let _dismissedIndex = -1;  // Index of the last question that was dismissed (clo
                             // the same trigger window. Cleared when playhead leaves the window.
 let _watchAgainIndex = -1; // When set, forces this question to re-trigger even if allDone.
                             // Used by "Watch Section Again" from review mode.
+let _summaryEditActive   = false; // True while user is re-answering from Summary screen.
+                                   // Lifts the allDone lock so any question can re-trigger.
+let _watchAgainBroadcast = false; // True after any Watch Again click (Summary or Debrief).
+                                   // Lifts the allDone lock so ALL questions can re-trigger.
+                                   // Cleared when returning to Summary or Debrief.
 
 /**
  * Player mode:
@@ -35,15 +40,17 @@ let _mode = 'start';
  * @param {Array} questions
  */
 export function initState(questions) {
-  _questions       = questions;
-  _currentIndex    = -1;
-  _answeredMap     = {};
-  _selectedMap     = {};
-  _isPausing       = false;
-  _isAnswering     = false;
-  _dismissedIndex  = -1;
-  _watchAgainIndex = -1;
-  _mode            = 'start';
+  _questions         = questions;
+  _currentIndex      = -1;
+  _answeredMap       = {};
+  _selectedMap       = {};
+  _isPausing         = false;
+  _isAnswering       = false;
+  _dismissedIndex    = -1;
+  _watchAgainIndex   = -1;
+  _summaryEditActive   = false;
+  _watchAgainBroadcast = false;
+  _mode                = 'start';
 }
 
 // ─── Mode ─────────────────────────────────────────────────────────────────────
@@ -188,7 +195,7 @@ export function findTriggeredQuestion(currentTime) {
       if (q.chained) continue;
       // Already answered + all done → normally skip (debrief handles it).
       // Exception: user explicitly clicked "Watch Section Again" for this question.
-      if (_answeredMap[i] && allDone && i !== _watchAgainIndex) return null;
+      if (_answeredMap[i] && allDone && i !== _watchAgainIndex && !_summaryEditActive && !_watchAgainBroadcast) return null;
       // Once triggered, clear the watch-again override
       if (i === _watchAgainIndex) _watchAgainIndex = -1;
       return { index: i, question: q };
@@ -202,6 +209,7 @@ export function findTriggeredQuestion(currentTime) {
  * Used to decide whether to show re-answerable overlay or readonly review.
  */
 export function isLockedAnswer(index) {
+  if (_summaryEditActive) return false;
   const allDone = _questions.length > 0
     && _questions.every((_, i) => Boolean(_answeredMap[i]));
   return Boolean(_answeredMap[index]) && allDone;
@@ -262,8 +270,19 @@ export function clearDismissed() {
  * @param {number} index
  */
 export function setWatchAgainIndex(index) {
-  _watchAgainIndex = index;
+  _watchAgainIndex     = index;
+  _watchAgainBroadcast = true;
 }
+
+export function clearWatchAgainBroadcast() {
+  _watchAgainBroadcast = false;
+}
+
+export function getWatchAgainIndex() {
+  return _watchAgainIndex;
+}
+
+export function setSummaryEditActive(val) { _summaryEditActive = val; }
 
 /**
  * Reset flow flags when closing the overlay (without resetting answer history).
@@ -278,12 +297,14 @@ export function closeOverlay() {
  * Full reset — clears all answers and state for replay.
  */
 export function resetForReplay() {
-  _currentIndex    = -1;
-  _answeredMap     = {};
-  _selectedMap     = {};
-  _isPausing       = false;
-  _isAnswering     = false;
-  _dismissedIndex  = -1;
-  _watchAgainIndex = -1;
-  _mode            = 'playing';
+  _currentIndex      = -1;
+  _answeredMap       = {};
+  _selectedMap       = {};
+  _isPausing         = false;
+  _isAnswering       = false;
+  _dismissedIndex    = -1;
+  _watchAgainIndex   = -1;
+  _summaryEditActive   = false;
+  _watchAgainBroadcast = false;
+  _mode                = 'playing';
 }

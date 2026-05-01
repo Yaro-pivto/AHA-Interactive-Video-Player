@@ -28,6 +28,8 @@ import {
   dismissQuestion,
   clearDismissed,
   setWatchAgainIndex,
+  setSummaryEditActive,
+  clearWatchAgainBroadcast,
   getWatchAgainStartTime,
   closeOverlay,
   resetForReplay,
@@ -40,6 +42,10 @@ import {
   renderDebrief,
   hideDebrief,
 } from './debriefRenderer.js';
+import {
+  renderSummary,
+  hideSummary,
+} from './summaryRenderer.js';
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 
@@ -62,6 +68,7 @@ function resolveDom() {
     startOverlay:     document.getElementById('startOverlay'),
     startBtn:         document.getElementById('startBtn'),
     questionOverlay:  document.getElementById('questionOverlay'),
+    summaryOverlay:   document.getElementById('summaryOverlay'),
     debriefOverlay:   document.getElementById('debriefOverlay'),
     questionNumber:   document.getElementById('questionNumber'),   // H1 "Question X"
     questionText:     document.getElementById('questionText'),
@@ -210,7 +217,7 @@ function startPlayer(dom, player) {
     player.on('ended', () => {
       // dom.videoFocusTarget.setAttribute('aria-label', 'Play video'); // [COMMENTED OUT]
       if (areAllAnswered()) {
-        openDebrief(dom, player);
+        openSummary(dom, player);
       }
     });
 
@@ -218,7 +225,7 @@ function startPlayer(dom, player) {
       player.getCurrentTime().then(currentTime => {
         if (getIsAnswering()) { player.pause(); return; }
         const mode = getMode();
-        if (mode === 'start' || mode === 'debrief' || mode === 'review') return;
+        if (mode === 'start' || mode === 'summary' || mode === 'debrief' || mode === 'review') return;
 
         passTimeToStoryline(currentTime);
         checkForQuestions(currentTime, dom, player);
@@ -233,6 +240,14 @@ function passTimeToStoryline(currentTime) {
   try {
     const sl = window.parent?.GetPlayer?.() ?? window.top?.GetPlayer?.();
     if (sl) sl.SetVar(VAR_NAME, Math.round(currentTime * 10) / 10);
+  } catch (_) {}
+}
+
+function passAnswerCountToStoryline() {
+  try {
+    const sl    = window.parent?.GetPlayer?.() ?? window.top?.GetPlayer?.();
+    const count = getQuestions().filter((_, i) => isAnswered(i)).length;
+    if (sl) sl.SetVar('AnsweredCount', count);
   } catch (_) {}
 }
 
@@ -345,12 +360,38 @@ function returnToDebrief(dom, player) {
   openDebrief(dom, player);
 }
 
+// ─── Summary (pre-debrief) ────────────────────────────────────────────────────
+
+function openSummary(dom, player) {
+  setMode('summary');
+  setSummaryEditActive(false);
+  clearWatchAgainBroadcast();
+  player.pause().catch(() => {});
+
+  setBackgroundHidden(dom, true);
+  dom.questionOverlay.classList.add('hidden');
+  dom.questionOverlay.setAttribute('aria-hidden', 'true');
+
+  renderSummary(dom.summaryOverlay, getAllResults(), {
+    onQuestionClick: (index) => openQuestionFromSummary(index, dom, player),
+    onSeeResults:    ()      => openDebrief(dom, player),
+  });
+}
+
+function openQuestionFromSummary(index, dom, player) {
+  setSummaryEditActive(true);
+  hideSummary(dom.summaryOverlay);
+  openQuestionNormal(index, dom, player);
+}
+
 // ─── Debrief ──────────────────────────────────────────────────────────────────
 
 function openDebrief(dom, player) {
   setMode('debrief');
+  clearWatchAgainBroadcast();
   player.pause().catch(() => {});
 
+  hideSummary(dom.summaryOverlay);
   setBackgroundHidden(dom, true);
   dom.questionOverlay.classList.add('hidden');
 
@@ -404,22 +445,23 @@ function handleSubmit(dom, player) {
   if (!answer) return;
 
   submitAnswer(index, answer);
+  passAnswerCountToStoryline();
 
   // If this question chains to another, open it immediately
   const chainToId = getQuestions()[index]?.chainTo;
   if (chainToId) {
     const chainIndex = getQuestions().findIndex(q => q.id === chainToId);
-    if (chainIndex >= 0 && !isAnswered(chainIndex)) {
+    if (chainIndex >= 0) {
       openQuestionNormal(chainIndex, dom, player);
       return;
     }
   }
 
-  // If this was the last question → open Debrief immediately
+  // If this was the last question → open Summary screen
   if (areAllAnswered()) {
-    dismissQuestion(index);   // prevent re-trigger if user ever seeks back
+    dismissQuestion(index);
     closeOverlay();
-    openDebrief(dom, player);
+    openSummary(dom, player);
   } else {
     continueVideo(dom, player);
   }

@@ -73,7 +73,7 @@
       tabindex="-1"
       src="https://player.vimeo.com/video/1174049957?badge=0&autopause=0&quality_selector=1&progress_bar=1&fullscreen=0"
       allow="autoplay; picture-in-picture"
-      title="Transformational Leadership Components"
+      title="Practice Test"
       aria-label="Interactive video player">
     </iframe>
 
@@ -162,6 +162,43 @@
           </button>
 
         </div><!-- /.question-inner -->
+      </div>
+    </div>
+
+    <!-- ─── Summary overlay (pre-debrief) ─── -->
+    <div
+      id="summaryOverlay"
+      class="summary-overlay hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="summaryTitle"
+      aria-hidden="true"
+      tabindex="-1">
+
+      <div class="summary-container">
+        <div class="summary-inner">
+
+          <div class="summary-header">
+            <h1 id="summaryTitle" class="summary-title">Your Answers</h1>
+            <div class="summary-score-row">
+              <p id="summaryPoints" class="summary-points-badge">Points Scored: 0</p>
+            </div>
+            <p class="summary-subtitle">
+              Review your answers below. Click any question to change it before seeing your results.
+            </p>
+          </div>
+
+          <div class="summary-list-wrap" role="group" aria-label="Your answers">
+            <ul id="summaryList" class="summary-list" role="list"></ul>
+          </div>
+
+          <div class="summary-footer">
+            <button id="summarySubmitBtn" type="button" class="summary-submit-btn">
+              Submit Answers
+            </button>
+          </div>
+
+        </div>
       </div>
     </div>
 

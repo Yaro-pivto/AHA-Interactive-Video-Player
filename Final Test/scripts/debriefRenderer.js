@@ -45,10 +45,10 @@ export function renderDebrief(debriefOverlay, results, { onQuestionClick, attemp
 
   // ── NIHSS score badges ─────────────────────────────────────────────────────
   const nihssEl = debriefOverlay.querySelector('#nihssScore');
-  if (nihssEl) nihssEl.textContent = `Learner's Score: ${nihssTotal}`;
+  if (nihssEl) nihssEl.textContent = `Points Scored: ${nihssTotal}`;
 
   const nihssCorrectEl = debriefOverlay.querySelector('#nihssCorrect');
-  if (nihssCorrectEl) nihssCorrectEl.textContent = `Total Score: ${nihssCorrect}`;
+  if (nihssCorrectEl) nihssCorrectEl.textContent = `Correct Score: ${nihssCorrect}`;
 
   // ── Attempt info (only on non-final failed attempts) ──────────────────────
   const attemptEl = debriefOverlay.querySelector('#attemptInfo');

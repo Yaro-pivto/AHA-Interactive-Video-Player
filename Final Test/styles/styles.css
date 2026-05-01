@@ -873,6 +873,221 @@ iframe {
    â€¢ Only the question list area scrolls; header + footer stay fixed
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
+/* ══════════════════════════════════════════════════════════
+   SUMMARY OVERLAY — pre-debrief screen
+   ══════════════════════════════════════════════════════════ */
+
+.summary-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.summary-container {
+  position: absolute;
+  inset: 0;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  animation: fadeIn 0.3s ease;
+  pointer-events: auto;
+}
+
+.summary-inner {
+  position: relative;
+  width: 1200px;
+  height: 720px;
+  overflow: hidden;
+  padding: 32px 60px 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: auto;
+  zoom: min(calc(100vw / 1200px), calc(100vh / 720px));
+}
+
+.summary-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.summary-title {
+  margin: 0;
+  font-size: 52px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.summary-score-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.summary-points-badge {
+  margin: 0;
+  padding: 10px 20px;
+  font-size: 28px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  line-height: 1.3;
+  text-align: center;
+  border-radius: 10px;
+  background-color: #4298B5;
+}
+
+.summary-subtitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  font-family: "aktiv-grotesk", sans-serif;
+  color: #000000;
+  opacity: 0.6;
+  line-height: 1.5;
+  text-align: center;
+  max-width: 560px;
+}
+
+.summary-list-wrap {
+  flex: 1;
+  overflow: hidden;
+  padding-top: 4px;
+}
+
+.summary-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.summary-list__item {
+  display: flex;
+}
+
+.summary-question-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 16px;
+  border-radius: 14px;
+  border: 2px solid #CCCCCC;
+  background: #FFFFFF;
+  cursor: pointer;
+  font-family: "aktiv-grotesk", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #000000;
+  text-align: left;
+  transition: border-color 0.15s ease, transform 0.1s ease, filter 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.summary-question-btn:hover {
+  border-color: #4298B5;
+  transform: translateY(-1px);
+  filter: brightness(0.97);
+}
+
+.summary-question-btn:focus-visible {
+  outline: 3px solid #4298B5;
+  outline-offset: 2px;
+}
+
+.summary-question-btn__text {
+  flex: 1;
+  color: #000000;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summary-points-pill {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: "aktiv-grotesk", sans-serif;
+  padding: 5px 16px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: #4298B5;
+  color: #000000;
+}
+
+.summary-arrow {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: sans-serif;
+  color: #4D4D4F;
+  flex-shrink: 0;
+  margin-left: 2px;
+  transition: transform 0.15s ease;
+}
+
+.summary-question-btn:hover .summary-arrow {
+  transform: translateX(3px);
+}
+
+.summary-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.summary-submit-btn {
+  min-width: 220px;
+  padding: 18px 60px;
+  background: #4D4D4F;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.summary-submit-btn:hover,
+.summary-submit-btn:focus {
+  background: #4298B5;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(66, 152, 181, 0.45);
+}
+
+.summary-submit-btn:focus-visible {
+  outline: 3px solid #4298B5;
+  outline-offset: 3px;
+}
+
+.summary-submit-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
 .debrief-overlay {
   position: absolute;
   inset: 0;
