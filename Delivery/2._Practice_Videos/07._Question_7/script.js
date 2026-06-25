@@ -1,22 +1,22 @@
 ﻿// Question 7 data
 var QUESTION = {
-  text: "Based on what you see in the video, please score the patient accordingly.",
+  text: "Based on what you saw in the video, how would you score this patient?\nChoose the correct answer, and select Submit.",
   options:   [
     {
       "text": "0",
-      "description": "No drift; limb holds 90 (or 45) degrees for full 10 seconds.",
+      "description": "No drift; limb holds 90° (or 45°) for full 10 seconds",
       "correct": false,
-      "rationale": "Rationale will be provided here."
+      "rationale": ""
     },
     {
       "text": "1",
-      "description": "Drift; limb holds 90 (or 45) degrees, but drifts down before full 10 seconds; does not hit bed or other support.",
+      "description": "Drift; limb holds 90° (or 45°) but drifts down before full 10 seconds; does not hit bed or other support",
       "correct": true,
       "rationale": "There was a slight drift in the right arm."
     },
     {
       "text": "2",
-      "description": "Some effort against gravity; limb cannot get to or maintain (if cued) 90 (or 45) degrees, drifts down to bed, but has some effort against gravity.",
+      "description": "Some effort against gravity; limb cannot get to or maintain (if cued) 90° (or 45°), drifts down to bed but has some effort against gravity",
       "correct": false,
       "rationale": ""
     },
@@ -28,7 +28,7 @@ var QUESTION = {
     },
     {
       "text": "4",
-      "description": "No movement.",
+      "description": "No movement",
       "correct": false,
       "rationale": ""
     },
@@ -140,7 +140,7 @@ function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
 
-  questionNumber.textContent = 'Item 5: Motor Arm';
+  questionNumber.textContent = '5: Motor Arm (Left and Right)';
   questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
   questionText.classList.remove('hidden');
   instructionText.classList.remove('hidden');

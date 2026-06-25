@@ -1,6 +1,6 @@
 ﻿// Question 3 data
 var QUESTION = {
-  text: "Based on what you see in the video, please score the patient accordingly.",
+  text: "Based on what you saw in the video, how would you score this patient?\nChoose the correct answer, and select Submit.",
   options:   [
     {
       "text": "0",
@@ -122,7 +122,7 @@ function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
 
-  questionNumber.textContent = 'Item 1c: LOC Commands';
+  questionNumber.textContent = '1c: Level of Consciousness Commands';
   questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
   questionText.classList.remove('hidden');
   instructionText.classList.remove('hidden');

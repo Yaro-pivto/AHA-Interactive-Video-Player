@@ -1,6 +1,6 @@
 ﻿// Question 11 data
 var QUESTION = {
-  text: "Based on what you see in the video, please score the patient accordingly.",
+  text: "Based on what you saw in the video, how would you score this patient?\nChoose the correct answer, and select Submit.",
   options:   [
     {
       "text": "0",
@@ -10,19 +10,19 @@ var QUESTION = {
     },
     {
       "text": "1",
-      "description": "Mild-to-moderate aphasia; some obviousl loss of fluency or facility to comprehension, without signifant limitation on ideas expressed or form of expression. Reduction of speech and/or comprehension, however, makes conversation about provided materials difficult or impossible. For example, in conversation about provided materials, examiner can identify picture or naming card content from patient's response.",
+      "description": "Mild to moderate aphasia; some obvious loss of fluency or facility of comprehension, without significant limitation on ideas expressed or form of expression",
       "correct": false,
       "rationale": ""
     },
     {
       "text": "2",
-      "description": "Severe aphasia; all communication is through fragmentary expression; great need for inference, questioning, and guessing by the listener. Range of information that can be exchanged is limited; listener carries burden of communication. Examiner cannot identify materials provided from patient response.",
+      "description": "Severe aphasia; all communication is through fragmentary expression; great need for inference, questioning, and guessing by the listener",
       "correct": false,
       "rationale": ""
     },
     {
       "text": "3",
-      "description": "Mute, global aphasia; no usable speech or auditory comprehension.",
+      "description": "Mute, global aphasia; no usable speech or auditory comprehension",
       "correct": false,
       "rationale": ""
     }
@@ -128,7 +128,7 @@ function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
 
-  questionNumber.textContent = 'Item 9: Best Language';
+  questionNumber.textContent = '9: Best Language';
   questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
   questionText.classList.remove('hidden');
   instructionText.classList.remove('hidden');

@@ -1,6 +1,6 @@
 ﻿// Question 4 data
 var QUESTION = {
-  text: "Based on what you see in the video, please score the patient accordingly.",
+  text: "Based on what you saw in the video, how would you score this patient?\nChoose the correct answer, and select Submit.",
   options:   [
     {
       "text": "0",
@@ -10,13 +10,13 @@ var QUESTION = {
     },
     {
       "text": "1",
-      "description": "Partial gaze palsy; gaze is abnormal in one or both eyes, but forced deviation or total gaze paresis is not present.",
+      "description": "Partial gaze palsy; abnormal gaze in one or both eyes, but forced deviation or total gaze paresis is not present",
       "correct": false,
       "rationale": ""
     },
     {
       "text": "2",
-      "description": "Forced deviation, or total gaze paresis is not overcome by the oculocephalic maneuver.",
+      "description": "Forced deviation, or total gaze paresis is not overcome by the oculocephalic maneuver",
       "correct": false,
       "rationale": ""
     }
@@ -122,7 +122,7 @@ function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
 
-  questionNumber.textContent = 'Item 2: Best Gaze';
+  questionNumber.textContent = '2: Best Gaze';
   questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
   questionText.classList.remove('hidden');
   instructionText.classList.remove('hidden');

@@ -1,22 +1,22 @@
 ﻿// Question 13 data
 var QUESTION = {
-  text: "Based on what you see in the video, please score the patient accordingly.",
+  text: "Based on what you saw in the video, how would you score this patient?\nChoose the correct answer, and select Submit.",
   options:   [
     {
       "text": "0",
-      "description": "No abnormality.",
+      "description": "No abnormality",
       "correct": true,
       "rationale": "Rationale will be provided here."
     },
     {
       "text": "1",
-      "description": "Visual, tactile, auditory, spatial, or personal inattention, or extinction to bilateral simultaneous stimulation in one of the sensory modalities.",
+      "description": "Visual, tactile, auditory, spatial, or personal inattention, or extinction to bilateral simultaneous stimulation in one of the sensory modalities",
       "correct": false,
       "rationale": ""
     },
     {
       "text": "2",
-      "description": "Profound hemi-inattention or extinction to more than one modality; does not recovntize own hand or orients to only one side of space.",
+      "description": "Profound hemi-inattention or extinction to more than one modality; does not recognize own hand or orients to only one side of space",
       "correct": false,
       "rationale": ""
     }
@@ -122,7 +122,7 @@ function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
 
-  questionNumber.textContent = 'Item 11: Extinction and Inattention';
+  questionNumber.textContent = '11: Extinction and Inattention';
   questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
   questionText.classList.remove('hidden');
   instructionText.classList.remove('hidden');

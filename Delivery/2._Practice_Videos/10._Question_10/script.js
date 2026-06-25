@@ -1,6 +1,6 @@
 ﻿// Question 10 data
 var QUESTION = {
-  text: "Based on what you see in the video, please score the patient accordingly.",
+  text: "Based on what you saw in the video, how would you score this patient?\nChoose the correct answer, and select Submit.",
   options:   [
     {
       "text": "0",
@@ -10,13 +10,13 @@ var QUESTION = {
     },
     {
       "text": "1",
-      "description": "Mild-to-moderate sensory loss; patient feels pinprick is less sharp or is dull on the affected side; or there is a loss of superficial pain with pinprick, but the patient is aware of being touched.",
+      "description": "Mild to moderate sensory loss; patient feels noxious stimuli is dull on the affected side; or there is a loss of superficial pain, but patient is aware of being touched",
       "correct": false,
       "rationale": ""
     },
     {
       "text": "2",
-      "description": "Severe or total sensory loss; patient is not aware of being touched in the face, arm, and leg.",
+      "description": "Severe or total sensory loss; patient is not aware of being touched in the face, arm, and leg",
       "correct": false,
       "rationale": ""
     }
@@ -122,7 +122,7 @@ function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
 
-  questionNumber.textContent = 'Item 8: Sensory';
+  questionNumber.textContent = '8: Sensory';
   questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
   questionText.classList.remove('hidden');
   instructionText.classList.remove('hidden');

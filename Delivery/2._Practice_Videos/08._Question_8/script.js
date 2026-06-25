@@ -1,34 +1,34 @@
 ﻿// Question 8 data
 var QUESTION = {
-  text: "Based on what you see in the video, please score the patient accordingly.",
+  text: "Based on what you saw in the video, how would you score this patient?\nChoose the correct answer, and select Submit.",
   options:   [
     {
       "text": "0",
-      "description": "No drift; leg holds 30-degree position for full 5 seconds.",
+      "description": "No drift; leg holds 30° position for full 5 seconds",
       "correct": false,
-      "rationale": "Rationale will be provided here."
+      "rationale": ""
     },
     {
       "text": "1",
-      "description": "Drift; leg falls by the end of the 5-second period but does not hit the bed.",
+      "description": "Drift; leg falls by the end of the 5-second period but does not hit bed",
       "correct": true,
       "rationale": "There was a slight drift in the right leg."
     },
     {
       "text": "2",
-      "description": "Some effort against gravity; leg falls to bed by 5 seconds but has some effort against gravity.",
+      "description": "Some effort against gravity; leg falls to bed by 5 seconds but has some effort against gravity",
       "correct": false,
       "rationale": ""
     },
     {
       "text": "3",
-      "description": "No effort against gravity; leg falls to bed immediately.",
+      "description": "No effort against gravity; leg falls to bed immediately",
       "correct": false,
       "rationale": ""
     },
     {
       "text": "4",
-      "description": "No movement.",
+      "description": "No movement",
       "correct": false,
       "rationale": ""
     },
@@ -140,7 +140,7 @@ function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
 
-  questionNumber.textContent = 'Item 6: Motor Leg';
+  questionNumber.textContent = '6: Motor Leg (Left and Right)';
   questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
   questionText.classList.remove('hidden');
   instructionText.classList.remove('hidden');

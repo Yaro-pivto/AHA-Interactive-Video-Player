@@ -1,28 +1,28 @@
 ﻿// Question 5 data
 var QUESTION = {
-  text: "Based on what you see in the video, please score the patient accordingly.",
+  text: "Based on what you saw in the video, how would you score this patient?\nChoose the correct answer, and select Submit.",
   options:   [
     {
       "text": "0",
       "description": "No visual loss",
       "correct": false,
-      "rationale": "Rationale will be provided here."
-    },
-    {
-      "text": "1",
-      "description": "Partial hemianopia.",
-      "correct": true,
       "rationale": ""
     },
     {
+      "text": "1",
+      "description": "Partial hemianopia",
+      "correct": true,
+      "rationale": "Rationale will be provided here."
+    },
+    {
       "text": "2",
-      "description": "Complete hemianopia.",
+      "description": "Complete hemianopia",
       "correct": false,
       "rationale": ""
     },
     {
       "text": "3",
-      "description": "Bilaterial hemianopia (blind including cortical blindness)",
+      "description": "Bilateral hemianopia (blind, including cortical blindness)",
       "correct": false,
       "rationale": ""
     }
@@ -128,7 +128,7 @@ function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
 
-  questionNumber.textContent = 'Item 3: Visual';
+  questionNumber.textContent = '3: Visual';
   questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
   questionText.classList.remove('hidden');
   instructionText.classList.remove('hidden');

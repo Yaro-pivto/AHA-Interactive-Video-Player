@@ -1,22 +1,22 @@
 ﻿// Question 12 data
 var QUESTION = {
-  text: "Based on what you see in the video, please score the patient accordingly.",
+  text: "Based on what you saw in the video, how would you score this patient?\nChoose the correct answer, and select Submit.",
   options:   [
     {
       "text": "0",
-      "description": "Normal.",
+      "description": "Normal",
       "correct": true,
       "rationale": "Rationale will be provided here."
     },
     {
       "text": "1",
-      "description": "Mild-to-moderate dysarthria; patietn slurs at least some words and, at worst, can be understood with some difficulty.",
+      "description": "Mild to moderate dysarthria; patient slurs at least some words and, at worst, can be understood with some difficulty",
       "correct": false,
       "rationale": ""
     },
     {
       "text": "2",
-      "description": "Severe dysarthria; patient's speech is so slurred as to be unintelligible in the absence of or out of proportion to any dysphagia, or is mute/anarthric.",
+      "description": "Severe dysarthria; patient's speech is so slurred as to be unintelligible in the absence of or out of proportion to any dysphasia, or is mute or anarthric",
       "correct": false,
       "rationale": ""
     },
@@ -128,7 +128,7 @@ function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
 
-  questionNumber.textContent = 'Item 10: Dysarthria';
+  questionNumber.textContent = '10: Dysarthria';
   questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
   questionText.classList.remove('hidden');
   instructionText.classList.remove('hidden');

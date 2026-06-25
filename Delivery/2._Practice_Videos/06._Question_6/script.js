@@ -1,28 +1,28 @@
 ﻿// Question 6 data
 var QUESTION = {
-  text: "Based on what you see in the video, please score the patient accordingly.",
+  text: "Based on what you saw in the video, how would you score this patient?\nChoose the correct answer, and select Submit.",
   options:   [
     {
       "text": "0",
-      "description": "Normal symmetrical movements.",
+      "description": "Normal, symmetrical movements",
       "correct": true,
       "rationale": "Rationale will be provided here."
     },
     {
       "text": "1",
-      "description": "Minor paralysis (flattened nasolabial fold, asymmetry on smiling).",
+      "description": "Minor paralysis (flattened nasolabial fold, asymmetry on smiling)",
       "correct": false,
       "rationale": ""
     },
     {
       "text": "2",
-      "description": "Partial paralysis (total or near-total paralysis of lower face).",
+      "description": "Partial paralysis (total or near-total paralysis of lower face)",
       "correct": false,
       "rationale": ""
     },
     {
       "text": "3",
-      "description": "Complete paralysis of one or both sides (absences of facial movement in the upper and lower face).",
+      "description": "Complete paralysis of one or both sides (absence of facial movement in the upper and lower face)",
       "correct": false,
       "rationale": ""
     }
@@ -128,7 +128,7 @@ function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
 
-  questionNumber.textContent = 'Item 4: Facial Palsy';
+  questionNumber.textContent = '4: Facial Palsy';
   questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
   questionText.classList.remove('hidden');
   instructionText.classList.remove('hidden');
