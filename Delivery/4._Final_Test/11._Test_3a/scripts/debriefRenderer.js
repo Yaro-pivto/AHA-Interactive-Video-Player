@@ -5,7 +5,7 @@
  *   - Failed attempt 3 OR passed → show full debrief with question list
  */
 
-const PASSING_SCORE = 90;  // Final Test uses 90% threshold
+const PASSING_SCORE = 93;  // Final Test uses 93% threshold
 const MAX_ATTEMPTS  = 3;
 
 // ─── renderDebrief ────────────────────────────────────────────────────────────

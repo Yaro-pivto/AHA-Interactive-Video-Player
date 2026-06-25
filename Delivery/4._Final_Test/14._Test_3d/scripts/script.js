@@ -52,7 +52,7 @@ import {
 const VAR_NAME     = 'VimeoTime';
 const UPDATE_MS    = 200;
 const MAX_ATTEMPTS = 3;
-const PASSING_SCORE = 90;
+const PASSING_SCORE = 93;
 
 // ─── Attempt tracking ─────────────────────────────────────────────────────────
 
