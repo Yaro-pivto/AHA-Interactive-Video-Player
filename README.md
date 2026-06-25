@@ -2,7 +2,7 @@
 
 An accessible, interactive video player built with Vimeo and vanilla JavaScript. Displays multiple-choice questions at timed moments during video playback, tracks answers, and shows a scored debrief at the end. Designed for embedding in Articulate Storyline as a Web Object.
 
-> **Repository note (2026-06-25):** The repo was cleaned up to keep only the four shippable deliverables: `Web Object/`, `Practice Test/`, `Final Test/`, and `Practice Videos/`. The root build pipeline and "source of truth" copies (root `scripts/`, `styles/`, `Questions.js`, `index.html`, `excel/`, `package.json`, `node_modules/`) were removed. Each deliverable folder is now fully self-contained. The deleted build files remain recoverable from git history (e.g. `git restore --source=56eaab7 -- excel scripts package.json`) if the Excel-to-`Questions.js` workflow is ever needed again.
+> **Repository note (2026-06-25):** The repo contains one root-level deliverable (`Web Object/`) and a `Delivery/` folder with the four Storyline-embedded deliverables. The old root build pipeline was removed; each folder is fully self-contained. Deleted build files remain recoverable from git history (e.g. `git restore --source=56eaab7 -- excel scripts package.json`).
 
 ---
 
@@ -31,7 +31,7 @@ An accessible, interactive video player built with Vimeo and vanilla JavaScript.
 - **Video source:** Vimeo (embedded via iframe + Vimeo Player SDK)
 - **Questions source:** `Questions.js` inside each deliverable folder (edited directly — see [Adding & Editing Questions](#adding--editing-questions))
 - **No frameworks:** Vanilla ES6 modules, no build step for the browser code
-- **Self-contained:** Each of the four deliverable folders ships independently with its own scripts, styles, images, and `Questions.js`
+- **Self-contained:** Each deliverable folder ships independently with its own scripts, styles, images, and `Questions.js`
 - **Accessibility:** WCAG 2.1 compliant — keyboard navigation, screen reader support, focus management
 
 ---
@@ -41,10 +41,9 @@ An accessible, interactive video player built with Vimeo and vanilla JavaScript.
 ```
 AHA-Interactive-Video-Player/
 ├── README.md
-├── video-manifest.json           # Data source for all video ids (generated from NIHSS Video Playlist.xlsx)
 │
-├── Web Object/                   # Main player — Practice Case 1
-│   ├── index.html                # Vimeo id 1175973385 (EAD: same id until EAD masters arrive)
+├── Web Object/                   # Storyline Web Object — Practice Case 1
+│   ├── index.html                # Vimeo id 1175973385
 │   ├── Questions.js
 │   ├── scripts/
 │   │   ├── script.js             # Orchestrator
@@ -57,58 +56,59 @@ AHA-Interactive-Video-Player/
 │   ├── styles/
 │   └── img/
 │
-├── Practice Test/                # Practice mode player — Practice Case 2
-│   ├── index.html                # Vimeo id 1175973400
-│   ├── Questions.js
-│   ├── scripts/
-│   ├── styles/
-│   └── img/
-│
-├── Final Test/                   # Final Test — own scripts (3-attempt system)
-│   ├── index.html                # Base template (Vimeo id 1175973409 — Test Case Study 1a)
-│   ├── generate-tests.cjs        # Generator: copies base into 20 Test subfolders
-│   ├── debrief-preview.html      # Standalone debrief-state preview
-│   ├── Questions.js
-│   ├── scripts/
-│   │   ├── script.js             # Extended: attempt counter + Storyline Fail variable
-│   │   ├── stateManager.js
-│   │   ├── questionRenderer.js
-│   │   ├── summaryRenderer.js
-│   │   ├── debriefRenderer.js    # Extended: debrief-header--no-list modifier
-│   │   └── utils.js
-│   ├── styles/
-│   │   └── styles.css            # Extended: .debrief-header--no-list + summary overlay rules
-│   ├── img/
-│   ├── Test 1a/                  # Vimeo id 1175973409
-│   ├── Test 1b/                  # Vimeo id 1175973423
-│   ├── ...                       # Test 1c through Test 4e (20 subfolders total)
-│   └── Test 4e/                  # Vimeo id 1175973918
-│
-├── Practice Videos/              # 13 standalone single-question Web Objects
-│   ├── generate.cjs              # Generator: rewrites index.html + script.js per question
-│   ├── Question 1/               # 1a LOC — Vimeo id 1175970664
-│   ├── Question 2/               # 1b LOC Questions — Vimeo id 1175970729
-│   ├── Question 3/               # 1c LOC Commands — Vimeo id 1175971157
-│   ├── Question 4/               # 2 Best Gaze — Vimeo id 1175971255
-│   ├── Question 5/               # 3 Visual — Vimeo id 1175971360
-│   ├── Question 6/               # 4 Facial Palsy — Vimeo id 1175972074
-│   ├── Question 7/               # 5 Motor Arm — Vimeo id 1175972173
-│   ├── Question 8/               # 6 Motor Leg — Vimeo id 1175972438 (placeholder)
-│   ├── Question 9/               # 7 Limb Ataxia — Vimeo id 1175972549
-│   ├── Question 10/              # 8 Sensory — Vimeo id 1175972632
-│   ├── Question 11/              # 9 Best Language — Vimeo id 1175972894
-│   ├── Question 12/              # 10 Dysarthria — Vimeo id 1175972992
-│   └── Question 13/              # 11 Extinction and Inattention — Vimeo id 1175973069
-│
-└── Regular Video/                # 68 non-interactive video pages (generated)
-    ├── generate.cjs              # Generator: reads video-manifest.json, emits one folder per video
-    ├── Background .../           # 3 background videos
-    ├── Intro .../                # 13 intro videos
-    ├── Score .../                # 48 score videos
-    └── Special .../              # 4 special videos
+└── Delivery/                     # Storyline-embedded deliverables
+    │
+    ├── Practice Test/            # Practice mode player — Practice Case 2
+    │   ├── index.html            # Vimeo id 1175973400
+    │   ├── Questions.js
+    │   ├── scripts/
+    │   ├── styles/
+    │   └── img/
+    │
+    ├── Final Test/               # Final Test — 3-attempt system
+    │   ├── index.html            # Base template (Vimeo id 1175973409)
+    │   ├── generate-tests.cjs    # Generator: creates 20 Test subfolders
+    │   ├── debrief-preview.html  # Standalone debrief-state preview
+    │   ├── Questions.js
+    │   ├── scripts/
+    │   │   ├── script.js         # Extended: attempt counter + Storyline Fail variable
+    │   │   ├── stateManager.js
+    │   │   ├── questionRenderer.js
+    │   │   ├── summaryRenderer.js
+    │   │   ├── debriefRenderer.js  # Extended: debrief-header--no-list modifier
+    │   │   └── utils.js
+    │   ├── styles/
+    │   ├── img/
+    │   ├── Test 1a/              # Vimeo id 1175973409
+    │   ├── Test 1b/              # Vimeo id 1175973423
+    │   ├── ...                   # Test 1c through Test 4e (20 subfolders total)
+    │   └── Test 4e/              # Vimeo id 1175973918
+    │
+    ├── Practice Videos/          # 13 standalone single-question Web Objects
+    │   ├── generate.cjs          # Generator: rewrites index.html + script.js per question
+    │   ├── Question 1/           # 1a LOC — Vimeo id 1175970664
+    │   ├── Question 2/           # 1b LOC Questions — Vimeo id 1175970729
+    │   ├── Question 3/           # 1c LOC Commands — Vimeo id 1175971157
+    │   ├── Question 4/           # 2 Best Gaze — Vimeo id 1175971255
+    │   ├── Question 5/           # 3 Visual — Vimeo id 1175971360
+    │   ├── Question 6/           # 4 Facial Palsy — Vimeo id 1175972074
+    │   ├── Question 7/           # 5 Motor Arm — Vimeo id 1175972173
+    │   ├── Question 8/           # 6 Motor Leg — Vimeo id 1175972438 (placeholder)
+    │   ├── Question 9/           # 7 Limb Ataxia — Vimeo id 1175972549
+    │   ├── Question 10/          # 8 Sensory — Vimeo id 1175972632
+    │   ├── Question 11/          # 9 Best Language — Vimeo id 1175972894
+    │   ├── Question 12/          # 10 Dysarthria — Vimeo id 1175972992
+    │   └── Question 13/          # 11 Extinction and Inattention — Vimeo id 1175973069
+    │
+    └── Regular Video/            # 68 non-interactive video pages (generated)
+        ├── generate.cjs          # Generator: reads video-manifest.json, emits one folder per video
+        ├── Background .../       # 3 background videos
+        ├── Intro .../            # 13 intro videos
+        ├── Score .../            # 48 score videos
+        └── Special .../          # 4 special videos
 ```
 
-> **No more root "source of truth".** Each deliverable folder is independent and edited in place. `Web Object/` and `Practice Test/` share the same base logic; `Final Test/` has extended logic (attempt counter + `Fail` variable). When you change shared logic, apply the same edit to each folder that needs it.
+> Each deliverable folder is independent and edited in place. `Web Object/` and `Practice Test/` share the same base logic; `Final Test/` has extended logic (attempt counter + `Fail` variable). When you change shared logic, apply the same edit to each folder that needs it.
 
 Each `Question N/` folder is self-contained:
 ```
