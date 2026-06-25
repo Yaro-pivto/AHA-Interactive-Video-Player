@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vimeo Interactive Player</title>
+  <link rel="stylesheet" href="https://use.typekit.net/nid8klk.css">
+  <script src="https://player.vimeo.com/api/player.js"></script>
+  <link rel="stylesheet" href="styles/styles.css">
+</head>
+
+<body>
+  <!-- Video wrapper for fullscreen support.
+       tabindex="-1" allows programmatic focus (used in startActivity to silence
+       the "Play video / Pause video" SR announcement on auto-start). -->
+  <div id="videoWrapper" class="video-wrapper" tabindex="-1">
+
+    <!-- Accessible status announcements (visually hidden) -->
+    <div id="screenReaderStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- ─── Start overlay ─── -->
+    <div id="startOverlay" class="start-overlay">
+      <div class="start-container">
+
+        <!-- Logo -->
+        <div class="start-logo-wrap">
+          <img
+            src="img/Aha logo black.svg"
+            alt="American Heart Association logo"
+            class="start-logo"
+          >
+        </div>
+
+        <!-- Heading -->
+        <h2 class="start-heading">Test Case</h2>
+
+<!-- Instructions -->
+        <p class="start-instructions">
+       You must pass each case study with a score of 90% or greater. You will have 3 chances to pass each case. If you do not pass after the 3rd chance, you will receive a debrief and a new case. No more than one additional case will be provided for each case study.
+        </p>
+        <p class="start-instructions">
+          Press the Start button below to begin.
+        </p>
+
+        <!-- CTA -->
+        <button id="startBtn" type="button" class="start-btn">Start</button>
+
+      </div>
+    </div>
+
+    <!-- [COMMENTED OUT] videoFocusTarget — restore if needed
+    <div
+      id="videoFocusTarget"
+      tabindex="-1"
+      role="button"
+      class="video-focus-target"
+      aria-label="Play video"></div>
+    -->
+
+    <!-- Sentinel: first tab stop during playback; announced as "frame" by screen readers.
+         tabindex managed by setBackgroundHidden() — "-1" while overlay is open, "0" during playback. -->
+    <div
+      id="frameSentinel"
+      tabindex="-1"
+      aria-label="frame"
+      class="frame-sentinel"></div>
+
+    <!-- Vimeo video — tabindex="-1" blocks keyboard access during start screen
+         and overlays. Restored to tabbable by startActivity() / setBackgroundHidden(false)
+         so internal controls (scrubber, volume, quality) are reachable during playback. -->
+    <iframe
+      id="vimeo"
+      tabindex="-1"
+      data-standard-id="1175973409"
+      data-ead-id="1175973409"
+      data-params="badge=0&autopause=0&quality_selector=1&progress_bar=1&fullscreen=0"
+      allow="autoplay; picture-in-picture"
+      title="Final Test"
+      aria-label="Interactive video player">
+    </iframe>
+
+    <!-- Question overlay -->
+    <!-- tabindex="-1" lets JS focus the dialog itself so screen readers announce
+         the dialog title (aria-labelledby) first, before any child element -->
+    <div
+      id="questionOverlay"
+      class="question-overlay hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="questionNumber"
+      aria-describedby="instructionText questionKeyboardHint"
+      tabindex="-1">
+
+      <div class="question-container">
+        <div class="question-inner">
+
+          <!-- Primary heading: "Question X" — populated by JS -->
+          <h1 id="questionNumber" class="question-number"></h1>
+
+          <!-- Secondary heading: the question text — populated by JS -->
+          <h2 id="questionText" class="question-title" role="heading" aria-level="2"></h2>
+
+          <!-- Helper subtitle — text is overridden by JS per mode -->
+          <p id="instructionText" class="instruction-text">
+            Select the correct answer and press Submit to continue.
+          </p>
+
+          <!-- Visually hidden keyboard instructions — announced by SR via aria-describedby
+               on the dialog. Kept separate from instructionText so visible text stays short. -->
+          <p id="questionKeyboardHint" class="sr-only">
+            Use the arrow keys to move between answer options.
+            Press Tab to reach the Submit button, then press Space or Enter to submit.
+          </p>
+
+          <!-- Answer options (populated dynamically).
+               role="radiogroup" + aria-labelledby are set by JS on #answersContainer
+               directly (not on the wrapper) — satisfies WCAG 1.3.1.
+               In review mode the role is removed since no radio inputs are present. -->
+          <div class="answers-container">
+            <div id="answersContainer"></div>
+          </div>
+
+          <!-- Bottom row: submit area + replay button stacked vertically, centred -->
+          <div class="question-bottom-row">
+
+            <!-- Submit / feedback / continue — stacked vertically, centred -->
+            <div class="question-submit-area">
+
+              <!-- Submit button -->
+              <button
+                id="submitBtn"
+                class="submit-btn"
+                aria-label="Submit the answer and continue"
+                disabled>
+                Submit the answer and continue
+              </button>
+
+              <!-- Screen-reader feedback (brief status) -->
+              <div id="feedbackMessage" class="feedback-message hidden" aria-live="polite"></div>
+
+              <!-- Continue button (shown after feedback) -->
+              <button
+                id="continueBtn"
+                class="continue-btn hidden"
+                aria-label="Continue watching video">
+                Continue
+              </button>
+
+            </div><!-- /.question-submit-area -->
+
+          </div><!-- /.question-bottom-row -->
+
+          <!-- Replay button — absolute, bottom-right corner of question-inner -->
+          <button
+            id="watchAgainBtn"
+            class="watch-again-btn"
+            aria-label="Replay the video from the start of this section"
+            data-tooltip="Watch the Video Section again">
+            <img
+              src="img/replay.svg"
+              alt=""
+              class="watch-again-icon"
+              aria-hidden="true">
+          </button>
+
+        </div><!-- /.question-inner -->
+      </div>
+    </div>
+
+    <!-- ─── Summary overlay (pre-debrief) ─── -->
+    <div
+      id="summaryOverlay"
+      class="summary-overlay hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="summaryTitle"
+      aria-hidden="true"
+      tabindex="-1">
+
+      <div class="summary-container">
+        <div class="summary-inner">
+
+          <div class="summary-header">
+            <h1 id="summaryTitle" class="summary-title">Your Answers</h1>
+            <div class="summary-score-row">
+              <p id="summaryPoints" class="summary-points-badge">Points Scored: 0</p>
+            </div>
+            <p class="summary-subtitle">
+              Review your answers below. Click any question to change it before seeing your results.
+            </p>
+          </div>
+
+          <div class="summary-list-wrap" role="group" aria-label="Your answers">
+            <ul id="summaryList" class="summary-list" role="list"></ul>
+          </div>
+
+          <div class="summary-footer">
+            <button id="summarySubmitBtn" type="button" class="summary-submit-btn">
+              Submit Answers
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Debrief overlay ─── -->
+    <div
+      id="debriefOverlay"
+      class="debrief-overlay hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="debriefTitle"
+      aria-hidden="true"
+      tabindex="-1">
+
+      <div class="debrief-container">
+        <div class="debrief-inner">
+
+        <!-- Header: title + score result + subtitle (never scrolls) -->
+        <div class="debrief-header">
+          <h1 id="debriefTitle" class="debrief-title">Result</h1>
+          <p id="debriefResult" class="debrief-result"></p>
+          <div class="debrief-nihss-row">
+            <p id="nihssScore"   class="debrief-nihss-score"></p>
+            <p id="nihssCorrect" class="debrief-nihss-score"></p>
+          </div>
+          <p id="attemptInfo" class="debrief-attempt-info hidden"></p>
+          <button id="restartBtn" type="button" class="debrief-restart-btn hidden">Try Again</button>
+          <p class="debrief-subtitle">
+            Select a question below to review your answer or continue to the next case study.
+          </p>
+        </div>
+
+        <!-- Scrollable questions list (only this area scrolls when list overflows) -->
+        <div class="debrief-list-wrap" role="group" aria-label="Question results">
+          <ul id="debriefList" class="debrief-list" role="list"></ul>
+        </div>
+
+        </div><!-- /.debrief-inner -->
+      </div>
+    </div>
+
+    <!-- Custom fullscreen button — placed last in DOM so it is last in the Tab order
+         when a dialog overlay is open. Visually floats via position:fixed / z-index. -->
+    <button
+      id="fullscreenBtn"
+      type="button"
+      class="fullscreen-btn"
+      aria-label="Enter fullscreen"
+      aria-pressed="false"
+      data-tooltip="Fullscreen mode">
+      ⛶
+    </button>
+
+  </div><!-- End video wrapper -->
+
+  <!-- ES module: Questions.js is imported inside script.js -->
+  <script>
+    // Extended Audio Description switch. Reads the Storyline Boolean
+    // Extended_Audio_Description_Track. Falls back to the standard video
+    // when the variable is missing or Storyline is not present.
+    (function () {
+      var f = document.getElementById('vimeo');
+      if (!f) return;
+      var standard = f.getAttribute('data-standard-id');
+      var ead      = f.getAttribute('data-ead-id') || standard;
+      var params   = f.getAttribute('data-params') ||
+        'badge=0&autopause=0&quality_selector=1&progress_bar=1&fullscreen=0';
+      var extended = false;
+      try {
+        var sl = (window.parent && window.parent.GetPlayer && window.parent.GetPlayer()) ||
+                 (window.top && window.top.GetPlayer && window.top.GetPlayer());
+        if (sl) {
+          var v = sl.GetVar('Extended_Audio_Description_Track');
+          extended = (v === true || v === 'true' || v === 'True');
+        }
+      } catch (e) {
+        extended = false;
+      }
+      var id = extended ? ead : standard;
+      f.src = 'https://player.vimeo.com/video/' + id + '?' + params;
+    })();
+  </script>
+  <script type="module" src="scripts/script.js"></script>
+</body>
+</html>

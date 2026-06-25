@@ -73,7 +73,9 @@
     <iframe
       id="vimeo"
       tabindex="-1"
-      src="https://player.vimeo.com/video/1174049957?badge=0&autopause=0&quality_selector=1&progress_bar=1&fullscreen=0"
+      data-standard-id="1175973385"
+      data-ead-id="1175973385"
+      data-params="badge=0&autopause=0&quality_selector=1&progress_bar=1&fullscreen=0"
       allow="autoplay; picture-in-picture"
       title="Web Object"
       aria-label="Interactive video player">
@@ -254,6 +256,32 @@
   </div><!-- End video wrapper -->
 
   <!-- ES module: Questions.js is imported inside script.js -->
+  <script>
+    // Extended Audio Description switch. Reads the Storyline Boolean
+    // Extended_Audio_Description_Track. Falls back to the standard video
+    // when the variable is missing or Storyline is not present.
+    (function () {
+      var f = document.getElementById('vimeo');
+      if (!f) return;
+      var standard = f.getAttribute('data-standard-id');
+      var ead      = f.getAttribute('data-ead-id') || standard;
+      var params   = f.getAttribute('data-params') ||
+        'badge=0&autopause=0&quality_selector=1&progress_bar=1&fullscreen=0';
+      var extended = false;
+      try {
+        var sl = (window.parent && window.parent.GetPlayer && window.parent.GetPlayer()) ||
+                 (window.top && window.top.GetPlayer && window.top.GetPlayer());
+        if (sl) {
+          var v = sl.GetVar('Extended_Audio_Description_Track');
+          extended = (v === true || v === 'true' || v === 'True');
+        }
+      } catch (e) {
+        extended = false;
+      }
+      var id = extended ? ead : standard;
+      f.src = 'https://player.vimeo.com/video/' + id + '?' + params;
+    })();
+  </script>
   <script type="module" src="scripts/script.js"></script>
 </body>
 </html>

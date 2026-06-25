@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Item 1b LOC Questions Introduction</title>
+  <style>
+    html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#000; }
+    iframe { width:100%; height:100%; border:0; }
+  </style>
+</head>
+<body>
+  <iframe
+    id="vimeo"
+    title="Item 1b LOC Questions Introduction"
+    data-standard-id="1175970685"
+    data-ead-id="1175970685"
+    data-params="badge=0&autopause=0&quality_selector=1&progress_bar=1&fullscreen=0"
+    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen>
+  </iframe>
+  <script>
+    (function () {
+      var f = document.getElementById('vimeo');
+      if (!f) return;
+      var standard = f.getAttribute('data-standard-id');
+      var ead      = f.getAttribute('data-ead-id') || standard;
+      var params   = f.getAttribute('data-params');
+      var extended = false;
+      try {
+        var sl = (window.parent && window.parent.GetPlayer && window.parent.GetPlayer()) ||
+                 (window.top && window.top.GetPlayer && window.top.GetPlayer());
+        if (sl) {
+          var val = sl.GetVar('Extended_Audio_Description_Track');
+          extended = (val === true || val === 'true' || val === 'True');
+        }
+      } catch (e) { extended = false; }
+      var id = extended ? ead : standard;
+      f.src = 'https://player.vimeo.com/video/' + id + '?' + params;
+    })();
+  </script>
+</body>
+</html>

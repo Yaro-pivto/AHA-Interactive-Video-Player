@@ -11,17 +11,18 @@ An accessible, interactive video player built with Vimeo and vanilla JavaScript.
 1. [Project Overview](#project-overview)
 2. [File Structure](#file-structure)
 3. [Getting Started](#getting-started)
-4. [Practice Videos](#practice-videos)
-5. [Architecture & Data Flow](#architecture--data-flow)
-6. [Questions & Chaining](#questions--chaining)
-7. [Adding & Editing Questions](#adding--editing-questions)
-8. [Configuration Reference](#configuration-reference)
-9. [Modules](#modules)
-10. [State Machine](#state-machine)
-11. [CSS & Theming](#css--theming)
-12. [Accessibility](#accessibility)
-13. [Articulate Storyline Integration](#articulate-storyline-integration)
-14. [Browser Support](#browser-support)
+4. [Extended Audio Description (EAD)](#extended-audio-description-ead)
+5. [Practice Videos](#practice-videos)
+6. [Architecture & Data Flow](#architecture--data-flow)
+7. [Questions & Chaining](#questions--chaining)
+8. [Adding & Editing Questions](#adding--editing-questions)
+9. [Configuration Reference](#configuration-reference)
+10. [Modules](#modules)
+11. [State Machine](#state-machine)
+12. [CSS & Theming](#css--theming)
+13. [Accessibility](#accessibility)
+14. [Articulate Storyline Integration](#articulate-storyline-integration)
+15. [Browser Support](#browser-support)
 
 ---
 
@@ -40,9 +41,10 @@ An accessible, interactive video player built with Vimeo and vanilla JavaScript.
 ```
 AHA-Interactive-Video-Player/
 ├── README.md
+├── video-manifest.json           # Data source for all video ids (generated from NIHSS Video Playlist.xlsx)
 │
-├── Web Object/                   # Main player (case study)
-│   ├── index.html
+├── Web Object/                   # Main player — Practice Case 1
+│   ├── index.html                # Vimeo id 1175973385 (EAD: same id until EAD masters arrive)
 │   ├── Questions.js
 │   ├── scripts/
 │   │   ├── script.js             # Orchestrator
@@ -50,20 +52,21 @@ AHA-Interactive-Video-Player/
 │   │   ├── questionRenderer.js   # Question DOM rendering
 │   │   ├── summaryRenderer.js    # Summary screen DOM rendering (pre-debrief)
 │   │   ├── debriefRenderer.js    # Debrief DOM rendering
-│   │   ├── questionsToPlayer.js  # (legacy) Node build script — Excel source no longer in repo
+│   │   ├── questionsToPlayer.js  # (legacy) Node build script
 │   │   └── utils.js              # Helpers
 │   ├── styles/
 │   └── img/
 │
-├── Practice Test/                # Practice mode player
-│   ├── index.html
+├── Practice Test/                # Practice mode player — Practice Case 2
+│   ├── index.html                # Vimeo id 1175973400
 │   ├── Questions.js
 │   ├── scripts/
 │   ├── styles/
 │   └── img/
 │
 ├── Final Test/                   # Final Test — own scripts (3-attempt system)
-│   ├── index.html
+│   ├── index.html                # Base template (Vimeo id 1175973409 — Test Case Study 1a)
+│   ├── generate-tests.cjs        # Generator: copies base into 20 Test subfolders
 │   ├── debrief-preview.html      # Standalone debrief-state preview
 │   ├── Questions.js
 │   ├── scripts/
@@ -75,22 +78,34 @@ AHA-Interactive-Video-Player/
 │   │   └── utils.js
 │   ├── styles/
 │   │   └── styles.css            # Extended: .debrief-header--no-list + summary overlay rules
-│   └── img/
+│   ├── img/
+│   ├── Test 1a/                  # Vimeo id 1175973409
+│   ├── Test 1b/                  # Vimeo id 1175973423
+│   ├── ...                       # Test 1c through Test 4e (20 subfolders total)
+│   └── Test 4e/                  # Vimeo id 1175973918
 │
-└── Practice Videos/              # 13 standalone single-question Web Objects
-    ├── Question 1/               # 1a LOC — Level of Consciousness
-    ├── Question 2/               # 1b LOC Q — LOC Questions
-    ├── Question 3/               # 1c LOC Commands
-    ├── Question 4/               # 2 Best Gaze
-    ├── Question 5/               # 3 Visual
-    ├── Question 6/               # 4 Facial Palsy
-    ├── Question 7/               # 5 Motor Arm
-    ├── Question 8/               # 6 Motor Leg
-    ├── Question 9/               # 7 Limb Ataxia
-    ├── Question 10/              # 8 Sensory
-    ├── Question 11/              # 9 Best Language
-    ├── Question 12/              # 10 Dysarthria
-    └── Question 13/              # 11 Extinction and Inattention
+├── Practice Videos/              # 13 standalone single-question Web Objects
+│   ├── generate.cjs              # Generator: rewrites index.html + script.js per question
+│   ├── Question 1/               # 1a LOC — Vimeo id 1175970664
+│   ├── Question 2/               # 1b LOC Questions — Vimeo id 1175970729
+│   ├── Question 3/               # 1c LOC Commands — Vimeo id 1175971157
+│   ├── Question 4/               # 2 Best Gaze — Vimeo id 1175971255
+│   ├── Question 5/               # 3 Visual — Vimeo id 1175971360
+│   ├── Question 6/               # 4 Facial Palsy — Vimeo id 1175972074
+│   ├── Question 7/               # 5 Motor Arm — Vimeo id 1175972173
+│   ├── Question 8/               # 6 Motor Leg — Vimeo id 1175972438 (placeholder)
+│   ├── Question 9/               # 7 Limb Ataxia — Vimeo id 1175972549
+│   ├── Question 10/              # 8 Sensory — Vimeo id 1175972632
+│   ├── Question 11/              # 9 Best Language — Vimeo id 1175972894
+│   ├── Question 12/              # 10 Dysarthria — Vimeo id 1175972992
+│   └── Question 13/              # 11 Extinction and Inattention — Vimeo id 1175973069
+│
+└── Regular Video/                # 68 non-interactive video pages (generated)
+    ├── generate.cjs              # Generator: reads video-manifest.json, emits one folder per video
+    ├── Background .../           # 3 background videos
+    ├── Intro .../                # 13 intro videos
+    ├── Score .../                # 48 score videos
+    └── Special .../              # 4 special videos
 ```
 
 > **No more root "source of truth".** Each deliverable folder is independent and edited in place. `Web Object/` and `Practice Test/` share the same base logic; `Final Test/` has extended logic (attempt counter + `Fail` variable). When you change shared logic, apply the same edit to each folder that needs it.
@@ -127,11 +142,79 @@ Upload the chosen folder as an Articulate Storyline **Web Object**, or host it o
 
 ---
 
+## Extended Audio Description (EAD)
+
+Every video page reads the Storyline Boolean variable `Extended_Audio_Description_Track` and loads an Extended Audio Description version of the video when it is `true`, otherwise it loads the standard version. When Storyline is absent (local testing or static server), the page always loads the standard video.
+
+### How it works
+
+The Vimeo `<iframe>` carries no `src` attribute. Instead it carries three data attributes:
+
+```html
+<iframe
+  id="vimeo"
+  data-standard-id="STANDARD_VIDEO_ID"
+  data-ead-id="EAD_VIDEO_ID"
+  data-params="badge=0&autopause=0&quality_selector=1&progress_bar=1&fullscreen=0"
+  ...>
+</iframe>
+```
+
+An inline `<script>` placed immediately before the module script tag reads these attributes and sets `iframe.src` before the Vimeo Player SDK initializes:
+
+```js
+(function () {
+  var f = document.getElementById('vimeo');
+  var standard = f.getAttribute('data-standard-id');
+  var ead      = f.getAttribute('data-ead-id') || standard;
+  var params   = f.getAttribute('data-params');
+  var extended = false;
+  try {
+    var sl = (window.parent && window.parent.GetPlayer && window.parent.GetPlayer()) ||
+             (window.top && window.top.GetPlayer && window.top.GetPlayer());
+    if (sl) {
+      var v = sl.GetVar('Extended_Audio_Description_Track');
+      extended = (v === true || v === 'true' || v === 'True');
+    }
+  } catch (e) { extended = false; }
+  f.src = 'https://player.vimeo.com/video/' + (extended ? ead : standard) + '?' + params;
+})();
+```
+
+### Current state
+
+EAD master videos have not yet been delivered. Until they are, `data-ead-id === data-standard-id` for every page (both branches play the same video). When EAD masters arrive, update only the `data-ead-id` value in each page (or re-run the relevant generator with the updated manifest).
+
+### Storyline variable
+
+| Variable | Type | Values |
+|----------|------|--------|
+| `Extended_Audio_Description_Track` | Boolean | `true` = load EAD version, `false` / absent = load standard |
+
+### video-manifest.json
+
+All video ids are managed in `video-manifest.json` at the repo root. This file was generated from `NIHSS Video Playlist.xlsx` and is the authoritative source for `standardId` and `eadId` per video. The generators (`Regular Video/generate.cjs` and `Final Test/generate-tests.cjs`) read this manifest directly. Do not delete or move it.
+
+### Generators
+
+| Generator | Location | What it creates |
+|-----------|----------|-----------------|
+| `generate.cjs` | `Regular Video/` | One folder per non-interactive video (types: background, intro, score, special) — 68 folders total |
+| `generate-tests.cjs` | `Final Test/` | 20 `Test Xa` subfolders, each a full copy of the Final Test base with its own video id |
+
+To regenerate after updating `video-manifest.json`:
+```bash
+cd "Regular Video" && node generate.cjs
+cd "Final Test"    && node generate-tests.cjs
+```
+
+---
+
 ## Practice Videos
 
 The `Practice Videos/` folder contains 13 standalone Web Object projects — one per NIHSS item. Each project:
 
-- Plays the same Vimeo video (ID `1179338166`)
+- Plays the KC (Knowledge Check) video for its NIHSS item (unique Vimeo id per question)
 - Shows the relevant question when the video ends
 - On Submit → displays **immediate Feedback** (correct/incorrect + rationale) instead of a Debrief screen
 - Includes a **Watch Again** button (↺) to replay the video from the beginning
@@ -156,10 +239,9 @@ Start screen
 
 ### Regenerating Practice Videos
 
-`Practice Videos/generate.cjs` holds the question data inline and emits the 13 `Question N/` folders. **Note:** it copies shared assets from the old root (`../img` and `../styles/styles.css`), which were removed during the 2026-06-25 cleanup, so it will not run as-is. To regenerate, first restore those root assets from git history, then run the generator:
+`Practice Videos/generate.cjs` holds all question data inline. It rewrites `index.html` and `script.js` for each of the 13 `Question N/` folders (asset copies are disabled since each folder already contains its own `img/` and `styles.css`):
 
 ```bash
-git restore --source=56eaab7 -- img styles
 cd "Practice Videos"
 node generate.cjs
 ```
@@ -350,10 +432,11 @@ All configurable constants are at the top of their respective files. Paths below
 | `progress_bar` | `1` | Show scrubber/progress bar |
 | `fullscreen` | `0` | Hide Vimeo's own fullscreen button (custom button used) |
 
-To change the video, replace the video ID in the iframe `src`:
+To change the video, update the `data-standard-id` and `data-ead-id` attributes on the iframe (the inline EAD script builds the `src` at runtime):
 
 ```html
-src="https://player.vimeo.com/video/YOUR_VIDEO_ID?badge=0&autopause=0&..."
+data-standard-id="YOUR_VIDEO_ID"
+data-ead-id="YOUR_EAD_VIDEO_ID"
 ```
 
 ### Color theme
