@@ -2,6 +2,8 @@
 
 An accessible, interactive video player built with Vimeo and vanilla JavaScript. Displays multiple-choice questions at timed moments during video playback, tracks answers, and shows a scored debrief at the end. Designed for embedding in Articulate Storyline as a Web Object.
 
+> **Repository note (2026-06-25):** The repo was cleaned up to keep only the four shippable deliverables: `Web Object/`, `Practice Test/`, `Final Test/`, and `Practice Videos/`. The root build pipeline and "source of truth" copies (root `scripts/`, `styles/`, `Questions.js`, `index.html`, `excel/`, `package.json`, `node_modules/`) were removed. Each deliverable folder is now fully self-contained. The deleted build files remain recoverable from git history (e.g. `git restore --source=56eaab7 -- excel scripts package.json`) if the Excel-to-`Questions.js` workflow is ever needed again.
+
 ---
 
 ## Table of Contents
@@ -26,8 +28,9 @@ An accessible, interactive video player built with Vimeo and vanilla JavaScript.
 ## Project Overview
 
 - **Video source:** Vimeo (embedded via iframe + Vimeo Player SDK)
-- **Questions source:** Excel file (`excel/Questions.xlsx`) → auto-generated `Questions.js`
+- **Questions source:** `Questions.js` inside each deliverable folder (edited directly — see [Adding & Editing Questions](#adding--editing-questions))
 - **No frameworks:** Vanilla ES6 modules, no build step for the browser code
+- **Self-contained:** Each of the four deliverable folders ships independently with its own scripts, styles, images, and `Questions.js`
 - **Accessibility:** WCAG 2.1 compliant — keyboard navigation, screen reader support, focus management
 
 ---
@@ -36,33 +39,23 @@ An accessible, interactive video player built with Vimeo and vanilla JavaScript.
 
 ```
 AHA-Interactive-Video-Player/
-├── index.html                    # Dev entry point
-├── Questions.js                  # Auto-generated from Excel — DO NOT EDIT MANUALLY
-├── package.json
+├── README.md
 │
-├── excel/
-│   └── Questions.xlsx            # Source of truth for all questions
-│
-├── scripts/
-│   ├── script.js                 # Orchestrator (root — source of truth)
-│   ├── stateManager.js           # State management
-│   ├── questionRenderer.js       # Question DOM rendering
-│   ├── summaryRenderer.js        # Summary screen DOM rendering (pre-debrief)
-│   ├── debriefRenderer.js        # Debrief DOM rendering
-│   ├── questionsToPlayer.js      # Node build script (Excel → Questions.js)
-│   └── utils.js                  # Helpers
-│
-├── styles/
-│   └── styles.css                # Full theme (root — source of truth)
-│
-├── Web Object/                   # Main player — synced from root
+├── Web Object/                   # Main player (case study)
 │   ├── index.html
 │   ├── Questions.js
 │   ├── scripts/
+│   │   ├── script.js             # Orchestrator
+│   │   ├── stateManager.js       # State management
+│   │   ├── questionRenderer.js   # Question DOM rendering
+│   │   ├── summaryRenderer.js    # Summary screen DOM rendering (pre-debrief)
+│   │   ├── debriefRenderer.js    # Debrief DOM rendering
+│   │   ├── questionsToPlayer.js  # (legacy) Node build script — Excel source no longer in repo
+│   │   └── utils.js              # Helpers
 │   ├── styles/
 │   └── img/
 │
-├── Practice Test/                # Practice mode player — synced from root
+├── Practice Test/                # Practice mode player
 │   ├── index.html
 │   ├── Questions.js
 │   ├── scripts/
@@ -71,6 +64,7 @@ AHA-Interactive-Video-Player/
 │
 ├── Final Test/                   # Final Test — own scripts (3-attempt system)
 │   ├── index.html
+│   ├── debrief-preview.html      # Standalone debrief-state preview
 │   ├── Questions.js
 │   ├── scripts/
 │   │   ├── script.js             # Extended: attempt counter + Storyline Fail variable
@@ -99,7 +93,7 @@ AHA-Interactive-Video-Player/
     └── Question 13/              # 11 Extinction and Inattention
 ```
 
-> **Source of truth rule:** `root/` is the canonical copy. After editing root scripts or styles, sync manually to `Web Object/` and `Practice Test/` (these are identical). `Final Test/` has extended logic and is maintained separately.
+> **No more root "source of truth".** Each deliverable folder is independent and edited in place. `Web Object/` and `Practice Test/` share the same base logic; `Final Test/` has extended logic (attempt counter + `Fail` variable). When you change shared logic, apply the same edit to each folder that needs it.
 
 Each `Question N/` folder is self-contained:
 ```
@@ -114,38 +108,22 @@ Question N/
 
 ## Getting Started
 
-### Prerequisites
+There is no build step. Each deliverable folder is static HTML/CSS/JS and can be opened or served directly.
 
-- Node.js 18+
-- npm
+### Run locally
 
-### Install dependencies
-
-```bash
-npm install
-```
-
-### Import questions from Excel
-
-Reads `excel/Questions.xlsx` and generates `Questions.js`:
+Serve any deliverable folder with any static file server, for example:
 
 ```bash
-npm run import
+# from inside a deliverable folder, e.g. "Web Object/"
+npx serve .
 ```
 
-### Start dev server
+Then open the printed URL (e.g. `http://localhost:3000`). A static server is recommended over opening `index.html` via `file://` because ES module imports require an `http(s)` origin.
 
-```bash
-npm run serve
-```
+### Deploy / embed
 
-Opens at `http://localhost:3000`.
-
-### Import + serve in one command
-
-```bash
-npm start
-```
+Upload the chosen folder as an Articulate Storyline **Web Object**, or host it on any static host. See [Articulate Storyline Integration](#articulate-storyline-integration).
 
 ---
 
@@ -178,12 +156,15 @@ Start screen
 
 ### Regenerating Practice Videos
 
-If question data changes, re-run the generator after updating `Questions.js`:
+`Practice Videos/generate.cjs` holds the question data inline and emits the 13 `Question N/` folders. **Note:** it copies shared assets from the old root (`../img` and `../styles/styles.css`), which were removed during the 2026-06-25 cleanup, so it will not run as-is. To regenerate, first restore those root assets from git history, then run the generator:
 
 ```bash
+git restore --source=56eaab7 -- img styles
 cd "Practice Videos"
 node generate.cjs
 ```
+
+Alternatively, edit each `Question N/` folder directly — they are fully standalone.
 
 ---
 
@@ -275,75 +256,71 @@ Question 7: 5 Motor Arm (Left)
 
 ## Adding & Editing Questions
 
-All question content lives in `excel/Questions.xlsx`. After editing, run `npm run import` to regenerate `Questions.js`.
+Question content now lives directly in each deliverable's `Questions.js` (the Excel build pipeline was removed in the 2026-06-25 cleanup). Edit the file in place and keep the copies in sync across folders that share the same question set.
 
-### Sheet structure
+### Question object shape
 
-- Sheets named `start` and `readme` are skipped.
-- Every other sheet is treated as one question (e.g. `1a LOC`, `2 Best Gaze`).
+`Questions.js` exports an array of question objects:
 
+```js
+{
+  "id": "Q1",
+  "time": 68.1,                 // trigger timecode in seconds
+  "sheet": "1a LOC",            // heading label
+  "text": "Question text…",
+  "options": [
+    { "text": "0", "description": "…", "rationale": "…", "correct": true,  "debrief": "…" },
+    { "text": "1", "description": "…", "rationale": "…", "correct": false, "debrief": "…" }
+  ]
+}
 ```
-Cell A1        Question text (can be a merged cell)
-Cell B2        Timecode — accepts: "5", "5 sec", "00:05", or numeric 5
 
-Row 5          Header row (case-insensitive):
-               Option | Option Description | Feedback Rationale | Correct | Debrief Rationale
-
-Rows 6+        One answer option per row (stop when "Option" column is empty)
-```
-
-### Column definitions
-
-| Column | Description |
-|--------|-------------|
-| `Option` | Short answer label (e.g. "0", "1", "UN") |
-| `Option Description` | Full description shown on the answer card |
-| `Feedback Rationale` | Text shown immediately after submit (optional) |
-| `Correct` | `TRUE` / `FALSE` (or `1` / `0`) — marks the correct answer |
-| `Debrief Rationale` | Rationale shown in the review panel |
-
-### Timecode formats
-
-All of these are equivalent for a question at 5 seconds:
-
-```
-5
-5 sec
-00:05
-5.0
-```
+| Field | Description |
+|-------|-------------|
+| `id` | Unique question id (e.g. `Q1`) |
+| `time` | Trigger timecode in seconds |
+| `sheet` | Heading label shown next to the question number |
+| `text` | Question text |
+| `options[].text` | Short answer label (e.g. "0", "1", "UN") |
+| `options[].description` | Full description shown on the answer card |
+| `options[].rationale` | Feedback text shown immediately after submit (optional) |
+| `options[].correct` | `true` / `false` — marks the correct answer |
+| `options[].debrief` | Rationale shown in the review panel |
 
 ### Chained questions (same timecode)
 
-To add a chained pair, manually add to `Questions.js` after importing:
+To add a chained pair, add the `chainTo` / `chained` fields:
 
 ```js
 { "id": "QX", ..., "chainTo": "QY" },   // first of pair
 { "id": "QY", ..., "chained": true }     // second of pair — same timecode
 ```
 
-After editing `Questions.js`, sync it to all Web Objects:
+### Keeping folders in sync
+
+`Web Object/`, `Practice Test/`, and `Final Test/` use the full question set. After editing one, copy it to the others:
 
 ```bash
-cp Questions.js "Web Object/Questions.js"
-cp Questions.js "Practice Test/Questions.js"
-cp Questions.js "Final Test/Questions.js"
+cp "Web Object/Questions.js" "Practice Test/Questions.js"
+cp "Web Object/Questions.js" "Final Test/Questions.js"
 ```
+
+`Practice Videos/` question data is held inline in `generate.cjs` (or edited per `Question N/` folder) — see [Regenerating Practice Videos](#regenerating-practice-videos).
 
 ---
 
 ## Configuration Reference
 
-All configurable constants are at the top of their respective files.
+All configurable constants are at the top of their respective files. Paths below are shown for `Web Object/`; the same files exist in `Practice Test/` and `Final Test/`.
 
-### `scripts/script.js`
+### `Web Object/scripts/script.js`
 
 | Constant | Default | Description |
 |----------|---------|-------------|
 | `UPDATE_MS` | `200` | Polling interval in milliseconds |
 | `VAR_NAME` | `'VimeoTime'` | Storyline variable name for time sync |
 
-### `scripts/stateManager.js`
+### `Web Object/scripts/stateManager.js`
 
 | Value | Location | Description |
 |-------|----------|-------------|
@@ -357,7 +334,7 @@ All configurable constants are at the top of their respective files.
 | `MAX_ATTEMPTS` | `3` | Number of allowed attempts before Fail |
 | `PASSING_SCORE` | `90` | Minimum % correct to pass (0–100) |
 
-### `scripts/debriefRenderer.js`
+### `Web Object/scripts/debriefRenderer.js`
 
 | Constant | Default | Description |
 |----------|---------|-------------|
@@ -396,6 +373,8 @@ All colors are CSS custom properties in `:root`:
 ---
 
 ## Modules
+
+> Module paths below are written as `scripts/…` for brevity. Each deliverable folder (`Web Object/`, `Practice Test/`, `Final Test/`) has its own copy under that folder, e.g. `Web Object/scripts/script.js`.
 
 ### `scripts/script.js` — Orchestrator
 
@@ -517,9 +496,9 @@ const MOCK_PCT_CORRECT = 0.85; // fraction correct (>= 0.9 = passed)
 
 ---
 
-### `scripts/questionsToPlayer.js` — Build Script (Node.js only)
+### `scripts/questionsToPlayer.js` — Build Script (legacy, Node.js only)
 
-Reads `excel/Questions.xlsx` → writes `Questions.js`.
+> **Legacy / non-functional.** This script read `excel/Questions.xlsx` → wrote `Questions.js`. The Excel source and root build setup were removed in the 2026-06-25 cleanup, so this script no longer has an input. It remains in `Web Object/scripts/` for reference only. To revive the Excel workflow, restore the source from git (`git restore --source=56eaab7 -- excel package.json package-lock.json`).
 
 ```
 run()
@@ -749,9 +728,9 @@ If not embedding in Storyline, all `GetPlayer()` calls are safely ignored (wrapp
 
 ## Development Notes
 
-- `Questions.js` is auto-generated — never edit it manually. Always edit the Excel file and re-run `npm run import`. Exception: `chainTo` / `chained` fields for paired questions must be added manually after import.
+- `Questions.js` is edited directly inside each deliverable folder (the Excel build pipeline was removed in the 2026-06-25 cleanup). Add `chainTo` / `chained` fields manually for paired questions.
 - The Vimeo polling loop runs at 200ms (`UPDATE_MS`). Lowering this may improve trigger accuracy at the cost of more API calls.
 - The trigger window (`−0.3s / +0.5s`) is intentionally asymmetric to account for Vimeo's `getCurrentTime()` polling jitter.
 - `dismissQuestion(index)` prevents a question from retriggering when the user is still inside the trigger window (e.g. after Submit + Continue). Chained question pairs share the same trigger window, so submitting Q8 also suppresses Q7.
 - Practice Video projects are fully standalone — each folder contains all necessary assets and has no dependency on the parent project.
-- **Source of truth:** root `scripts/` and `styles/` are the canonical copies. Sync to `Web Object/` and `Practice Test/` after every change. `Final Test/` has its own extended copies — sync only `Questions.js` and shared modules (stateManager, questionRenderer, utils).
+- **No central source of truth anymore.** Each deliverable folder is independent. When you change shared logic, apply the edit to every folder that uses it (`Web Object/`, `Practice Test/`, and `Final Test/` for shared modules; `Final Test/` keeps extended `script.js` / `debriefRenderer.js` / `styles.css`).
