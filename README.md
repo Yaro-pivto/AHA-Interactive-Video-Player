@@ -85,21 +85,21 @@ AHA-Interactive-Video-Player/
     │   ├── ...                   # Test 1c through Test 4e (20 subfolders total)
     │   └── Test 4e/              # Vimeo id 1175973918
     │
-    ├── Practice Videos/          # 13 standalone single-question Web Objects
+    ├── 2._Practice_Videos/       # 13 standalone single-question Web Objects
     │   ├── generate.cjs          # Generator: rewrites index.html + script.js per question
-    │   ├── Question 1/           # 1a LOC — Vimeo id 1175970664
-    │   ├── Question 2/           # 1b LOC Questions — Vimeo id 1175970729
-    │   ├── Question 3/           # 1c LOC Commands — Vimeo id 1175971157
-    │   ├── Question 4/           # 2 Best Gaze — Vimeo id 1175971255
-    │   ├── Question 5/           # 3 Visual — Vimeo id 1175971360
-    │   ├── Question 6/           # 4 Facial Palsy — Vimeo id 1175972074
-    │   ├── Question 7/           # 5 Motor Arm — Vimeo id 1175972173
-    │   ├── Question 8/           # 6 Motor Leg — Vimeo id 1175972438 (placeholder)
-    │   ├── Question 9/           # 7 Limb Ataxia — Vimeo id 1175972549
-    │   ├── Question 10/          # 8 Sensory — Vimeo id 1175972632
-    │   ├── Question 11/          # 9 Best Language — Vimeo id 1175972894
-    │   ├── Question 12/          # 10 Dysarthria — Vimeo id 1175972992
-    │   └── Question 13/          # 11 Extinction and Inattention — Vimeo id 1175973069
+    │   ├── Question_1/           # 1a LOC — Vimeo id 1175970664
+    │   ├── Question_2/           # 1b LOC Questions — Vimeo id 1175970729
+    │   ├── Question_3/           # 1c LOC Commands — Vimeo id 1175971157
+    │   ├── Question_4/           # 2 Best Gaze — Vimeo id 1175971255
+    │   ├── Question_5/           # 3 Visual — Vimeo id 1175971360
+    │   ├── Question_6/           # 4 Facial Palsy — Vimeo id 1175972074
+    │   ├── Question_7/           # 5 Motor Arm — Vimeo id 1175972173
+    │   ├── Question_8/           # 6 Motor Leg — Vimeo id 1175972438 (placeholder)
+    │   ├── Question_9/           # 7 Limb Ataxia — Vimeo id 1175972549
+    │   ├── Question_10/          # 8 Sensory — Vimeo id 1175972632
+    │   ├── Question_11/          # 9 Best Language — Vimeo id 1175972894
+    │   ├── Question_12/          # 10 Dysarthria — Vimeo id 1175972992
+    │   └── Question_13/          # 11 Extinction and Inattention — Vimeo id 1175973069
     │
     └── 1._Regular_Video/         # 68 non-interactive video pages + 13 tabbed players
         ├── generate.cjs          # Generator: reads video-manifest.json, emits one folder per video
@@ -128,9 +128,9 @@ AHA-Interactive-Video-Player/
 
 > Each deliverable folder is independent and edited in place. `Web Object/` and `Practice Test/` share the same base logic; `Final Test/` has extended logic (attempt counter + `Fail` variable). When you change shared logic, apply the same edit to each folder that needs it.
 
-Each `Question N/` folder is self-contained:
+Each `Question_N/` folder is self-contained:
 ```
-Question N/
+Question_N/
 ├── index.html    # Start screen + video + question overlay
 ├── script.js     # All logic + question data inline (no dependencies)
 ├── styles.css    # Full theme
@@ -219,12 +219,12 @@ All video ids are managed in `video-manifest.json` at the repo root. This file w
 |-----------|----------|-----------------|
 | `generate.cjs` | `1._Regular_Video/` | One folder per non-interactive video (types: background, intro, score, special) — 68 folders total |
 | `generate-players.cjs` | `1._Regular_Video/` | 12 tabbed player folders (reads `Item_5_Motor_Arm_Player/styles.css` as the CSS source) |
-| `generate-tests.cjs` | `Final Test/` | 20 `Test Xa` subfolders, each a full copy of the Final Test base with its own video id |
+| `generate-tests.cjs` | `4._Final_Test/` | 20 `Test Xa` subfolders, each a full copy of the Final Test base with its own video id |
 
 To regenerate after updating `video-manifest.json`:
 ```bash
 cd "Delivery/1._Regular_Video" && node generate.cjs
-cd "Delivery/Final Test"       && node generate-tests.cjs
+cd "Delivery/4._Final_Test"    && node generate-tests.cjs
 ```
 
 To regenerate the 12 tabbed players after changing design (e.g. edit `Item_5_Motor_Arm_Player/styles.css`):
@@ -306,7 +306,7 @@ The `Practice Videos/` folder contains 13 standalone Web Object projects — one
 
 - Plays the KC (Knowledge Check) video for its NIHSS item (unique Vimeo id per question)
 - Shows the relevant question when the video ends
-- On Submit → displays **immediate Feedback** (correct/incorrect + rationale) instead of a Debrief screen
+- On Submit → displays **immediate Feedback** (correct/incorrect) instead of a Debrief screen
 - Includes a **Watch Again** button (↺) to replay the video from the beginning
 - The feedback heading changes to **"Correct!"** or **"Incorrect!"** with a color-coded badge
 
@@ -329,14 +329,14 @@ Start screen
 
 ### Regenerating Practice Videos
 
-`Practice Videos/generate.cjs` holds all question data inline. It rewrites `index.html` and `script.js` for each of the 13 `Question N/` folders (asset copies are disabled since each folder already contains its own `img/` and `styles.css`):
+`2._Practice_Videos/generate.cjs` holds all question data inline. It rewrites `index.html` and `script.js` for each of the 13 `Question_N/` folders (asset copies are disabled since each folder already contains its own `img/` and `styles.css`):
 
 ```bash
-cd "Practice Videos"
+cd "Delivery/2._Practice_Videos"
 node generate.cjs
 ```
 
-Alternatively, edit each `Question N/` folder directly — they are fully standalone.
+Alternatively, edit each `Question_N/` folder directly — they are fully standalone.
 
 ---
 
@@ -455,9 +455,9 @@ Question content now lives directly in each deliverable's `Questions.js` (the Ex
 | `text` | Question text |
 | `options[].text` | Short answer label (e.g. "0", "1", "UN") |
 | `options[].description` | Full description shown on the answer card |
-| `options[].rationale` | Feedback text shown immediately after submit (optional) |
+| `options[].rationale` | (data field, not currently displayed) |
 | `options[].correct` | `true` / `false` — marks the correct answer |
-| `options[].debrief` | Rationale shown in the review panel |
+| `options[].debrief` | (data field, not currently displayed) |
 
 ### Chained questions (same timecode)
 
@@ -477,7 +477,7 @@ cp "Web Object/Questions.js" "Practice Test/Questions.js"
 cp "Web Object/Questions.js" "Final Test/Questions.js"
 ```
 
-`Practice Videos/` question data is held inline in `generate.cjs` (or edited per `Question N/` folder) — see [Regenerating Practice Videos](#regenerating-practice-videos).
+`2._Practice_Videos/` question data is held inline in `generate.cjs` (or edited per `Question_N/` folder) — see [Regenerating Practice Videos](#regenerating-practice-videos).
 
 ---
 
@@ -599,7 +599,7 @@ All colors are CSS custom properties in `:root`:
 |----------|-------------|
 | `renderQuestion(question, dom, previousAnswer, onSelect, options)` | Main entry — routes to normal or review |
 | `_renderNormalMode(...)` | Interactive mode: radio answer cards + Submit button |
-| `_renderReviewMode(...)` | Read-only mode: feedback panel with correct answer + rationale |
+| `_renderReviewMode(...)` | Read-only mode: feedback panel with user answer and correct answer |
 | `renderOptions(...)` | Build individual answer cards (used in normal mode) |
 | `buildReviewFeedbackPanel(...)` | Full-width feedback panel (green/red) |
 

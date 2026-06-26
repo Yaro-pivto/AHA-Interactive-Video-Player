@@ -1,22 +1,22 @@
-﻿// Question 9 data
+// Question 9 data
 var QUESTION = {
-  text: "Based on what you saw in the video, how would you score this patient?\nChoose the correct answer, and select Submit.",
+  text: "Based on what you see in the video, please score the patient accordingly.",
   options:   [
     {
       "text": "0",
       "description": "Absent",
       "correct": true,
-      "rationale": "Rationale will be provided here."
+      "rationale": "<PASTE RATIONALE HERE>"
     },
     {
       "text": "1",
-      "description": "Present in 1 limb",
+      "description": "Present in one limb",
       "correct": false,
       "rationale": ""
     },
     {
       "text": "2",
-      "description": "Present in 2 limbs",
+      "description": "Present in two limbs",
       "correct": false,
       "rationale": ""
     },
@@ -29,14 +29,14 @@ var QUESTION = {
   ]
 };
 
-// â”€â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── State ────────────────────────────────────────────────
 
 var selectedAnswer = null;
 var mode = 'start';
 var player;
 
 var iframe, videoWrapper, startOverlay, startBtn, questionOverlay,
-    questionNumber, questionText, answersContainer, instructionText, submitBtn,
+    questionText, answersContainer, instructionText, submitBtn,
     watchAgainBtn, frameSentinel, fullscreenBtn;
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -45,7 +45,6 @@ document.addEventListener('DOMContentLoaded', function () {
   startOverlay     = document.getElementById('startOverlay');
   startBtn         = document.getElementById('startBtn');
   questionOverlay  = document.getElementById('questionOverlay');
-  questionNumber   = document.getElementById('questionNumber');
   questionText     = document.getElementById('questionText');
   answersContainer = document.getElementById('answersContainer');
   instructionText  = document.getElementById('instructionText');
@@ -128,11 +127,6 @@ function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
 
-  questionNumber.textContent = '7: Limb Ataxia';
-  questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
-  questionText.classList.remove('hidden');
-  instructionText.classList.remove('hidden');
-
   questionText.textContent = QUESTION.text;
   instructionText.textContent = 'Select an answer and press Submit to continue.';
 
@@ -198,9 +192,6 @@ function showFeedback() {
   var correctAnswerText = correctOption
     ? (correctOption.text + ' \u2013 ' + correctOption.description) : '';
 
-  var rawRationale = correctOption ? (correctOption.rationale || '').trim() : '';
-  var rationaleText = rawRationale;
-
   answersContainer.innerHTML = '';
   answersContainer.classList.add('answers--review');
   answersContainer.removeAttribute('role');
@@ -237,28 +228,8 @@ function showFeedback() {
 
   panel.appendChild(top);
 
-  if (rationaleText) {
-    var rWrap = document.createElement('div');
-    rWrap.className = 'review-feedback-panel__rationale';
-    var rH = document.createElement('p');
-    rH.className = 'review-feedback-panel__rationale-heading'; rH.textContent = 'Rationale:';
-    var rB = document.createElement('p');
-    rB.className = 'review-feedback-panel__rationale-body'; rB.textContent = rationaleText;
-    rWrap.appendChild(rH); rWrap.appendChild(rB);
-    panel.appendChild(rWrap);
-  }
-
   answersContainer.appendChild(panel);
-
-  // Update h1 badge
-  questionNumber.textContent = isCorrect ? 'Correct!' : 'Incorrect!';
-  questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
-  questionNumber.classList.add(isCorrect ? 'Correct_Title' : 'Incorrect_Title');
-
-  // Hide question text and instruction text
-  questionText.classList.add('hidden');
-  instructionText.classList.add('hidden');
-
+  instructionText.textContent = isCorrect ? 'Correct!' : 'Review the correct answer below.';
   submitBtn.classList.add('hidden');
   requestAnimationFrame(function () { panel.focus(); });
 }

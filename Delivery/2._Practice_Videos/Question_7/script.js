@@ -1,22 +1,22 @@
-﻿// Question 7 data
+// Question 7 data
 var QUESTION = {
-  text: "Based on what you saw in the video, how would you score this patient?\nChoose the correct answer, and select Submit.",
+  text: "Based on what you see in the video, please score the patient accordingly.",
   options:   [
     {
       "text": "0",
-      "description": "No drift; limb holds 90° (or 45°) for full 10 seconds",
+      "description": "No drift; limb holds 90 (or 45) degrees for full 10 seconds.",
       "correct": false,
-      "rationale": ""
+      "rationale": "<PASTE RATIONALE HERE>"
     },
     {
       "text": "1",
-      "description": "Drift; limb holds 90° (or 45°) but drifts down before full 10 seconds; does not hit bed or other support",
+      "description": "Drift; limb holds 90 (or 45) degrees, but drifts down before full 10 seconds; does not hit bed or other support.",
       "correct": true,
       "rationale": "There was a slight drift in the right arm."
     },
     {
       "text": "2",
-      "description": "Some effort against gravity; limb cannot get to or maintain (if cued) 90° (or 45°), drifts down to bed but has some effort against gravity",
+      "description": "Some effort against gravity; limb cannot get to or maintain (if cued) 90 (or 45) degrees, drifts down to bed, but has some effort against gravity.",
       "correct": false,
       "rationale": ""
     },
@@ -28,7 +28,7 @@ var QUESTION = {
     },
     {
       "text": "4",
-      "description": "No movement",
+      "description": "No movement.",
       "correct": false,
       "rationale": ""
     },
@@ -41,14 +41,14 @@ var QUESTION = {
   ]
 };
 
-// â”€â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── State ────────────────────────────────────────────────
 
 var selectedAnswer = null;
 var mode = 'start';
 var player;
 
 var iframe, videoWrapper, startOverlay, startBtn, questionOverlay,
-    questionNumber, questionText, answersContainer, instructionText, submitBtn,
+    questionText, answersContainer, instructionText, submitBtn,
     watchAgainBtn, frameSentinel, fullscreenBtn;
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -57,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function () {
   startOverlay     = document.getElementById('startOverlay');
   startBtn         = document.getElementById('startBtn');
   questionOverlay  = document.getElementById('questionOverlay');
-  questionNumber   = document.getElementById('questionNumber');
   questionText     = document.getElementById('questionText');
   answersContainer = document.getElementById('answersContainer');
   instructionText  = document.getElementById('instructionText');
@@ -140,11 +139,6 @@ function showQuestion() {
   mode = 'question';
   selectedAnswer = null;
 
-  questionNumber.textContent = '5: Motor Arm (Left and Right)';
-  questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
-  questionText.classList.remove('hidden');
-  instructionText.classList.remove('hidden');
-
   questionText.textContent = QUESTION.text;
   instructionText.textContent = 'Select an answer and press Submit to continue.';
 
@@ -210,9 +204,6 @@ function showFeedback() {
   var correctAnswerText = correctOption
     ? (correctOption.text + ' \u2013 ' + correctOption.description) : '';
 
-  var rawRationale = correctOption ? (correctOption.rationale || '').trim() : '';
-  var rationaleText = rawRationale;
-
   answersContainer.innerHTML = '';
   answersContainer.classList.add('answers--review');
   answersContainer.removeAttribute('role');
@@ -249,28 +240,8 @@ function showFeedback() {
 
   panel.appendChild(top);
 
-  if (rationaleText) {
-    var rWrap = document.createElement('div');
-    rWrap.className = 'review-feedback-panel__rationale';
-    var rH = document.createElement('p');
-    rH.className = 'review-feedback-panel__rationale-heading'; rH.textContent = 'Rationale:';
-    var rB = document.createElement('p');
-    rB.className = 'review-feedback-panel__rationale-body'; rB.textContent = rationaleText;
-    rWrap.appendChild(rH); rWrap.appendChild(rB);
-    panel.appendChild(rWrap);
-  }
-
   answersContainer.appendChild(panel);
-
-  // Update h1 badge
-  questionNumber.textContent = isCorrect ? 'Correct!' : 'Incorrect!';
-  questionNumber.classList.remove('Correct_Title', 'Incorrect_Title');
-  questionNumber.classList.add(isCorrect ? 'Correct_Title' : 'Incorrect_Title');
-
-  // Hide question text and instruction text
-  questionText.classList.add('hidden');
-  instructionText.classList.add('hidden');
-
+  instructionText.textContent = isCorrect ? 'Correct!' : 'Review the correct answer below.';
   submitBtn.classList.add('hidden');
   requestAnimationFrame(function () { panel.focus(); });
 }
