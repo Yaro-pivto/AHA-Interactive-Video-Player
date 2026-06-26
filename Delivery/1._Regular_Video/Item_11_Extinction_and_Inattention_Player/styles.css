@@ -1,0 +1,227 @@
+/* ========================================================================
+   Item 11: Extinction and Inattention - grouped video player
+   Design size 1680 x 1436 (1600 x 900 16:9 video + tab strip + padding),
+   scaled to fit with zoom (same responsive strategy as the other modules).
+   The page background is transparent; only the rounded card is painted.
+   ======================================================================== */
+
+:root {
+  --color-btn:    #4D4D4F;   /* button normal state            */
+  --color-active: #4298B5;   /* button hover / selected state  */
+  --color-white:  #FFFFFF;
+  --color-black:  #000000;
+
+  --card-w: 1680px;
+  --card-h: 1436px;
+}
+
+/* ========== Base ========== */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;   /* let the Storyline slide show through */
+  font-family: "aktiv-grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* ========== Accessibility utility ========== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.hidden { display: none !important; }
+
+/* ========== Card ==========================================================
+   Fixed design size with a white-to-blue gradient and a 30px radius. zoom
+   scales the whole card uniformly so it always fits the web object area
+   without scrolling or clipping, at any viewport size or browser zoom.
+   ========================================================================= */
+.po-card {
+  width: var(--card-w);
+  height: var(--card-h);
+  box-sizing: border-box;
+  padding: 40px 40px 48px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #7CB8CC 100%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  zoom: min(calc(100vw / 1680px), calc(100vh / 1436px));
+}
+
+/* ========== Tab strip ========== */
+.po-tabs {
+  flex-shrink: 0;
+  margin-bottom: 36px;
+}
+
+.po-tablist {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;   /* score row stretches to full video width */
+  gap: 28px;
+}
+
+/* Introduction pill, centred above the score row. */
+.po-tab--intro {
+  align-self: center;
+  height: 152px;
+  padding: 0 90px;
+  border-radius: 999px;
+  font-size: 60px;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Score row: centred with a fixed gap so any number of circles looks even. */
+.po-scores {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  width: 100%;
+}
+
+/* ========== Tab buttons (shared) ========== */
+.po-tab {
+  background: var(--color-btn);
+  color: var(--color-white);
+  border: none;
+  font-family: "aktiv-grotesk", sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.92),
+              0 6px 18px rgba(0, 0, 0, 0.18);
+  transition: background 0.2s ease, color 0.2s ease,
+              transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+/* Score circles - large, evenly distributed. */
+.po-tab--score {
+  width: 224px;
+  height: 224px;
+  border-radius: 50%;
+  font-size: 100px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.po-tab--un { font-size: 74px; }
+
+/* Hover and keyboard-focus feedback. */
+.po-tab:hover {
+  background: var(--color-active);
+  color: var(--color-black);
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.95),
+              0 10px 24px rgba(66, 152, 181, 0.40);
+}
+
+/* Selected tab. */
+.po-tab[aria-selected="true"] {
+  background: var(--color-active);
+  color: var(--color-black);
+}
+
+.po-tab:focus-visible {
+  outline: 4px solid var(--color-active);
+  outline-offset: 6px;
+}
+
+.po-tab:active { transform: translateY(0); }
+
+/* ========== Video stage (16:9, tab panel, "video" keyboard stop) ==========
+   Locked to a 16:9 box so the Vimeo video fills it edge to edge with no
+   pillarbox or letterbox bars. Width derives from the card; height follows.
+   ========================================================================= */
+.po-stage {
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--color-black);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.po-stage:focus-visible {
+  outline: 4px solid var(--color-active);
+  outline-offset: 4px;
+}
+
+iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* ========== Cross-fade when switching videos ========== */
+#vimeo,
+.po-placeholder {
+  transition: opacity 0.18s ease;
+}
+
+.po-stage.po-fading #vimeo,
+.po-stage.po-fading .po-placeholder {
+  opacity: 0;
+}
+
+/* ========== Placeholder (video not delivered yet) ========== */
+.po-placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--color-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.po-placeholder__text {
+  margin: 0;
+  color: var(--color-white);
+  font-family: "aktiv-grotesk", sans-serif;
+  font-size: 44px;
+  font-weight: 700;
+  text-align: center;
+  opacity: 0.85;
+}
+
+/* ========== High contrast ========== */
+@media (prefers-contrast: high) {
+  .po-tab { box-shadow: 0 0 0 4px #FFFFFF; }
+  .po-tab:focus-visible { outline-width: 5px; }
+}
+
+/* ========== Reduced motion ========== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

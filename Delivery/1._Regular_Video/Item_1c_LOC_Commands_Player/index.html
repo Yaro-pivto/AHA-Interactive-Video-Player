@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Item 1c: LOC Commands</title>
+  <link rel="stylesheet" href="https://use.typekit.net/nid8klk.css">
+  <script src="https://player.vimeo.com/api/player.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <main id="poCard" class="po-card">
+
+    <h1 class="sr-only">Item 1c: LOC Commands. Choose a video to watch.</h1>
+
+    <div id="poStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <div class="po-tabs">
+      <div
+        id="poTablist"
+        class="po-tablist"
+        role="tablist"
+        aria-label="Item 1c LOC Commands videos"
+        aria-orientation="horizontal">
+
+        <button id="tab-intro" class="po-tab po-tab--intro" role="tab"
+                aria-selected="true" aria-controls="poStage" tabindex="0"
+                data-index="0">Introduction</button>
+
+        <div class="po-scores">
+          <button id="tab-0" class="po-tab po-tab--score" role="tab"
+                  aria-selected="false" aria-controls="poStage" tabindex="0"
+                  data-index="1" aria-label="Score 0 video">0</button>
+          <button id="tab-1" class="po-tab po-tab--score" role="tab"
+                  aria-selected="false" aria-controls="poStage" tabindex="0"
+                  data-index="2" aria-label="Score 1 video">1</button>
+          <button id="tab-2" class="po-tab po-tab--score" role="tab"
+                  aria-selected="false" aria-controls="poStage" tabindex="0"
+                  data-index="3" aria-label="Score 2 video">2</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="poStage" class="po-stage" role="tabpanel" aria-labelledby="tab-intro"
+         tabindex="0" aria-label="Video">
+
+      <iframe
+        id="vimeo"
+        tabindex="-1"
+        data-params="badge=0&autopause=0&quality_selector=1&progress_bar=1&fullscreen=1"
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowfullscreen
+        title="Item 1c: LOC Commands video"
+        aria-label="Video player">
+      </iframe>
+
+      <div id="poPlaceholder" class="po-placeholder hidden" aria-hidden="true">
+        <p class="po-placeholder__text">Video coming soon.</p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Item 5: Motor Arm</title>
+  <link rel="stylesheet" href="https://use.typekit.net/nid8klk.css">
+  <script src="https://player.vimeo.com/api/player.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <!-- Web object content card. Fixed design size, scaled to fit with zoom.
+       Page background is transparent so the Storyline slide shows through. -->
+  <main id="poCard" class="po-card">
+
+    <!-- Screen-reader-only heading naming the current NIHSS item. -->
+    <h1 class="sr-only">Item 5: Motor Arm. Choose a video to watch.</h1>
+
+    <!-- Polite live region announcing which video is now playing. -->
+    <div id="poStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Tab strip: Introduction pill on top, score buttons in one row below. -->
+    <div class="po-tabs">
+      <div
+        id="poTablist"
+        class="po-tablist"
+        role="tablist"
+        aria-label="Item 5 Motor Arm videos"
+        aria-orientation="horizontal">
+
+        <button id="tab-intro" class="po-tab po-tab--intro" role="tab"
+                aria-selected="true" aria-controls="poStage" tabindex="0"
+                data-index="0">Introduction</button>
+
+        <div class="po-scores">
+          <button id="tab-0" class="po-tab po-tab--score" role="tab"
+                  aria-selected="false" aria-controls="poStage" tabindex="0"
+                  data-index="1" aria-label="Score 0 video">0</button>
+          <button id="tab-1" class="po-tab po-tab--score" role="tab"
+                  aria-selected="false" aria-controls="poStage" tabindex="0"
+                  data-index="2" aria-label="Score 1 video">1</button>
+          <button id="tab-2" class="po-tab po-tab--score" role="tab"
+                  aria-selected="false" aria-controls="poStage" tabindex="0"
+                  data-index="3" aria-label="Score 2 video">2</button>
+          <button id="tab-3" class="po-tab po-tab--score" role="tab"
+                  aria-selected="false" aria-controls="poStage" tabindex="0"
+                  data-index="4" aria-label="Score 3 video">3</button>
+          <button id="tab-4" class="po-tab po-tab--score" role="tab"
+                  aria-selected="false" aria-controls="poStage" tabindex="0"
+                  data-index="5" aria-label="Score 4 video">4</button>
+          <button id="tab-un" class="po-tab po-tab--score po-tab--un" role="tab"
+                  aria-selected="false" aria-controls="poStage" tabindex="0"
+                  data-index="6" aria-label="Untestable video">UN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video stage. Locked to 16:9 (Full HD) so the video fills it with no
+         pillarbox bars. Also the single tab panel and the "video" Tab stop. -->
+    <div id="poStage" class="po-stage" role="tabpanel" aria-labelledby="tab-intro"
+         tabindex="0" aria-label="Video">
+
+      <iframe
+        id="vimeo"
+        tabindex="-1"
+        data-params="badge=0&autopause=0&quality_selector=1&progress_bar=1&fullscreen=1"
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowfullscreen
+        title="Item 5 Motor Arm video"
+        aria-label="Video player">
+      </iframe>
+
+      <!-- Placeholder shown when the selected video has not been delivered yet. -->
+      <div id="poPlaceholder" class="po-placeholder hidden" aria-hidden="true">
+        <p class="po-placeholder__text">Video coming soon.</p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

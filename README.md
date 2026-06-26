@@ -12,17 +12,18 @@ An accessible, interactive video player built with Vimeo and vanilla JavaScript.
 2. [File Structure](#file-structure)
 3. [Getting Started](#getting-started)
 4. [Extended Audio Description (EAD)](#extended-audio-description-ead)
-5. [Practice Videos](#practice-videos)
-6. [Architecture & Data Flow](#architecture--data-flow)
-7. [Questions & Chaining](#questions--chaining)
-8. [Adding & Editing Questions](#adding--editing-questions)
-9. [Configuration Reference](#configuration-reference)
-10. [Modules](#modules)
-11. [State Machine](#state-machine)
-12. [CSS & Theming](#css--theming)
-13. [Accessibility](#accessibility)
-14. [Articulate Storyline Integration](#articulate-storyline-integration)
-15. [Browser Support](#browser-support)
+5. [Regular Video Players](#regular-video-players)
+6. [Practice Videos](#practice-videos)
+7. [Architecture & Data Flow](#architecture--data-flow)
+8. [Questions & Chaining](#questions--chaining)
+9. [Adding & Editing Questions](#adding--editing-questions)
+10. [Configuration Reference](#configuration-reference)
+11. [Modules](#modules)
+12. [State Machine](#state-machine)
+13. [CSS & Theming](#css--theming)
+14. [Accessibility](#accessibility)
+15. [Articulate Storyline Integration](#articulate-storyline-integration)
+16. [Browser Support](#browser-support)
 
 ---
 
@@ -100,12 +101,29 @@ AHA-Interactive-Video-Player/
     │   ├── Question 12/          # 10 Dysarthria — Vimeo id 1175972992
     │   └── Question 13/          # 11 Extinction and Inattention — Vimeo id 1175973069
     │
-    └── Regular Video/            # 68 non-interactive video pages (generated)
+    └── 1._Regular_Video/         # 68 non-interactive video pages + 13 tabbed players
         ├── generate.cjs          # Generator: reads video-manifest.json, emits one folder per video
+        ├── generate-players.cjs  # Generator: creates/updates the 12 tabbed player folders below
         ├── Background .../       # 3 background videos
         ├── Intro .../            # 13 intro videos
         ├── Score .../            # 48 score videos
-        └── Special .../          # 4 special videos
+        ├── Special .../          # 4 special videos
+        ├── Item_5_Motor_Arm_Player/          # Prototype (hand-authored; source of CSS for generator)
+        │   ├── index.html
+        │   ├── script.js
+        │   └── styles.css
+        ├── Item_1a_LOC_Player/               # Generated — same structure as prototype
+        ├── Item_1b_LOC_Questions_Player/
+        ├── Item_1c_LOC_Commands_Player/
+        ├── Item_2_Best_Gaze_Player/
+        ├── Item_3_Visual_Player/
+        ├── Item_4_Facial_Palsy_Player/
+        ├── Item_6_Motor_Leg_Player/          # All videos are placeholders
+        ├── Item_7_Limb_Ataxia_Player/
+        ├── Item_8_Sensory_Player/
+        ├── Item_9_Best_Language_Player/
+        ├── Item_10_Dysarthria_Player/
+        └── Item_11_Extinction_and_Inattention_Player/
 ```
 
 > Each deliverable folder is independent and edited in place. `Web Object/` and `Practice Test/` share the same base logic; `Final Test/` has extended logic (attempt counter + `Fail` variable). When you change shared logic, apply the same edit to each folder that needs it.
@@ -199,14 +217,86 @@ All video ids are managed in `video-manifest.json` at the repo root. This file w
 
 | Generator | Location | What it creates |
 |-----------|----------|-----------------|
-| `generate.cjs` | `Regular Video/` | One folder per non-interactive video (types: background, intro, score, special) — 68 folders total |
+| `generate.cjs` | `1._Regular_Video/` | One folder per non-interactive video (types: background, intro, score, special) — 68 folders total |
+| `generate-players.cjs` | `1._Regular_Video/` | 12 tabbed player folders (reads `Item_5_Motor_Arm_Player/styles.css` as the CSS source) |
 | `generate-tests.cjs` | `Final Test/` | 20 `Test Xa` subfolders, each a full copy of the Final Test base with its own video id |
 
 To regenerate after updating `video-manifest.json`:
 ```bash
-cd "Regular Video" && node generate.cjs
-cd "Final Test"    && node generate-tests.cjs
+cd "Delivery/1._Regular_Video" && node generate.cjs
+cd "Delivery/Final Test"       && node generate-tests.cjs
 ```
+
+To regenerate the 12 tabbed players after changing design (e.g. edit `Item_5_Motor_Arm_Player/styles.css`):
+```bash
+cd "Delivery/1._Regular_Video" && node generate-players.cjs
+```
+
+---
+
+## Regular Video Players
+
+`Delivery/1._Regular_Video/` contains 13 **tabbed video selector** Web Objects — one per NIHSS item. Each player groups an item's Introduction video and its per-score videos (0, 1, 2 … UN) behind a pill/circle tab strip above a shared 16:9 video stage.
+
+### Design specs
+
+| Property | Value |
+|----------|-------|
+| Card design size | 1680 × 1436 px |
+| Scaling | CSS `zoom: min(100vw / 1680px, 100vh / 1436px)` |
+| Background | Fully transparent (Storyline slide bleeds through) |
+| Card background | Gradient `#FFFFFF → #7CB8CC`, `border-radius: 30px` |
+| Introduction pill | 152 × 152 px pill, font 60px |
+| Score circles | 224 × 224 px circles, font 100px (UN: 74px) |
+| Score row layout | `justify-content: center; gap: 50px` |
+| Video stage | `aspect-ratio: 16/9`, `border-radius: 18px` |
+| Cross-fade on tab switch | 160 ms opacity transition |
+
+### Tab keyboard model (WAI-ARIA Tabs pattern)
+
+- **Arrow keys / Home / End** — move between tabs and activate them immediately (no Enter needed).
+- **Tab** — interleaved order: tab → video stop → next tab → video stop … → exit web object.
+- **Shift+Tab** — reverse order.
+- **Enter / Space** — replay the current tab's video.
+
+### Vimeo controls scaling
+
+Because the card uses CSS `zoom`, the Vimeo iframe's CSS dimensions remain at the full design size (1600 × 900 px) while being displayed smaller. `calibrateIframe()` in each `script.js` detects the actual zoom factor and resizes the iframe to the true visible pixel dimensions, applying an inverse `scale()` so it still fills the stage. Vimeo then renders controls sized for the real visible width.
+
+### Placeholder videos
+
+Tabs whose `standardId` is `null` show a "Video coming soon." panel instead of loading Vimeo. Item 6 Motor Leg has all videos as placeholders. Item 7 Limb Ataxia has a null UN. Item 10 Dysarthria has a real UN video.
+
+### Source of truth
+
+`Item_5_Motor_Arm_Player/` is the hand-authored prototype. `generate-players.cjs` (same directory) reads its `styles.css` and generates the other 12 folders. To update all players after a design change:
+
+```bash
+cd "Delivery/1._Regular_Video"
+# 1. Edit Item_5_Motor_Arm_Player/styles.css
+# 2. Re-run the generator
+node generate-players.cjs
+```
+
+The generator also holds all Vimeo IDs. To update an ID, edit the `ITEMS` array in `generate-players.cjs` and re-run.
+
+### Per-item tab count
+
+| Player folder | Tabs |
+|---------------|------|
+| Item_1a_LOC_Player | Intro, 0, 1, 2, 3 |
+| Item_1b_LOC_Questions_Player | Intro, 0, 1, 2 |
+| Item_1c_LOC_Commands_Player | Intro, 0, 1, 2 |
+| Item_2_Best_Gaze_Player | Intro, 0, 1, 2 |
+| Item_3_Visual_Player | Intro, 0, 1, 2, 3 |
+| Item_4_Facial_Palsy_Player | Intro, 0, 1, 2, 3 |
+| Item_5_Motor_Arm_Player | Intro, 0, 1, 2, 3, 4, UN |
+| Item_6_Motor_Leg_Player | Intro, 0, 1, 2, 3, 4, UN (all placeholders) |
+| Item_7_Limb_Ataxia_Player | Intro, 0, 1, 2, UN (UN = placeholder) |
+| Item_8_Sensory_Player | Intro, 0, 1, 2 |
+| Item_9_Best_Language_Player | Intro, 0, 1, 2, 3 |
+| Item_10_Dysarthria_Player | Intro, 0, 1, 2, UN |
+| Item_11_Extinction_and_Inattention_Player | Intro, 0, 1, 2 |
 
 ---
 
