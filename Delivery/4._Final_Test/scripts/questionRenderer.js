@@ -8,11 +8,6 @@
  *   'review'  — readonly review from Debrief; shows feedback panel, no answer cards
  */
 
-const RATIONALE_DEFAULT =
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod ' +
-  'tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, ' +
-  'quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.';
-
 // ─── renderQuestion ───────────────────────────────────────────────────────────
 
 export function renderQuestion(question, dom, previousAnswer, onSelect, {
@@ -100,16 +95,10 @@ function _renderReviewMode(question, dom, userAnswer, onReturnToDebrief) {
     ? `${correctOption.text} - ${correctOption.description}`
     : '';
 
-  // Rationale: question-level field first, then default Lorem ipsum
-  const rawRationale  = question.rationale?.trim() ?? '';
-  const rationaleText = (rawRationale && rawRationale !== '<PASTE RATIONALE HERE>')
-    ? rawRationale
-    : RATIONALE_DEFAULT;
-
   // ── Replace answer grid with full-width feedback panel ──────────────────
   dom.answersContainer.classList.add('answers--review');
   dom.answersContainer.appendChild(
-    buildReviewFeedbackPanel({ isCorrect, userAnswerText, correctAnswerText, rationaleText })
+    buildReviewFeedbackPanel({ isCorrect, userAnswerText, correctAnswerText })
   );
 
   // ── Inject "Return to Debrief" button into the submit area ──────────────
@@ -204,7 +193,7 @@ export function showFeedback(feedbackEl, text = 'Answer recorded') {
 
 // ─── buildReviewFeedbackPanel ─────────────────────────────────────────────────
 
-function buildReviewFeedbackPanel({ isCorrect, userAnswerText, correctAnswerText, rationaleText }) {
+function buildReviewFeedbackPanel({ isCorrect, userAnswerText, correctAnswerText }) {
   const state = isCorrect ? 'correct' : 'incorrect';
 
   const panel = document.createElement('div');
@@ -242,22 +231,6 @@ function buildReviewFeedbackPanel({ isCorrect, userAnswerText, correctAnswerText
   }
 
   panel.appendChild(top);
-
-  // ── Rationale section (left-aligned) ─────────────────────────────────────
-  const rationaleWrap = document.createElement('div');
-  rationaleWrap.className = 'review-feedback-panel__rationale';
-
-  const rationaleHeading = document.createElement('p');
-  rationaleHeading.className   = 'review-feedback-panel__rationale-heading';
-  rationaleHeading.textContent = 'Rationale:';
-
-  const rationaleBody = document.createElement('p');
-  rationaleBody.className   = 'review-feedback-panel__rationale-body';
-  rationaleBody.textContent = rationaleText;
-
-  rationaleWrap.appendChild(rationaleHeading);
-  rationaleWrap.appendChild(rationaleBody);
-  panel.appendChild(rationaleWrap);
 
   return panel;
 }

@@ -479,9 +479,6 @@ function showFeedback() {
   var correctAnswerText = correctOption
     ? (correctOption.text + ' \\u2013 ' + correctOption.description) : '';
 
-  var rawRationale = correctOption ? (correctOption.rationale || '').trim() : '';
-  var rationaleText = (rawRationale && rawRationale !== '<PASTE RATIONALE HERE>') ? rawRationale : '';
-
   answersContainer.innerHTML = '';
   answersContainer.classList.add('answers--review');
   answersContainer.removeAttribute('role');
@@ -517,17 +514,6 @@ function showFeedback() {
   }
 
   panel.appendChild(top);
-
-  if (rationaleText) {
-    var rWrap = document.createElement('div');
-    rWrap.className = 'review-feedback-panel__rationale';
-    var rH = document.createElement('p');
-    rH.className = 'review-feedback-panel__rationale-heading'; rH.textContent = 'Rationale:';
-    var rB = document.createElement('p');
-    rB.className = 'review-feedback-panel__rationale-body'; rB.textContent = rationaleText;
-    rWrap.appendChild(rH); rWrap.appendChild(rB);
-    panel.appendChild(rWrap);
-  }
 
   answersContainer.appendChild(panel);
   instructionText.textContent = isCorrect ? 'Correct!' : 'Review the correct answer below.';
