@@ -54,6 +54,12 @@ const UPDATE_MS    = 200;
 const MAX_ATTEMPTS = 3;
 const PASSING_SCORE = 93;
 
+// Which of the 4 case-study save slots this folder belongs to (1-4), read from
+// data-case-study on #videoWrapper — set per folder in index.html. All 5 letter
+// variants (a-e) of a group share the same slot since they use the same Questions.js.
+const CASE_GROUP = document.getElementById('videoWrapper')?.dataset.caseStudy || '1';
+const CASE_VAR   = 'Final_Test_Case_Study_' + CASE_GROUP;
+
 // ─── Attempt tracking ─────────────────────────────────────────────────────────
 
 let attemptCount = 0;
@@ -89,8 +95,9 @@ function init() {
   const player = new Vimeo.Player(dom.iframe);
 
   loadQuestions();
+  const saved = readSavedProgress();
   bindEvents(dom, player);
-  startPlayer(dom, player);
+  startPlayer(dom, player, saved);
 }
 
 function loadQuestions() {
@@ -99,6 +106,11 @@ function loadQuestions() {
 }
 
 // ─── Start screen ─────────────────────────────────────────────────────────────
+
+function hideStartOverlay(dom) {
+  dom.startOverlay.classList.add('hidden');
+  dom.startOverlay.setAttribute('aria-hidden', 'true');
+}
 
 function startActivity(dom, player) {
   dom.startOverlay.classList.add('hidden');
@@ -204,7 +216,7 @@ function bindEvents(dom, player) {
 
 // ─── Player loop ──────────────────────────────────────────────────────────────
 
-function startPlayer(dom, player) {
+function startPlayer(dom, player, saved) {
   // Block iframe from keyboard/AT while any overlay is still covering the player.
   setBackgroundHidden(dom, true);
 
@@ -231,7 +243,54 @@ function startPlayer(dom, player) {
         checkForQuestions(currentTime, dom, player);
       }).catch(() => {});
     }, UPDATE_MS);
+
+    resumeFromSaved(dom, player, saved);
   });
+}
+
+// ─── Resume from saved Storyline progress ─────────────────────────────────────
+//
+// saved.stage === 'debrief' disambiguates "stopped on a non-final Debrief with
+// Try Again pending" from "stopped on Summary before the final submit" — both
+// are areAllAnswered() && !saved.done, but need different resume targets.
+
+function resumeFromSaved(dom, player, saved) {
+  if (!saved) return;
+  try {
+    const hasAnswers = saved.answers && Object.keys(saved.answers).length > 0;
+    if (hasAnswers && !restoreState(saved.answers)) return;   // bad payload, abort entirely
+
+    attemptCount = Number.isFinite(saved.attempts) ? saved.attempts : 0;
+    if (!hasAnswers) return;   // nothing to restore beyond the attempt count — normal start
+
+    passAnswerCountToStoryline();
+    hideStartOverlay(dom);
+
+    if (saved.done || (areAllAnswered() && saved.stage === 'debrief')) {
+      openDebrief(dom, player);                    // finalized, or retry-pending debrief
+    } else if (areAllAnswered()) {
+      openSummary(dom, player);                     // stopped on Summary
+    } else {
+      resumeToLastQuestion(dom, player);            // stopped mid-way
+    }
+  } catch (_) {
+    // On any failure leave the start overlay visible and mode='start' (normal start).
+    // Do NOT resetForReplay here — it would set mode='playing' and wipe answers.
+  }
+}
+
+function resumeToLastQuestion(dom, player) {
+  let last = -1;
+  getQuestions().forEach((_, i) => { if (isAnswered(i)) last = i; });
+  if (last < 0) return;
+
+  openQuestionNormal(last, dom, player);   // mode='question', isAnswering=true, pre-fills answer
+
+  // Lock the trigger engine while the seek is in flight (mirrors watchSectionAgain).
+  setIsPausing(true);
+  player.setCurrentTime(getQuestions()[last].time)
+    .then(() => setIsPausing(false))
+    .catch(() => setIsPausing(false));
 }
 
 // ─── Storyline integration ────────────────────────────────────────────────────
@@ -256,6 +315,62 @@ function notifyStorylineFail() {
     const sl = window.parent?.GetPlayer?.() ?? window.top?.GetPlayer?.();
     if (sl) sl.SetVar('Fail', true);
   } catch (_) {}
+}
+
+// ─── Save / restore progress via Final_Test_Case_Study_<1-4> ─────────────────
+//
+// Persists all submitted answers + the attempt count into a single Storyline
+// Text variable (one of 4, chosen by CASE_VAR/CASE_GROUP) as JSON:
+// { v:1, n:<questionCount>, answers:{ index: optionText }, attempts:<attemptCount>,
+//   done:<terminal?>, stage:<'debrief'|null> }
+
+function saveProgress(done, stage = null) {
+  try {
+    const sl = window.parent?.GetPlayer?.() ?? window.top?.GetPlayer?.();
+    if (!sl) return;
+    const answers = {};
+    getQuestions().forEach((q, i) => {
+      const a = getAnsweredAnswer(i);
+      if (a) answers[i] = a.text;
+    });
+    sl.SetVar(CASE_VAR, JSON.stringify({
+      v: 1,
+      n: getQuestions().length,
+      answers,
+      attempts: attemptCount,
+      done: Boolean(done),
+      stage,
+    }));
+  } catch (_) {}
+}
+
+function readSavedProgress() {
+  try {
+    const sl = window.parent?.GetPlayer?.() ?? window.top?.GetPlayer?.();
+    if (!sl) return null;
+    const raw = sl.GetVar(CASE_VAR);
+    if (typeof raw !== 'string' || raw.trim() === '') return null;
+    const data = JSON.parse(raw);
+    if (!data || data.v !== 1 || data.n !== getQuestions().length || !data.answers) return null;
+    return data;
+  } catch (_) {
+    return null;
+  }
+}
+
+// Resolve each saved option .text back to its option object and commit via
+// submitAnswer. Validates every entry before mutating so a bad payload never
+// leaves state half-restored. Returns true on success, false if anything failed.
+function restoreState(answers) {
+  const qs = getQuestions();
+  const entries = Object.entries(answers).map(([k, text]) => {
+    const i   = Number(k);
+    const opt = qs[i]?.options?.find(o => o.text === text);
+    return opt ? [i, opt] : null;
+  });
+  if (entries.some(e => e === null)) return false;
+  entries.forEach(([i, opt]) => submitAnswer(i, opt));
+  return true;
 }
 
 // ─── Question trigger ─────────────────────────────────────────────────────────
@@ -374,7 +489,7 @@ function openSummary(dom, player) {
 
   renderSummary(dom.summaryOverlay, getAllResults(), {
     onQuestionClick: (index) => openQuestionFromSummary(index, dom, player),
-    onSeeResults:    ()      => openDebrief(dom, player),
+    onSeeResults:    ()      => openDebrief(dom, player, { isNewAttempt: true }),
   });
 }
 
@@ -386,7 +501,7 @@ function openQuestionFromSummary(index, dom, player) {
 
 // ─── Debrief ──────────────────────────────────────────────────────────────────
 
-function openDebrief(dom, player) {
+function openDebrief(dom, player, opts = {}) {
   setMode('debrief');
   clearWatchAgainBroadcast();
   player.pause().catch(() => {});
@@ -395,17 +510,26 @@ function openDebrief(dom, player) {
   setBackgroundHidden(dom, true);
   dom.questionOverlay.classList.add('hidden');
 
-  attemptCount += 1;
+  // Only count as a new attempt when arriving fresh from Summary's "Submit
+  // Answers". Reviewing a question and returning to Debrief, or resuming a
+  // saved session, must NOT increment the counter again.
+  if (opts.isNewAttempt) {
+    attemptCount += 1;
+  }
 
-  // Notify Storyline on final failed attempt
-  const results = getAllResults();
-  const correct = results.filter(r => r.isCorrect).length;
-  const pct     = results.length > 0 ? Math.round((correct / results.length) * 100) : 0;
-  if (!( pct >= PASSING_SCORE ) && attemptCount >= MAX_ATTEMPTS) {
+  const results   = getAllResults();
+  const correct   = results.filter(r => r.isCorrect).length;
+  const pct       = results.length > 0 ? Math.round((correct / results.length) * 100) : 0;
+  const passed    = pct >= PASSING_SCORE;
+  const finalFail = !passed && attemptCount >= MAX_ATTEMPTS;
+
+  if (opts.isNewAttempt && finalFail) {
     notifyStorylineFail();
   }
 
-  renderDebrief(dom.debriefOverlay, getAllResults(), {
+  saveProgress(passed || finalFail, 'debrief');
+
+  renderDebrief(dom.debriefOverlay, results, {
     onQuestionClick: (index) => openQuestionReview(index, dom, player),
     attemptCount,
     onRestart: () => restartActivity(dom, player),
@@ -419,6 +543,7 @@ function restartActivity(dom, player) {
   setBackgroundHidden(dom, false);
   resetForReplay();
   setMode('playing');
+  saveProgress(false);   // clear answers/stage in storage, keep attemptCount
 
   player.setCurrentTime(0).then(() => player.play());
   requestAnimationFrame(() => dom.frameSentinel.focus());
@@ -446,6 +571,7 @@ function handleSubmit(dom, player) {
 
   submitAnswer(index, answer);
   passAnswerCountToStoryline();
+  saveProgress(false);
 
   // If this question chains to another, open it immediately
   const chainToId = getQuestions()[index]?.chainTo;

@@ -59,31 +59,25 @@ AHA-Interactive-Video-Player/
 │
 └── Delivery/                     # Storyline-embedded deliverables
     │
-    ├── Practice Test/            # Practice mode player — Practice Case 2
+    ├── 3._Practice_Test/         # Practice mode player — Practice Case 2
     │   ├── index.html            # Vimeo id 1209573495
     │   ├── Questions.js
-    │   ├── scripts/
+    │   ├── scripts/               # Extended: save/resume via Practice_Case_Study_1
     │   ├── styles/
     │   └── img/
     │
-    ├── Final Test/               # Final Test — 3-attempt system
-    │   ├── index.html            # Base template (Vimeo id 1175973409)
-    │   ├── generate-tests.cjs    # Generator: creates 20 Test subfolders
-    │   ├── debrief-preview.html  # Standalone debrief-state preview
-    │   ├── Questions.js
-    │   ├── scripts/
-    │   │   ├── script.js         # Extended: attempt counter + Storyline Fail variable
-    │   │   ├── stateManager.js
-    │   │   ├── questionRenderer.js
-    │   │   ├── summaryRenderer.js
-    │   │   ├── debriefRenderer.js  # Extended: debrief-header--no-list modifier
-    │   │   └── utils.js
-    │   ├── styles/
-    │   ├── img/
-    │   ├── Test 1a/              # Vimeo id 1175973409
-    │   ├── Test 1b/              # Vimeo id 1175973423
-    │   ├── ...                   # Test 1c through Test 4e (20 subfolders total)
-    │   └── Test 4e/              # Vimeo id 1175973918
+    ├── 4._Final_Test/            # Final Test — 3-attempt system, 20 self-contained folders
+    │   ├── 01._Test_1a/          # Vimeo id 1175973409 — case-study group 1
+    │   ├── 02._Test_1b/          # Vimeo id 1175973423 — case-study group 1
+    │   ├── ...                   # 03._Test_1c through 19._Test_4d (20 folders total)
+    │   ├── 20._Test_4e/          # Vimeo id 1175973918 — case-study group 4
+    │   │   # Each folder: index.html, Questions.js, scripts/, styles/, img/ — fully
+    │   │   # standalone (no shared base template; the old top-level generator source
+    │   │   # and pre-numbered "Test 1a".."Test 4e" folders were removed 2026-07-13).
+    │   │   # scripts/script.js: attempt counter + Storyline Fail variable + save/resume
+    │   │   # via one of 4 Final_Test_Case_Study_N variables (grouped by the digit in
+    │   │   # the folder name — a-e variants of the same group share a variable).
+    │   │   # index.html: data-case-study="N" on #videoWrapper selects that variable.
     │
     ├── 2._Practice_Videos/       # 13 standalone single-question Web Objects
     │   ├── generate.cjs          # Generator: rewrites index.html + script.js per question
@@ -211,7 +205,7 @@ EAD master videos have not yet been delivered. Until they are, `data-ead-id === 
 
 ### video-manifest.json
 
-All video ids are managed in `video-manifest.json` at the repo root. This file was generated from `NIHSS Video Playlist.xlsx` and is the authoritative source for `standardId` and `eadId` per video. The generators (`Regular Video/generate.cjs` and `Final Test/generate-tests.cjs`) read this manifest directly. Do not delete or move it.
+All video ids are managed in `video-manifest.json` at the repo root. This file was generated from `NIHSS Video Playlist.xlsx` and is the authoritative source for `standardId` and `eadId` per video. `1._Regular_Video/generate.cjs` reads this manifest directly. Do not delete or move it.
 
 ### Generators
 
@@ -219,12 +213,12 @@ All video ids are managed in `video-manifest.json` at the repo root. This file w
 |-----------|----------|-----------------|
 | `generate.cjs` | `1._Regular_Video/` | One folder per non-interactive video (types: background, intro, score, special) — 68 folders total |
 | `generate-players.cjs` | `1._Regular_Video/` | 12 tabbed player folders (reads `Item_5_Motor_Arm_Player/styles.css` as the CSS source) |
-| `generate-tests.cjs` | `4._Final_Test/` | 20 `Test Xa` subfolders, each a full copy of the Final Test base with its own video id |
+
+> **Final Test's `generate-tests.cjs` was removed (2026-07-13 cleanup)**, along with the top-level base template and the old-style `Test 1a`…`Test 4e` folders it copied from. The 20 numbered folders (`01._Test_1a`…`20._Test_4e`) it had already generated are the live deliverables and are each edited directly now — there is no base template to regenerate from. It remains recoverable from git history (commit `064b317`) if the Excel-driven regeneration workflow is ever needed again.
 
 To regenerate after updating `video-manifest.json`:
 ```bash
 cd "Delivery/1._Regular_Video" && node generate.cjs
-cd "Delivery/4._Final_Test"    && node generate-tests.cjs
 ```
 
 To regenerate the 12 tabbed players after changing design (e.g. edit `Item_5_Motor_Arm_Player/styles.css`):
@@ -681,11 +675,7 @@ Score calculation: `correct / total`. Pass threshold: **93%** (`PASSING_SCORE`) 
 headerEl.classList.toggle('debrief-header--no-list', !showFull);
 ```
 
-**`Final Test/debrief-preview.html`** — standalone preview of the Final Test debrief screen. Change these constants to simulate different states:
-```javascript
-const MOCK_ATTEMPT     = 2;    // 1 or 2 → shows Try Again; 3 → shows full question list
-const MOCK_PCT_CORRECT = 0.85; // fraction correct (>= 0.9 = passed)
-```
+> `Final Test/debrief-preview.html` (a standalone preview of the Final Test debrief screen, with `MOCK_ATTEMPT` / `MOCK_PCT_CORRECT` constants to simulate different states) was removed in the 2026-07-13 cleanup along with the rest of the top-level base template. Recoverable from git history (commit `064b317`) if needed.
 
 ---
 
@@ -919,6 +909,38 @@ To use in Storyline:
 
 ---
 
+### Save & resume progress (Final Test only)
+
+All 20 Final Test folders (`4._Final_Test/01._Test_1a` … `20._Test_4e`) persist into one of **4** Storyline Text variables, grouped by the digit in the folder name — all 5 letter-variants (`a`–`e`) of a group share the same variable, since they use the same `Questions.js`.
+
+**Variables:** `Final_Test_Case_Study_1`, `Final_Test_Case_Study_2`, `Final_Test_Case_Study_3`, `Final_Test_Case_Study_4`
+**Type:** Text (all 4)
+**Value:** JSON string — `{ v:1, n:<questionCount>, answers:{ index: optionText }, attempts:<attemptCount>, done:<terminal?>, stage:<'debrief'|null> }`
+
+Each folder's `index.html` carries `data-case-study="N"` on `#videoWrapper` (`N` = 1–4); `script.js` reads it once at load to pick its variable:
+
+```javascript
+const CASE_GROUP = document.getElementById('videoWrapper')?.dataset.caseStudy || '1';
+const CASE_VAR   = 'Final_Test_Case_Study_' + CASE_GROUP;
+```
+
+- **Save after each submit** — `saveProgress(false)` runs in `handleSubmit` after every answer.
+- **Save on finalize/retry-pending** — `saveProgress(passed || finalFail, 'debrief')` runs in `openDebrief`. `done` is `true` only when the attempt is truly over (passed, or all 3 attempts exhausted); otherwise the attempt failed but a retry is still available, and `stage:'debrief'` records that the learner is sitting on that Debrief screen.
+- **Save on restart** — `saveProgress(false)` runs in `restartActivity` ("Try Again"), clearing the stored answers/stage while keeping the attempt count.
+- **`attemptCount` is part of the payload** — it used to live only in a module-level variable and reset to 0 on every reload; it's now restored from `saved.attempts` on load, so the 3-attempt cap survives a relaunch.
+- **Restore on load** branches the same way as Practice Test, plus a `stage` check to tell "stopped on Summary" apart from "stopped on a non-final Debrief with Try Again pending" (both are `areAllAnswered() && !done`):
+  - `done:true`, or (`all answered` and `stage:'debrief'`) → open **Debrief** directly (no attempt re-counted).
+  - all answered, not done, stage isn't `'debrief'` → open **Summary**.
+  - stopped mid-way → re-open the **last answered question**.
+  - nothing saved, or a mismatched/corrupt payload → normal start.
+- **Bug fix included:** `openDebrief` previously incremented `attemptCount` unconditionally, so clicking a question row to review it and returning to Debrief (`returnToDebrief`) silently counted as a *second* attempt. It now only increments when called with `{ isNewAttempt: true }`, which happens exactly once per real attempt — from Summary's "Submit Answers" button.
+
+To use in Storyline:
+1. Create all 4 **Text** variables (`Final_Test_Case_Study_1` … `_4`) in the Storyline project.
+2. **Publish with resume/suspend enabled**, same requirement as Practice Test above.
+
+---
+
 ### Fail signal (Final Test only)
 
 When the user exhausts all 3 attempts without passing, the Final Test sets a Storyline variable:
@@ -965,3 +987,4 @@ If not embedding in Storyline, all `GetPlayer()` calls are safely ignored (wrapp
 - Practice Video projects are fully standalone — each folder contains all necessary assets and has no dependency on the parent project.
 - **No central source of truth anymore.** Each deliverable folder is independent. When you change shared logic, apply the edit to every folder that uses it (`Web Object/`, `Practice Test/`, and `Final Test/` for shared modules; `Final Test/` keeps extended `script.js` / `debriefRenderer.js` / `styles.css`).
 - **Practice Test (`3._Practice_Test`) has diverged from the shared set:** its own video (`1209573495`) and timecodes, every correct answer set to `"0"`, save/resume via the `Practice_Case_Study_1` Storyline variable (in `script.js`), and a debrief question list that shows the sheet title without the `Question N:` prefix (in `debriefRenderer.js`). These changes are intentional and specific to Practice Test — do not copy them back to `Web Object/` or `Final Test/`.
+- **Final Test (`4._Final_Test`) has its own save/resume, applied identically across all 20 folders:** `scripts/script.js` is byte-identical across every `01._Test_1a`…`20._Test_4e` folder (verify with a checksum before assuming a one-off edit is safe); the only per-folder difference is `data-case-study="N"` on `index.html`'s `#videoWrapper`, which selects one of the 4 `Final_Test_Case_Study_N` variables. If you edit the save/resume logic, apply the same edit to `scripts/script.js` in all 20 folders — there is no base template to regenerate from anymore (see Generators note above).
