@@ -50,6 +50,7 @@ import {
 // ─── Configuration ────────────────────────────────────────────────────────────
 
 const VAR_NAME  = 'VimeoTime';
+const CASE_VAR  = 'Practice_Case_Study_1';
 const UPDATE_MS = 200;
 
 // ─── DOM references ───────────────────────────────────────────────────────────
@@ -83,8 +84,9 @@ function init() {
   const player = new Vimeo.Player(dom.iframe);
 
   loadQuestions();
+  const saved = readSavedProgress();
   bindEvents(dom, player);
-  startPlayer(dom, player);
+  startPlayer(dom, player, saved);
 }
 
 function loadQuestions() {
@@ -93,6 +95,11 @@ function loadQuestions() {
 }
 
 // ─── Start screen ─────────────────────────────────────────────────────────────
+
+function hideStartOverlay(dom) {
+  dom.startOverlay.classList.add('hidden');
+  dom.startOverlay.setAttribute('aria-hidden', 'true');
+}
 
 function startActivity(dom, player) {
   dom.startOverlay.classList.add('hidden');
@@ -198,7 +205,7 @@ function bindEvents(dom, player) {
 
 // ─── Player loop ──────────────────────────────────────────────────────────────
 
-function startPlayer(dom, player) {
+function startPlayer(dom, player, saved) {
   // Block iframe from keyboard/AT while any overlay is still covering the player.
   setBackgroundHidden(dom, true);
 
@@ -224,7 +231,46 @@ function startPlayer(dom, player) {
         checkForQuestions(currentTime, dom, player);
       }).catch(() => {});
     }, UPDATE_MS);
+
+    resumeFromSaved(dom, player, saved);
   });
+}
+
+// ─── Resume from saved Storyline progress ─────────────────────────────────────
+
+function resumeFromSaved(dom, player, saved) {
+  if (!saved || !saved.answers || !Object.keys(saved.answers).length) return;
+  try {
+    if (!restoreState(saved.answers)) return;
+
+    passAnswerCountToStoryline();   // sync AnsweredCount immediately after restore
+    hideStartOverlay(dom);
+
+    if (saved.done) {
+      openDebrief(dom, player);            // finalized → straight to Debrief
+    } else if (areAllAnswered()) {
+      openSummary(dom, player);            // all answered, not finalized → Summary
+    } else {
+      resumeToLastQuestion(dom, player);   // stopped mid-way → last answered question
+    }
+  } catch (_) {
+    // On any failure leave the start overlay visible and mode='start' (normal start).
+    // Do NOT resetForReplay here — it would set mode='playing' and wipe answers.
+  }
+}
+
+function resumeToLastQuestion(dom, player) {
+  let last = -1;
+  getQuestions().forEach((_, i) => { if (isAnswered(i)) last = i; });
+  if (last < 0) return;
+
+  openQuestionNormal(last, dom, player);   // mode='question', isAnswering=true, pre-fills answer
+
+  // Lock the trigger engine while the seek is in flight (mirrors watchSectionAgain).
+  setIsPausing(true);
+  player.setCurrentTime(getQuestions()[last].time)
+    .then(() => setIsPausing(false))
+    .catch(() => setIsPausing(false));
 }
 
 // ─── Storyline integration ────────────────────────────────────────────────────
@@ -242,6 +288,53 @@ function passAnswerCountToStoryline() {
     const count = getQuestions().filter((_, i) => isAnswered(i)).length;
     if (sl) sl.SetVar('AnsweredCount', count);
   } catch (_) {}
+}
+
+// ─── Save / restore progress via Practice_Case_Study_1 ────────────────────────
+//
+// Persists all submitted answers into a single Storyline Text variable as JSON.
+// { v:1, n:<questionCount>, answers:{ index: optionText }, done:<finalized?> }
+
+function saveProgress(done) {
+  try {
+    const sl = window.parent?.GetPlayer?.() ?? window.top?.GetPlayer?.();
+    if (!sl) return;
+    const answers = {};
+    getQuestions().forEach((q, i) => {
+      const a = getAnsweredAnswer(i);
+      if (a) answers[i] = a.text;
+    });
+    sl.SetVar(CASE_VAR, JSON.stringify({ v: 1, n: getQuestions().length, answers, done: Boolean(done) }));
+  } catch (_) {}
+}
+
+function readSavedProgress() {
+  try {
+    const sl = window.parent?.GetPlayer?.() ?? window.top?.GetPlayer?.();
+    if (!sl) return null;
+    const raw = sl.GetVar(CASE_VAR);
+    if (typeof raw !== 'string' || raw.trim() === '') return null;
+    const data = JSON.parse(raw);
+    if (!data || data.v !== 1 || data.n !== getQuestions().length || !data.answers) return null;
+    return data;
+  } catch (_) {
+    return null;
+  }
+}
+
+// Resolve each saved option .text back to its option object and commit via
+// submitAnswer. Validates every entry before mutating so a bad payload never
+// leaves state half-restored. Returns true on success, false if anything failed.
+function restoreState(answers) {
+  const qs = getQuestions();
+  const entries = Object.entries(answers).map(([k, text]) => {
+    const i   = Number(k);
+    const opt = qs[i]?.options?.find(o => o.text === text);
+    return opt ? [i, opt] : null;
+  });
+  if (entries.some(e => e === null)) return false;
+  entries.forEach(([i, opt]) => submitAnswer(i, opt));
+  return true;
 }
 
 // ─── Question trigger ─────────────────────────────────────────────────────────
@@ -374,6 +467,7 @@ function openQuestionFromSummary(index, dom, player) {
 
 function openDebrief(dom, player) {
   setMode('debrief');
+  saveProgress(true);   // finalize / lock — subsequent loads open Debrief directly
   clearWatchAgainBroadcast();
   player.pause().catch(() => {});
 
@@ -408,6 +502,7 @@ function handleSubmit(dom, player) {
 
   submitAnswer(index, answer);
   passAnswerCountToStoryline();
+  saveProgress(false);
 
   // If this question chains to another, open it immediately
   const chainToId = getQuestions()[index]?.chainTo;

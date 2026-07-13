@@ -60,7 +60,7 @@ AHA-Interactive-Video-Player/
 └── Delivery/                     # Storyline-embedded deliverables
     │
     ├── Practice Test/            # Practice mode player — Practice Case 2
-    │   ├── index.html            # Vimeo id 1175973400
+    │   ├── index.html            # Vimeo id 1209573495
     │   ├── Questions.js
     │   ├── scripts/
     │   ├── styles/
@@ -410,6 +410,24 @@ The player supports **15 NIHSS questions**. Two pairs of questions share the sam
 | Q14 | 10 Dysarthria | 428.1s | |
 | Q15 | 11 Extinction and Inattention | 478.1s | |
 
+> The timecodes above are the shared/original set (used by `Web Object/` and `Final Test/`). **Practice Test (`3._Practice_Test`) diverges** — it plays its own video (Vimeo id `1209573495`, total length 12:55) and has its own marker timecodes. Each question fires just before its next section, and the last question fires near the end of the video. In Practice Test **every correct answer is `"0"`** (all `options[].correct` set on the "0" option). Its current timecodes:
+
+| ID | Sheet | Practice Test timecode |
+|----|-------|------------------------|
+| Q1 | 1a LOC | 9s |
+| Q2 | 1b LOC Q | 20s |
+| Q3 | 1c LOC Commands | 48s |
+| Q4 | 2 Best Gaze | 75s |
+| Q5 | 3 Visual | 189s |
+| Q6 | 4 Facial Palsy | 208s |
+| Q7 / Q8 | 5 Motor Arm (L / R) | 269s (chained) |
+| Q9 / Q10 | 6 Motor Leg (L / R) | 301s (chained) |
+| Q11 | 7 Limb Ataxia | 416s |
+| Q12 | 8 Sensory | 462s |
+| Q13 | 9 Best Language | 611s |
+| Q14 | 10 Dysarthria | 624s |
+| Q15 | 11 Extinction and Inattention | 774s |
+
 ### How chaining works
 
 - `chainTo: "QX"` on the first question of a pair: after Submit, the next question opens **instantly** (no video seek, no timecode trigger).
@@ -623,6 +641,8 @@ The Summary screen shows each question with the user's selected point value (neu
 | `renderDebrief(overlay, results, callbacks)` | Render scored debrief: title, NIHSS score badge, question list |
 | `hideDebrief(overlay)` | Hide debrief overlay |
 | `buildQuestionListItem(result, index, onClick)` | Single question row: icon + label + badge + chevron |
+
+> **Practice Test debrief label** — the visible row text is the sheet title only (e.g. `1a: Level of Consciousness`); the `Question N:` prefix was removed. The `aria-label` still includes the question number for screen-reader context.
 
 **NIHSS score badges** — two badges displayed side by side in the debrief header:
 
@@ -862,6 +882,43 @@ To use in Storyline, create a **Number** variable named `AnsweredCount` (default
 
 ---
 
+### Save & resume progress (Practice Test only)
+
+Practice Test (`3._Practice_Test`) persists all submitted answers into a single Storyline **Text** variable so progress survives leaving and returning to the course. On load it restores state and jumps to the right screen.
+
+**Variable:** `Practice_Case_Study_1`
+**Type:** Text
+**Value:** JSON string — `{ v:1, n:<questionCount>, answers:{ index: optionText }, done:<finalized?> }`
+
+- **Save after each submit** — `saveProgress(false)` runs in `handleSubmit` after every answer (including each chained submit), rewriting the variable with `done:false`.
+- **Finalize** — `saveProgress(true)` runs in `openDebrief`, locking the attempt (`done:true`).
+- **Restore on load** — `readSavedProgress()` (in `init()`) parses the variable; `restoreState()` re-commits answers; then `resumeFromSaved()` (inside `startPlayer`'s `player.ready()`) branches:
+  - `done:true` → open **Debrief** directly.
+  - all answered but not finalized → open **Summary**.
+  - stopped mid-way → re-open the **last answered question** (video seeked to its timecode, answer pre-selected).
+  - nothing saved, or a corrupt / mismatched payload (`n` differs from the current question count) → normal start.
+
+```javascript
+function saveProgress(done) {
+  try {
+    const sl = window.parent?.GetPlayer?.() ?? window.top?.GetPlayer?.();
+    if (!sl) return;
+    const answers = {};
+    getQuestions().forEach((q, i) => {
+      const a = getAnsweredAnswer(i);
+      if (a) answers[i] = a.text;
+    });
+    sl.SetVar(CASE_VAR, JSON.stringify({ v: 1, n: getQuestions().length, answers, done: Boolean(done) }));
+  } catch (_) {}
+}
+```
+
+To use in Storyline:
+1. Create a **Text** variable named `Practice_Case_Study_1` in the Storyline project.
+2. **Publish with resume/suspend enabled** (LMS resume "always" or "prompt") — Storyline variables do not survive a relaunch otherwise, so nothing would restore. The payload is tiny (well under the SCORM 1.2 ~4096-char `suspend_data` cap).
+
+---
+
 ### Fail signal (Final Test only)
 
 When the user exhausts all 3 attempts without passing, the Final Test sets a Storyline variable:
@@ -907,3 +964,4 @@ If not embedding in Storyline, all `GetPlayer()` calls are safely ignored (wrapp
 - `dismissQuestion(index)` prevents a question from retriggering when the user is still inside the trigger window (e.g. after Submit + Continue). Chained question pairs share the same trigger window, so submitting Q8 also suppresses Q7.
 - Practice Video projects are fully standalone — each folder contains all necessary assets and has no dependency on the parent project.
 - **No central source of truth anymore.** Each deliverable folder is independent. When you change shared logic, apply the edit to every folder that uses it (`Web Object/`, `Practice Test/`, and `Final Test/` for shared modules; `Final Test/` keeps extended `script.js` / `debriefRenderer.js` / `styles.css`).
+- **Practice Test (`3._Practice_Test`) has diverged from the shared set:** its own video (`1209573495`) and timecodes, every correct answer set to `"0"`, save/resume via the `Practice_Case_Study_1` Storyline variable (in `script.js`), and a debrief question list that shows the sheet title without the `Question N:` prefix (in `debriefRenderer.js`). These changes are intentional and specific to Practice Test — do not copy them back to `Web Object/` or `Final Test/`.

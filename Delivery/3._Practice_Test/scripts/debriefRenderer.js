@@ -94,9 +94,10 @@ function buildQuestionListItem(result, index, onClick) {
   btn.type      = 'button';
   btn.className = `debrief-question-btn debrief-question-btn--${state}`;
   const sheet = result.question?.sheet ?? '';
-  const label = sheet ? `Question ${index + 1}: ${sheet}` : `Question ${index + 1}`;
+  const displayLabel = sheet || `Question ${index + 1}`;
+  const ariaLabel = sheet ? `Question ${index + 1}: ${sheet}` : `Question ${index + 1}`;
   btn.setAttribute('aria-label',
-    `${label}: ${isCorrect ? 'Correct' : 'Incorrect'}. Click to review.`
+    `${ariaLabel}: ${isCorrect ? 'Correct' : 'Incorrect'}. Click to review.`
   );
   btn.addEventListener('click', onClick);
 
@@ -107,10 +108,10 @@ function buildQuestionListItem(result, index, onClick) {
   icon.className = `debrief-icon-img debrief-icon-img--${state}`;
   icon.setAttribute('aria-hidden', 'true');
 
-  // "Question N" label
+  // Title label (sheet only, no "Question N:" prefix)
   const text = document.createElement('span');
   text.className   = 'debrief-question-btn__text';
-  text.textContent = label;
+  text.textContent = displayLabel;
 
   // Status pill
   const badge = document.createElement('span');
