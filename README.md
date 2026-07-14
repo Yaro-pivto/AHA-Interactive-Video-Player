@@ -66,18 +66,23 @@ AHA-Interactive-Video-Player/
     │   ├── styles/
     │   └── img/
     │
-    ├── 4._Final_Test/            # Final Test — 3-attempt system, 20 self-contained folders
-    │   ├── 01._Test_1a/          # Vimeo id 1175973409 — case-study group 1
-    │   ├── 02._Test_1b/          # Vimeo id 1175973423 — case-study group 1
-    │   ├── ...                   # 03._Test_1c through 19._Test_4d (20 folders total)
-    │   ├── 20._Test_4e/          # Vimeo id 1175973918 — case-study group 4
-    │   │   # Each folder: index.html, Questions.js, scripts/, styles/, img/ — fully
-    │   │   # standalone (no shared base template; the old top-level generator source
-    │   │   # and pre-numbered "Test 1a".."Test 4e" folders were removed 2026-07-13).
-    │   │   # scripts/script.js: attempt counter + Storyline Fail variable + save/resume
-    │   │   # via one of 4 Final_Test_Case_Study_N variables (grouped by the digit in
-    │   │   # the folder name — a-e variants of the same group share a variable).
-    │   │   # index.html: data-case-study="N" on #videoWrapper selects that variable.
+    ├── 4._Final_Test/            # Final Test — 3-attempt system, 4 self-contained group players
+    │   ├── 01._Group_1/          # Test group 1 — holds all 5 cases (1a..1e)
+    │   ├── 02._Group_2/          # Test group 2 — holds all 5 cases (2a..2e)
+    │   ├── 03._Group_3/          # Test group 3 — holds all 5 cases (3a..3e)
+    │   └── 04._Group_4/          # Test group 4 — holds all 5 cases (4a..4e)
+    │   │   # Each folder: index.html, cases.js, Questions.js, scripts/, styles/, img/.
+    │   │   # cases.js exports GROUP ('1'..'4') + CASES [{letter,standardId,eadId,questions} ×5].
+    │   │   # The active case is chosen AT RUNTIME (random 1-of-5) by scripts/script.js —
+    │   │   # it is not encoded in the folder. "Next Case" swaps video+questions in place
+    │   │   # (player.loadVideo), no page reload and no Storyline slide jump.
+    │   │   # scripts/script.js: per-case 3-attempt loop + per-group 3-case selection
+    │   │   # (currentCase/usedCases/groupStatus/nextAction packed into one of 4
+    │   │   # Final_Test_Case_Study_N variables, schema v2) + save/resume + Storyline
+    │   │   # signals: Fail, Scene_4_Slide_4..7 (group pass), Final_Test_Nav (group advance).
+    │   │   # index.html: data-case-study="N" on #videoWrapper is the group digit (save slot).
+    │   │   # (The old-style 20 per-case folders "01._Test_1a".."20._Test_4e" were replaced
+    │   │   #  by these 4 group players 2026-07-14; recoverable from git if ever needed.)
     │
     ├── 2._Practice_Videos/       # 13 standalone single-question Web Objects
     │   ├── generate.cjs          # Generator: rewrites index.html + script.js per question
@@ -214,7 +219,7 @@ All video ids are managed in `video-manifest.json` at the repo root. This file w
 | `generate.cjs` | `1._Regular_Video/` | One folder per non-interactive video (types: background, intro, score, special) — 68 folders total |
 | `generate-players.cjs` | `1._Regular_Video/` | 12 tabbed player folders (reads `Item_5_Motor_Arm_Player/styles.css` as the CSS source) |
 
-> **Final Test's `generate-tests.cjs` was removed (2026-07-13 cleanup)**, along with the top-level base template and the old-style `Test 1a`…`Test 4e` folders it copied from. The 20 numbered folders (`01._Test_1a`…`20._Test_4e`) it had already generated are the live deliverables and are each edited directly now — there is no base template to regenerate from. It remains recoverable from git history (commit `064b317`) if the Excel-driven regeneration workflow is ever needed again.
+> **Final Test has no generator.** The old `generate-tests.cjs` and its base template were removed in the 2026-07-13 cleanup; the 20 per-case folders it had generated (`01._Test_1a`…`20._Test_4e`) were then **consolidated into 4 group players** (`01._Group_1`…`04._Group_4`) on 2026-07-14. Each group player is edited directly. When you change shared logic, author it in `01._Group_1` and `cp` to the other three (only `cases.js` and `index.html`'s group digit differ per folder). The old per-case folders remain recoverable from git history (commit `064b317` for the generator, `01fb782`-era for the 20 folders).
 
 To regenerate after updating `video-manifest.json`:
 ```bash
@@ -482,12 +487,14 @@ To add a chained pair, add the `chainTo` / `chained` fields:
 
 ### Keeping folders in sync
 
-`Web Object/`, `Practice Test/`, and `Final Test/` use the full question set. After editing one, copy it to the others:
+`Web Object/`, `Practice Test/`, and `Final Test/` use the full question set. After editing one, copy it to the others. Final Test now has one `Questions.js` per group player (imported by that folder's `cases.js`), so copy into each of the four:
 
 ```bash
 cp "Web Object/Questions.js" "Practice Test/Questions.js"
-cp "Web Object/Questions.js" "Final Test/Questions.js"
+for g in 1 2 3 4; do cp "Web Object/Questions.js" "Delivery/4._Final_Test/0${g}._Group_${g}/Questions.js"; done
 ```
+
+> When distinct per-case question sets are eventually delivered, point each `cases.js` entry at its own question array instead of the shared `Questions.js`.
 
 `2._Practice_Videos/` question data is held inline in `generate.cjs` (or edited per `Question_N/` folder) — see [Regenerating Practice Videos](#regenerating-practice-videos).
 
@@ -515,8 +522,13 @@ All configurable constants are at the top of their respective files. Paths below
 
 | Constant | Default | Description |
 |----------|---------|-------------|
-| `MAX_ATTEMPTS` | `3` | Number of allowed attempts before Fail |
-| `PASSING_SCORE` | `90` | Minimum % correct to pass (0–100) |
+| `MAX_ATTEMPTS` | `3` | Attempts allowed per case before it is exhausted |
+| `PASSING_SCORE` | `93` | Minimum % correct to pass a case (0–100) |
+| `MAX_CASES` | `3` | Max different cases a learner may receive per group |
+| `GROUP_CASES` | `CASES.map(c => c.letter)` | The group's letter-variants, derived from `cases.js` (e.g. `['a'..'e']`) |
+| `CASE_GROUP` | from `cases.js` `GROUP` | The group digit `'1'..'4'` (selects the `Final_Test_Case_Study_N` save slot) |
+
+Per-group content (the 5 cases' video ids + questions) lives in `Final Test/<group>/cases.js`, which exports `GROUP` and `CASES = [{ letter, standardId, eadId, questions } × 5]`. The active case is chosen randomly at runtime and `script.js` swaps video + questions in place.
 
 ### `Web Object/scripts/debriefRenderer.js`
 
@@ -661,7 +673,7 @@ Both badges share the same `.debrief-nihss-score` class and are wrapped in `.deb
 }
 ```
 
-Score calculation: `correct / total`. Pass threshold: **93%** (`PASSING_SCORE`) in the main player; **90%** in Final Test.
+Score calculation: `correct / total`. Pass threshold: **93%** (`PASSING_SCORE`) in both the main player and Final Test.
 
 **Pass/fail messaging** — `renderDebrief` updates the title and result text dynamically:
 
@@ -733,23 +745,30 @@ run()
                                          'review'  ──[Return / Escape]──► 'debrief'
 ```
 
-### Final Test (3-attempt system)
+### Final Test (per-case 3-attempt + per-group 3-case system)
 
 ```
 'start'
-  │  [Start button]         attemptCount persists across restarts
+  │  [Start button]        attemptCount + usedCases persist across restarts
   ▼
 'playing'
   │  [All questions + video ends]
   ▼
 'summary'
-  │  [Submit Answers]
+  │  [Submit Answers]  (isNewAttempt → attemptCount++, computeOutcome())
   ▼
-'debrief'
-  │  score < 90% AND attemptCount < 3  →  [Try Again] → 'start' (attemptCount++)
-  │  score >= 90%                       →  pass (no Storyline signal needed)
-  │  score < 90% AND attemptCount >= 3  →  notifyStorylineFail() → SetVar('Fail', true)
+'debrief'   pendingAction decides the button + outcome:
+  │  passed (≥93%)                          →  [Continue]  → SetVar(Scene_4_Slide_<3+n>,true) + SetVar(Nav,'group<n+1>')  (group 4 → 'complete')
+  │  fail, attempts < 3                      →  [Try Again] → 'playing' (in-JS restart, same case)
+  │  fail, attempts = 3, usedCases < 3       →  [Next Case] → startNewCase() (in-JS: loadVideo + new questions, same Web Object)
+  │  fail, attempts = 3, usedCases = 3       →  [Exit]      → notifyStorylineFail() + SetVar(Nav,'fail')
 ```
+
+Both the **within-case** 3-attempt loop (Try Again) **and case switching** (Next Case)
+now stay inside one Web Object. Only advancing groups and course pass/fail are
+Storyline slide jumps driven by the `Final_Test_Nav` signal — see
+[Case selection & retry](#case-selection--retry-final-test-only). Group pass also
+sets the group's `Scene_4_Slide_<3+n>` Boolean; course fail sets `Fail`.
 
 ### Practice Videos
 
@@ -911,29 +930,47 @@ To use in Storyline:
 
 ### Save & resume progress (Final Test only)
 
-All 20 Final Test folders (`4._Final_Test/01._Test_1a` … `20._Test_4e`) persist into one of **4** Storyline Text variables, grouped by the digit in the folder name — all 5 letter-variants (`a`–`e`) of a group share the same variable, since they use the same `Questions.js`.
+The 4 Final Test group players (`4._Final_Test/01._Group_1` … `04._Group_4`) each persist into their own Storyline Text variable (one per group). The variable holds the **whole group's** state (schema `v:2`) — which of the 5 cases is currently active, the cases already consumed, the attempt count, and the current case's answers. The answers themselves work exactly like Practice's `Practice_Case_Study_1`; the extra fields exist because the case is chosen randomly and there are 3 attempts (without them a relaunch would re-roll a new random case and lose progress):
 
 **Variables:** `Final_Test_Case_Study_1`, `Final_Test_Case_Study_2`, `Final_Test_Case_Study_3`, `Final_Test_Case_Study_4`
 **Type:** Text (all 4)
-**Value:** JSON string — `{ v:1, n:<questionCount>, answers:{ index: optionText }, attempts:<attemptCount>, done:<terminal?>, stage:<'debrief'|null> }`
-
-Each folder's `index.html` carries `data-case-study="N"` on `#videoWrapper` (`N` = 1–4); `script.js` reads it once at load to pick its variable:
-
-```javascript
-const CASE_GROUP = document.getElementById('videoWrapper')?.dataset.caseStudy || '1';
-const CASE_VAR   = 'Final_Test_Case_Study_' + CASE_GROUP;
+**Value (schema v2):**
+```jsonc
+{
+  "v": 2,
+  "n": <questionCount>,          // validation
+  "currentCase": "b",            // letter of the case currently active
+  "usedCases": ["b"],            // letters consumed this group (incl. currentCase), max 3
+  "groupStatus": "in_progress",  // | "passed" | "failed"
+  "attempts": 2,                 // attempts on currentCase (0..3)
+  "answers": { "0": "1" },       // currentCase's submitted answers (within-case resume)
+  "done": false,                 // current case terminal (passed or exhausted)
+  "stage": "debrief" | null,     // sitting on a non-final debrief with Try Again pending
+  "nextAction": "newCase",       // "retry"|"newCase"|"passGroup"|"courseComplete"|"failCourse"
+  "nextCase": "e" | null         // target letter when nextAction === "newCase"
+}
 ```
 
-- **Save after each submit** — `saveProgress(false)` runs in `handleSubmit` after every answer.
-- **Save on finalize/retry-pending** — `saveProgress(passed || finalFail, 'debrief')` runs in `openDebrief`. `done` is `true` only when the attempt is truly over (passed, or all 3 attempts exhausted); otherwise the attempt failed but a retry is still available, and `stage:'debrief'` records that the learner is sitting on that Debrief screen.
-- **Save on restart** — `saveProgress(false)` runs in `restartActivity` ("Try Again"), clearing the stored answers/stage while keeping the attempt count.
-- **`attemptCount` is part of the payload** — it used to live only in a module-level variable and reset to 0 on every reload; it's now restored from `saved.attempts` on load, so the 3-attempt cap survives a relaunch.
-- **Restore on load** branches the same way as Practice Test, plus a `stage` check to tell "stopped on Summary" apart from "stopped on a non-final Debrief with Try Again pending" (both are `areAllAnswered() && !done`):
-  - `done:true`, or (`all answered` and `stage:'debrief'`) → open **Debrief** directly (no attempt re-counted).
-  - all answered, not done, stage isn't `'debrief'` → open **Summary**.
-  - stopped mid-way → re-open the **last answered question**.
-  - nothing saved, or a mismatched/corrupt payload → normal start.
-- **Bug fix included:** `openDebrief` previously incremented `attemptCount` unconditionally, so clicking a question row to review it and returning to Debrief (`returnToDebrief`) silently counted as a *second* attempt. It now only increments when called with `{ isNewAttempt: true }`, which happens exactly once per real attempt — from Summary's "Submit Answers" button.
+> The overall **course** status is intentionally **not** stored — Storyline derives it from the four group variables (all `groupStatus:"passed"` → course passed; any `"failed"` → course failed), keeping strictly **one variable per test group**.
+
+The group (save slot) comes from `cases.js`'s `GROUP` export; `index.html` keeps `data-case-study="N"` on `#videoWrapper` as a fallback. The active **case letter** is chosen at runtime — not encoded in the folder:
+
+```javascript
+import { GROUP, CASES } from '../cases.js';
+const CASE_GROUP  = GROUP || wrapperEl?.dataset.caseStudy || '1';
+const GROUP_CASES = CASES.map(c => c.letter);   // ['a'..'e']
+const CASE_VAR    = 'Final_Test_Case_Study_' + CASE_GROUP;
+let   currentCase = /* chosen in init(): saved.currentCase if valid, else random pick */;
+```
+
+- **Save after each submit** — `saveProgress(false)` in `handleSubmit`.
+- **Save on debrief** — on a *real* new attempt, `openDebrief` runs `computeOutcome()` then `saveProgress(done, 'debrief', { nextAction, nextCase })`. `done` is `true` for every terminal outcome (passed / new-case / course-fail) and `false` for `retry`.
+- **Save on restart** — `saveProgress(false)` in `restartActivity` ("Try Again") clears answers/stage while keeping `attempts` and `usedCases`. **Save on Next Case** — `startNewCase` sets the new `currentCase`, resets `attempts=0`, then `saveProgress(false)`.
+- **Restore on load** — `init()` picks the case first, then `resumeFromSaved` restores answers:
+  - **No / corrupt / `v≠2` / wrong `n` payload** — pick a fresh random unused case, seed a clean payload, normal start (start overlay visible).
+  - **Valid payload** — `currentCase` is restored as the active case (its questions loaded, video src built for it), `usedCases`/`groupStatus`/`attempts`/`nextAction` restored, then Debrief / Summary / last question re-opened exactly as before.
+- **v1 payloads are rejected** (`readSavedRaw` requires `v:2`) → a pre-upgrade save falls back to a clean start.
+- **`attemptCount` only increments on `{ isNewAttempt: true }`** (from Summary's "Submit Answers"), so reviewing a question and returning to Debrief never double-counts.
 
 To use in Storyline:
 1. Create all 4 **Text** variables (`Final_Test_Case_Study_1` … `_4`) in the Storyline project.
@@ -941,13 +978,62 @@ To use in Storyline:
 
 ---
 
-### Fail signal (Final Test only)
+### Case selection & retry (Final Test only)
 
-When the user exhausts all 3 attempts without passing, the Final Test sets a Storyline variable:
+This implements the required test-case selection logic: **4 groups → 1 random case → up to 3 attempts at 93% → up to 3 different cases per group → pass any case advances the group → fail 3 cases fails the course.** **All case-selection randomness lives entirely in the web object's JavaScript** — both the *initial* pick (on first load of a group player) and *Next Case* (in-JS video + question swap). Storyline no longer picks cases and no longer switches slides for a new case; it only reacts to **group-level** transitions.
+
+**Navigation signal**
+**Variable:** `Final_Test_Nav`  **Type:** Text (one shared, cross-cutting signal — like `Fail`, not per-test state)
+
+`setNavSignal()` writes a token only when the learner clicks the Debrief's action button (never on debrief open, so the result is seen first). Note there is **no `newCase` token** — case switching happens inside the same web object:
+
+| `nextAction` | Debrief button | Token written to `Final_Test_Nav` | Storyline should… |
+|--------------|----------------|-----------------------------------|-------------------|
+| `passGroup` | **Continue** | `group2` / `group3` / `group4` | enter that group |
+| `courseComplete` | **Continue** | `complete` | show course-complete slide |
+| `failCourse` | **Exit** | `fail` (also sets `Fail=true`) | show course-failure slide |
+| `newCase` | **Next Case** | *(none — handled in-JS)* | — the web object swaps the video + questions itself |
+
+**Storyline side (you wire these in the `.story`):**
+
+1. **React to the navigation signal.** Add native triggers that *Jump to slide/scene when `Final_Test_Nav` changes*:
+   - `group2`/`group3`/`group4` → that group's player slide.
+   - `complete` → course-complete slide.  `fail` → course-failure slide.
+   - (No per-case `<group><letter>` triggers are needed anymore.)
+
+2. **React to each group's pass flag** (`Scene_4_Slide_4..7`, Boolean) if you gate slides on it — see [Fail signal & group-pass flags](#fail-signal--group-pass-flags-final-test-only).
+
+3. **Course result is derived, not stored** — a *Passed course* trigger checks all four `groupStatus:"passed"` (or the four `Scene_4_Slide_4..7` booleans); any `"failed"` (or `Fail=true`) routes to failure.
+
+> **Why one shared `Final_Test_Nav` and not per-test nav variables:** it is a transient signal, not saved learner state, so it does not count against the "one variable per test group" rule (the same way `Fail`, `VimeoTime`, and `AnsweredCount` are shared signals).
+
+---
+
+### Fail signal & group-pass flags (Final Test only)
+
+When a group's outcome is decided (on the passing/failing attempt, in `openDebrief`), the Final Test sets Storyline Boolean variables — the learner still sees the debrief first; these set variables, they do not navigate.
+
+**Group passed** — set the group's own flag:
+
+**Variables:** `Scene_4_Slide_4`, `Scene_4_Slide_5`, `Scene_4_Slide_6`, `Scene_4_Slide_7`
+**Type:** Boolean (each)
+**Mapping:** group N → `Scene_4_Slide_(3 + N)` (group 1 → `Scene_4_Slide_4` … group 4 → `Scene_4_Slide_7`)
+**Value:** `true` when that group is passed (score ≥ 93% on any of its cases)
+
+```javascript
+function notifyStorylineGroupPass() {
+  try {
+    const sl = window.parent?.GetPlayer?.() ?? window.top?.GetPlayer?.();
+    if (sl) sl.SetVar('Scene_4_Slide_' + (Number(CASE_GROUP) + 3), true);
+  } catch (_) {}
+}
+```
+
+**Course failed** — set `Fail`:
 
 **Variable:** `Fail`
 **Type:** Boolean
-**Value:** `true`
+**Value:** `true` (when all 3 attempts on all 3 cases of a group are exhausted without passing)
 
 ```javascript
 function notifyStorylineFail() {
@@ -959,8 +1045,8 @@ function notifyStorylineFail() {
 ```
 
 To use in Storyline:
-1. Create a **Boolean** variable named `Fail` (default `false`) in the Storyline project.
-2. Add a trigger that reacts when `Fail == true` (e.g. jump to a failure slide).
+1. Create the four **Boolean** `Scene_4_Slide_4`…`Scene_4_Slide_7` (default `false`) and the **Boolean** `Fail` (default `false`).
+2. Add triggers that react when each `Scene_4_Slide_N == true` (group passed) and when `Fail == true` (course failed, e.g. jump to a failure slide).
 
 If not embedding in Storyline, all `GetPlayer()` calls are safely ignored (wrapped in `try/catch`).
 
@@ -987,4 +1073,4 @@ If not embedding in Storyline, all `GetPlayer()` calls are safely ignored (wrapp
 - Practice Video projects are fully standalone — each folder contains all necessary assets and has no dependency on the parent project.
 - **No central source of truth anymore.** Each deliverable folder is independent. When you change shared logic, apply the edit to every folder that uses it (`Web Object/`, `Practice Test/`, and `Final Test/` for shared modules; `Final Test/` keeps extended `script.js` / `debriefRenderer.js` / `styles.css`).
 - **Practice Test (`3._Practice_Test`) has diverged from the shared set:** its own video (`1209573495`) and timecodes, every correct answer set to `"0"`, save/resume via the `Practice_Case_Study_1` Storyline variable (in `script.js`), and a debrief question list that shows the sheet title without the `Question N:` prefix (in `debriefRenderer.js`). These changes are intentional and specific to Practice Test — do not copy them back to `Web Object/` or `Final Test/`.
-- **Final Test (`4._Final_Test`) has its own save/resume, applied identically across all 20 folders:** `scripts/script.js` is byte-identical across every `01._Test_1a`…`20._Test_4e` folder (verify with a checksum before assuming a one-off edit is safe); the only per-folder difference is `data-case-study="N"` on `index.html`'s `#videoWrapper`, which selects one of the 4 `Final_Test_Case_Study_N` variables. If you edit the save/resume logic, apply the same edit to `scripts/script.js` in all 20 folders — there is no base template to regenerate from anymore (see Generators note above).
+- **Final Test (`4._Final_Test`) is 4 group players (`01._Group_1`…`04._Group_4`), each holding all 5 cases and picking one at random in JS:** `scripts/script.js`, `scripts/debriefRenderer.js`, `styles/styles.css`, and the other shared scripts are byte-identical across all four folders (verify with a checksum before assuming a one-off edit is safe). The only per-folder differences are `cases.js` (its `GROUP` digit + the 5 cases' video ids) and `data-case-study="N"` on `index.html`'s `#videoWrapper` (a fallback for the group digit). If you edit the logic, apply the same edit to all four (author in `01._Group_1`, then `cp` to the rest, then re-set `cases.js` `GROUP` + the `data-case-study` digit) — there is no base template to regenerate from. Case selection (initial pick + Next Case) is entirely in-JS; only group advancement + course pass/fail hand off to Storyline via `Final_Test_Nav` / `Scene_4_Slide_4..7` / `Fail` — see [Case selection & retry](#case-selection--retry-final-test-only).
